@@ -1,0 +1,119 @@
+[
+    {
+        "skin_tone": "Light",
+        "undertone": "Cool",
+        "best_colors": ["Sky Blue", "Lavender", "Ruby Red"],
+        "avoid_colors": ["Orange", "Mustard Yellow"],
+        "outfits": [
+            {
+                "name": "Cool Summer Day",
+                "description": "A sky blue shirt with black pants.",
+                "pieces": ["Sky Blue Shirt", "Black Pants"]
+            }
+        ]
+    },
+    {
+        "skin_tone": "Light",
+        "undertone": "Warm",
+        "best_colors": ["Peach", "Coral", "Olive Green"],
+        "avoid_colors": ["Icy Blue", "Fuchsia"],
+        "outfits": [
+            {
+                "name": "Warm Spring Evening",
+                "description": "A peach blouse with khaki trousers.",
+                "pieces": ["Peach Blouse", "Khaki Trousers"]
+            }
+        ]
+    },
+    {
+        "skin_tone": "Light",
+        "undertone": "Neutral",
+        "best_colors": ["Soft Teal", "Dusty Pink", "Off-White"],
+        "avoid_colors": ["Neon Colors", "Harsh Black"],
+        "outfits": [
+            {
+                "name": "Neutral Chic",
+                "description": "A dusty pink sweater with denim jeans.",
+                "pieces": ["Dusty Pink Sweater", "Denim Jeans"]
+            }
+        ]
+    },
+    {
+        "skin_tone": "Medium",
+        "undertone": "Cool",
+        "best_colors": ["Sapphire", "Emerald", "Deep Purple"],
+        "avoid_colors": ["Pastel Orange", "Olive"],
+        "outfits": [
+            {
+                "name": "Vibrant Cool",
+                "description": "A sapphire blue dress with silver accessories.",
+                "pieces": ["Sapphire Dress", "Silver Necklace"]
+            }
+        ]
+    },
+    {
+        "skin_tone": "Medium",
+        "undertone": "Warm",
+        "best_colors": ["Mustard", "Terracotta", "Forest Green"],
+        "avoid_colors": ["Cool Gray", "Icy Pink"],
+        "outfits": [
+            {
+                "name": "Earthy Tones",
+                "description": "A terracotta top with white jeans.",
+                "pieces": ["Terracotta Top", "White Jeans"]
+            }
+        ]
+    },
+    {
+        "skin_tone": "Medium",
+        "undertone": "Neutral",
+        "best_colors": ["Jade Green", "Muted Burgundy", "Charcoal"],
+        "avoid_colors": ["Neon Yellow", "Magenta"],
+        "outfits": [
+            {
+                "name": "Balanced Elegance",
+                "description": "A charcoal blazer over a white tee.",
+                "pieces": ["Charcoal Blazer", "White Tee"]
+            }
+        ]
+    },
+    {
+        "skin_tone": "Dark",
+        "undertone": "Cool",
+        "best_colors": ["Cobalt Blue", "Fuchsia", "Silver"],
+        "avoid_colors": ["Earthy Brown", "Rust"],
+        "outfits": [
+            {
+                "name": "Bold & Cool",
+                "description": "A cobalt blue jacket with dark jeans.",
+                "pieces": ["Cobalt Blue Jacket", "Dark Jeans"]
+            }
+        ]
+    },
+    {
+        "skin_tone": "Dark",
+        "undertone": "Warm",
+        "best_colors": ["Gold", "Copper", "Deep Orange"],
+        "avoid_colors": ["Light Pastel Pink", "Silver"],
+        "outfits": [
+            {
+                "name": "Golden Hour",
+                "description": "A copper silk shirt with black trousers.",
+                "pieces": ["Copper Silk Shirt", "Black Trousers"]
+            }
+        ]
+    },
+    {
+        "skin_tone": "Dark",
+        "undertone": "Neutral",
+        "best_colors": ["Pure White", "Plum", "Teal"],
+        "avoid_colors": ["Muddy Colors", "Pale Yellow"],
+        "outfits": [
+            {
+                "name": "Striking Contrast",
+                "description": "A pure white button-down with plum skirt.",
+                "pieces": ["Pure White Button-Down", "Plum Skirt"]
+            }
+        ]
+    }
+]

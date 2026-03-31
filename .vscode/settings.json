@@ -1,0 +1,19 @@
+{
+    "sqltools.connections": [
+        {
+            "pgOptions": {
+                "ssl": {
+                    "rejectUnauthorized": false
+                }
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "gondola.proxy.rlwy.net",
+            "port": 12330,
+            "driver": "PostgreSQL",
+            "name": "PostgreSQL",
+            "database": "railway",
+            "username": "postgres"
+        }
+    ]
+}
