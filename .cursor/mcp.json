@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "vexp": {
+      "command": "node",
+      "args": [
+        "c:\\Users\\ritul\\.vscode\\extensions\\vexp.vexp-vscode-2.0.25-win32-x64\\dist\\mcp-server.cjs"
+      ],
+      "env": {
+        "VEXP_WORKSPACE": "e:\\wab\\StyleSense"
+      }
+    }
+  }
+}

@@ -1,190 +1,93 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import ColorChip from "../components/ColorChip";
-import Loader from "../components/Loader";
-import ResultCard from "../components/ResultCard";
-import styles from "../components/analysis-ui.module.css";
-import { AnalysisResult, normalizeAnalysisResult, styleService } from "../services/styleService";
-
-function capitalize(value?: string) {
-  if (!value) return "";
-  return value
-    .split(/[\s-]+/)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function hasAnalysisData(result: AnalysisResult | null | undefined) {
-  if (!result) return false;
-
-  return Boolean(result.skin_tone || result.undertone || result.best_colors.length || result.avoid_colors.length || result.outfits.length);
-}
+import { Suspense, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import AnalysisResultView from "../components/result/AnalysisResultView";
+import { parseResultPayload } from "../components/result/result-utils";
+import type { AnalysisResultData } from "../components/result/types";
 
 function ResultPageContent() {
   const router = useRouter();
-  const params = useSearchParams();
-  const id = params.get("id");
-
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("loading");
-  const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<AnalysisResultData | null>(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
-    async function loadResult() {
+    const rawNotice = sessionStorage.getItem("analysis_notice");
+    if (rawNotice) {
       try {
-        setStatus("loading");
-        setError(null);
-
-        const cached = sessionStorage.getItem("stylesense:lastResult");
-        if (cached) {
-          try {
-            const parsed = JSON.parse(cached);
-            const normalized = normalizeAnalysisResult(parsed?.data ?? parsed);
-
-            sessionStorage.removeItem("stylesense:lastResult");
-
-            if (hasAnalysisData(normalized)) {
-              setResult(normalized);
-              setStatus("success");
-              return;
-            }
-          } catch {
-            sessionStorage.removeItem("stylesense:lastResult");
-          }
+        const parsedNotice = JSON.parse(rawNotice) as { message?: unknown } | null;
+        if (parsedNotice && typeof parsedNotice.message === "string") {
+          setNotice(parsedNotice.message);
         }
-
-        if (!id) {
-          throw new Error("No analysis result was found.");
-        }
-
-        const data = await styleService.getResult(id);
-        if (!hasAnalysisData(data)) {
-          throw new Error("No analysis result was found.");
-        }
-
-        setResult(data);
-        setStatus("success");
-      } catch (loadError: any) {
-        setStatus("error");
-        setError(loadError.message || "We couldn't load your analysis.");
+      } catch {
+        // Ignore malformed client notice payload
+      } finally {
+        sessionStorage.removeItem("analysis_notice");
       }
     }
 
-    loadResult();
-  }, [id]);
+    // Primary: sessionStorage (set by /loading after successful API call)
+    // Fallback: localStorage (persists across page refresh)
+    const raw =
+      sessionStorage.getItem("analysis_result") ||
+      localStorage.getItem("last_analysis");
 
-  const summaryTitle = useMemo(() => {
-    if (!result) return "";
-    return `${capitalize(result.skin_tone)} ${capitalize(result.undertone)}`.trim();
-  }, [result]);
+    if (!raw) {
+      router.replace("/analysis");
+      return;
+    }
 
-  if (status === "loading") {
+    try {
+      const parsed = JSON.parse(raw);
+      setResult(parseResultPayload(parsed));
+    } catch {
+      setError("Could not read result data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [router]);
+
+  if (loading) {
     return (
-      <main className={styles.pageShell}>
-        <div className={styles.pageContainer}>
-          <Loader title="Loading your recommendation..." text="We are reading the saved result from Supabase." />
+      <main className="min-h-screen bg-[#f9f9f8] flex items-center justify-center">
+        <div className="rounded-3xl bg-white px-8 py-6 text-sm text-[#5a6060] shadow-[0_18px_40px_rgba(12,15,14,0.08)]">
+          Loading your analysis...
         </div>
       </main>
     );
   }
 
-  if (status === "error" || !hasAnalysisData(result)) {
+  if (error) {
     return (
-      <main className={styles.pageShell}>
-        <div className={styles.pageContainer}>
-          <ResultCard title="Something went wrong">
-            <div className={styles.stackMd}>
-              <p className={styles.errorText}>{error || "We couldn't load your result."}</p>
-              <button type="button" className={styles.primaryButton} onClick={() => router.push("/upload")}>
-                Try Again
-              </button>
-            </div>
-          </ResultCard>
-        </div>
-      </main>
-    );
-  }
-
-  const safeResult = result as AnalysisResult;
-
-  return (
-    <main className={styles.pageShell}>
-      <div className={styles.pageContainer}>
-        <header className={`${styles.pageHeader} ${styles.pageHeaderCentered}`}>
-          <span className={styles.eyebrow}>StyleSense</span>
-          <h1 className={styles.pageTitle}>Your Style Analysis</h1>
-          <p className={styles.pageDescription}>Your saved recommendation from Supabase is ready.</p>
-        </header>
-
-        <div className={styles.stackLg}>
-          <ResultCard className={styles.summaryCard}>
-            <div className={styles.summaryText}>
-              <h2 className={styles.summaryTitle}>{summaryTitle}</h2>
-              <div className={styles.summarySeason}>Recommendation Ready</div>
-              <p className={styles.summarySubtext}>Best colors, avoid colors, and outfit ideas are now stored in Supabase.</p>
-            </div>
-          </ResultCard>
-
-          <ResultCard title="Skin Data">
-            <div className={styles.statsGrid}>
-              <div className={styles.statItem}>
-                <div className={styles.statLabel}>Skin Tone</div>
-                <div className={styles.statValue}>{capitalize(safeResult.skin_tone) || "Unavailable"}</div>
-              </div>
-              <div className={styles.statItem}>
-                <div className={styles.statLabel}>Undertone</div>
-                <div className={styles.statValue}>{capitalize(safeResult.undertone) || "Unavailable"}</div>
-              </div>
-            </div>
-          </ResultCard>
-
-          <ResultCard title="Best Colors">
-            {safeResult.best_colors.length > 0 ? (
-              <div className={styles.chipsGrid}>
-                {safeResult.best_colors.map((color) => (
-                  <ColorChip key={`best-${color}`} color={color} variant="best" />
-                ))}
-              </div>
-            ) : (
-              <div className={styles.emptyState}>No best colors were returned for this analysis.</div>
-            )}
-          </ResultCard>
-
-          <ResultCard title="Avoid Colors">
-            {safeResult.avoid_colors.length > 0 ? (
-              <div className={styles.chipsGrid}>
-                {safeResult.avoid_colors.map((color) => (
-                  <ColorChip key={`avoid-${color}`} color={color} variant="avoid" />
-                ))}
-              </div>
-            ) : (
-              <div className={styles.emptyState}>No avoid colors were returned for this analysis.</div>
-            )}
-          </ResultCard>
-
-          <ResultCard title="Outfit Suggestions">
-            {safeResult.outfits.length > 0 ? (
-              <div className={styles.outfitList}>
-                {safeResult.outfits.map((outfit, index) => (
-                  <div key={`${outfit}-${index}`} className={styles.outfitCard}>
-                    <div className={styles.outfitTitle}>Outfit {index + 1}</div>
-                    <div className={styles.outfitDescription}>{outfit}</div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className={styles.emptyState}>No outfit suggestions were returned for this analysis.</div>
-            )}
-          </ResultCard>
-
-          <button type="button" className={styles.primaryButton} onClick={() => router.push("/upload")}>
-            Create Another Analysis
+      <main className="min-h-screen bg-[#f9f9f8] flex items-center justify-center px-6">
+        <div className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-[0_18px_40px_rgba(12,15,14,0.08)]">
+          <h2 className="text-2xl font-bold text-[#2d3433]">Something went wrong</h2>
+          <p className="mt-3 text-sm text-[#9f403d]">{error}</p>
+          <button
+            type="button"
+            className="mt-6 rounded-2xl bg-[#5f5e5e] px-6 py-3 text-sm font-semibold text-[#faf7f6] transition-opacity duration-300 hover:opacity-90"
+            onClick={() => router.push("/analysis")}
+          >
+            Try Again
           </button>
         </div>
-      </div>
-    </main>
+      </main>
+    );
+  }
+
+  if (!result) return null;
+
+  return (
+    <div className="relative">
+      {notice && (
+        <div className="fixed left-1/2 top-24 z-[60] -translate-x-1/2 rounded-full border border-[#f6c89a] bg-[#fff3e6] px-5 py-2 text-xs font-semibold text-[#8a4b08] shadow-sm">
+          {notice}
+        </div>
+      )}
+      <AnalysisResultView data={result} onRetry={() => router.push("/analysis")} />
+    </div>
   );
 }
 
@@ -192,9 +95,9 @@ export default function ResultPage() {
   return (
     <Suspense
       fallback={
-        <main className={styles.pageShell}>
-          <div className={styles.pageContainer}>
-            <Loader title="Loading result..." text="Preparing your saved analysis." />
+        <main className="min-h-screen bg-[#f9f9f8] flex items-center justify-center">
+          <div className="rounded-3xl bg-white px-8 py-6 text-sm text-[#5a6060] shadow-[0_18px_40px_rgba(12,15,14,0.08)]">
+            Loading your analysis...
           </div>
         </main>
       }

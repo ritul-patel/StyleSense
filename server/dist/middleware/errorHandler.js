@@ -8,7 +8,7 @@ const zod_1 = require("zod");
 const multer_1 = __importDefault(require("multer"));
 const AppError_1 = require("../utils/AppError");
 function isUploadRoute(req) {
-    return req.originalUrl.includes('/analysis/upload') || req.originalUrl.includes('/api/analyze');
+    return req.originalUrl.includes('/analysis/upload');
 }
 function uploadErrorResponse(res, statusCode, message) {
     return res.status(statusCode).json({

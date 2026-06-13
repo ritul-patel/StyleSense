@@ -10,7 +10,5 @@ const pool = new Pool({
   },
 });
 
-export default {
-  query: (text: string, params: any[]) => pool.query(text, params),
-  connect: () => pool.connect(),
-};
+export const query = (text: string, params: any[]) => pool.query(text, params);
+export const connect = () => pool.connect();

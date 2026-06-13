@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "predev": "node scripts/free-port.cjs",
     "start": "node dist/index.js",
     "dev": "nodemon --watch src --ext ts,json --exec ts-node src/index.ts",
+    "dev:plain": "ts-node src/index.ts",
     "build": "tsc",
     "migrate": "dotenv -e .env -- node-pg-migrate",
     "test:upload": "ts-node src/test-upload.ts",
@@ -15,6 +17,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
     "axios": "^1.14.0",
     "cloudinary": "^2.9.0",
     "cors": "^2.8.6",

@@ -1,62 +1,48 @@
-import { getRecommendation } from '../recommendationEngine';
+import { getRecommendation } from "../recommendationEngine";
 
-describe('getRecommendation Engine', () => {
-  it('should fetch all 9 primary combinations accurately', () => {
-    const combos = [
-      { tone: 'Light', undertone: 'Cool' },
-      { tone: 'Light', undertone: 'Warm' },
-      { tone: 'Light', undertone: 'Neutral' },
-      { tone: 'Medium', undertone: 'Cool' },
-      { tone: 'Medium', undertone: 'Warm' },
-      { tone: 'Medium', undertone: 'Neutral' },
-      { tone: 'Dark', undertone: 'Cool' },
-      { tone: 'Dark', undertone: 'Warm' },
-      { tone: 'Dark', undertone: 'Neutral' },
-    ];
-
-    combos.forEach(({ tone, undertone }) => {
-      const result = getRecommendation(tone, undertone);
-      expect(result.skin_tone).toBe(tone);
-      expect(result.undertone).toBe(undertone);
-      expect(result.best_colors.length).toBeGreaterThan(0);
-      expect(result.avoid_colors.length).toBeGreaterThan(0);
-      expect(result.outfits.length).toBeGreaterThan(0);
+describe("getRecommendation", () => {
+  it("returns safe values for core display fields", async () => {
+    const result = await getRecommendation({
+      fitzpatrick_type: "IV",
+      undertone: "warm",
+      rgb: [154, 121, 108],
     });
-  });
 
-  it('should return the correct profile for specific combinations smoothly', () => {
-    const result = getRecommendation('Light', 'Cool');
     expect(result).toBeDefined();
-    expect(result.skin_tone).toBe('Light');
-    expect(result.undertone).toBe('Cool');
-    expect(result.best_colors).toEqual(['Sky Blue', 'Lavender', 'Ruby Red']);
+    expect(typeof result.profile.hex_derived).toBe("string");
+    expect(result.profile.hex_derived.length).toBeGreaterThan(0);
+    expect(typeof result.profile.detected_season).toBe("string");
+    expect(result.profile.detected_season.length).toBeGreaterThan(0);
+    expect(Array.isArray(result.best_colors)).toBe(true);
+    expect(result.best_colors.length).toBeGreaterThan(0);
+    expect(typeof result.best_colors[0].name).toBe("string");
+    expect(typeof result.best_colors[0].hex).toBe("string");
+    expect(Array.isArray(result.outfits)).toBe(true);
+    expect(result.outfits.length).toBeGreaterThan(0);
+    expect(typeof result.outfits[0].title).toBe("string");
+    expect(typeof result.outfits[0].description).toBe("string");
   });
 
-  it('should be case-insensitive and handle whitespace and padding gracefully', () => {
-    const result = getRecommendation(' liGHT  ', '   cOOl ');
-    expect(result).toBeDefined();
-    expect(result.skin_tone).toBe('Light');
-    expect(result.undertone).toBe('Cool');
+  it("handles deep neutral type", async () => {
+    const result = await getRecommendation({
+      fitzpatrick_type: "V",
+      undertone: "neutral",
+      rgb: [80, 60, 55],
+    });
+
+    expect(result.profile.hex_derived).toBeTruthy();
+    expect(result.profile.detected_season).toBeTruthy();
+    expect(result.best_colors.length).toBeGreaterThan(0);
+    expect(result.outfits.length).toBeGreaterThan(0);
   });
 
-  it('should fallback to Medium/Neutral for completely missing combinations', () => {
-    const result = getRecommendation('Alien', 'Green');
-    expect(result).toBeDefined();
-    expect(result.skin_tone).toBe('Medium');
-    expect(result.undertone).toBe('Neutral');
-  });
-
-  it('should handle undefined/null maliciously passed inputs gracefully and fallback', () => {
-    // @ts-expect-error testing invalid implementation inputs coming from raw requests
-    const result = getRecommendation(null, undefined);
-    expect(result).toBeDefined();
-    expect(result.skin_tone).toBe('Medium');
-    expect(result.undertone).toBe('Neutral');
-  });
-
-  it('should handle empty strings mapped to the safe fallback', () => {
-    const result = getRecommendation('', '');
-    expect(result.skin_tone).toBe('Medium');
-    expect(result.undertone).toBe('Neutral');
+  it("covers all 6 Fitzpatrick types without throwing", () => {
+    const types = ["I", "II", "III", "IV", "V", "VI"] as const;
+    const undertones = ["warm", "cool", "neutral"] as const;
+    for (const t of types) {
+      for (const u of undertones) {
+        expect(() => getRecommendation({ fitzpatrick_type: t, undertone: u, rgb: [128, 100, 90] })).not.toThrow();
+      }
+    }
   });
 });

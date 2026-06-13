@@ -4,7 +4,7 @@ import multer from 'multer';
 import { AppError } from '../utils/AppError';
 
 function isUploadRoute(req: Request) {
-  return req.originalUrl.includes('/analysis/upload') || req.originalUrl.includes('/api/analyze');
+  return req.originalUrl.includes('/analysis/upload');
 }
 
 function uploadErrorResponse(res: Response, statusCode: number, message: string) {

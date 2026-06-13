@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ln -s \"../../.agents/skills/graphify\" \".claude/skills/graphify\")",
+      "Bash(python3 -c \"from graphify.watch import _rebuild_code; from pathlib import Path; _rebuild_code\\(Path\\('.'\\)\\)\")",
+      "mcp__vexp__run_pipeline",
+      "mcp__vexp__get_skeleton",
+      "Bash(npx tsc:*)",
+      "mcp__vexp__expand_vexp_ref",
+      "Read(//e/Downloads/**)",
+      "Bash(ls \"stitch_skin_tone_analysis_result \\(1\\).zip\")",
+      "Bash(powershell -command \"Expand-Archive -Path 'stitch_skin_tone_analysis_result \\(1\\).zip' -DestinationPath './stitch_unzipped' -Force\")",
+      "Bash(claude mcp *)",
+      "Skill(claude-supermemory:index)",
+      "Skill(update-config)",
+      "Bash(npm list *)",
+      "Bash(npm install *)",
+      "Bash(npx @modelcontextprotocol/server-sequential-thinking --version)",
+      "Skill(statusline)",
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\ritul\\\\.claude\\\\statusline.ps1\")",
+      "Bash(claude *)",
+      "PowerShell(Get-Content *)",
+      "PowerShell(Set-Location \"E:\\\\wab\\\\StyleSense\\\\server\"; $env:TF_CPP_MIN_LOG_LEVEL=\"3\"; python python/detect.py \"E:\\\\wab\\\\StyleSense\\\\uploads\\\\bd1f1ddb8425b532a214b89243ddca6d-compressed.jpg\" 2>&1)",
+      "PowerShell(python -c \"import mediapipe as mp; print\\(mp.__version__\\)\")",
+      "PowerShell(python -m pip install \"mediapipe==0.10.9\" 2>&1 | Select-Object -Last 5)",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(npm test *)",
+      "Bash(fsutil fsinfo *)",
+      "Bash(wmic logicaldisk *)",
+      "Bash(wmic diskdrive *)"
+    ]
+  },
+  "enabledPlugins": {
+    "claude-supermemory@supermemory-plugins": true
+  }
+}

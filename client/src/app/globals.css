@@ -1,41 +1,108 @@
-:root {
-  --background: #f9fafb;
-  --foreground: #101828;
+@import "tailwindcss";
+
+@theme {
+  --color-background: #fcf9f8;
+  --color-surface: #fcf9f8;
+  --color-surface-bright: #fcf9f8;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3f2;
+  --color-surface-container: #f0edec;
+  --color-surface-container-high: #eae7e7;
+  --color-surface-container-highest: #e4e2e1;
+  --color-surface-dim: #dcd9d8;
+  --color-surface-variant: #e4e2e1;
+  --color-on-surface: #1b1c1b;
+  --color-on-surface-variant: #434654;
+  --color-on-background: #1b1c1b;
+  --color-inverse-surface: #303030;
+  --color-inverse-on-surface: #f3f0ef;
+
+  --color-primary: #002b92;
+  --color-primary-container: #003ec7;
+  --color-primary-fixed: #dde1ff;
+  --color-primary-fixed-dim: #b7c4ff;
+  --color-on-primary: #ffffff;
+  --color-on-primary-fixed: #001452;
+  --color-on-primary-fixed-variant: #0038b6;
+  --color-on-primary-container: #adbcff;
+  --color-inverse-primary: #b7c4ff;
+  --color-surface-tint: #2551d8;
+
+  --color-secondary: #4e5b92;
+  --color-secondary-container: #b3c1ff;
+  --color-secondary-fixed: #dde1ff;
+  --color-secondary-fixed-dim: #b7c4ff;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #404e83;
+  --color-on-secondary-fixed: #05164b;
+  --color-on-secondary-fixed-variant: #364479;
+
+  --color-tertiary: #6d1600;
+  --color-tertiary-container: #952301;
+  --color-tertiary-fixed: #ffdbd2;
+  --color-tertiary-fixed-dim: #ffb4a1;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #ffaa94;
+  --color-on-tertiary-fixed: #3c0800;
+  --color-on-tertiary-fixed-variant: #891f00;
+
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #93000a;
+
+  --color-outline: #747686;
+  --color-outline-variant: #c4c5d7;
+
+  --font-headline: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-label: "Space Grotesk", sans-serif;
 }
 
-html {
-  height: 100%;
+@layer base {
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  html {
+    height: 100%;
+    width: 100%;
+  }
+
+  body {
+    width: 100%;
+    min-height: 100%;
+    color: var(--color-on-surface);
+    background: var(--color-surface);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-headline);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  }
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+/* ── Custom utility classes ── */
+.glass-nav {
+  background-color: rgba(252, 249, 248, 0.7);
+  backdrop-filter: blur(24px);
 }
 
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family:
-    ui-sans-serif,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
+.signature-gradient {
+  background: linear-gradient(135deg, #002b92 0%, #003ec7 100%);
 }

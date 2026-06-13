@@ -1,203 +1,238 @@
+import json
+import math
+import os
+import sys
+import time
+
 import cv2
 import numpy as np
-import json
-import sys
-import mediapipe as mp
 
-face_mesh = None
+MAX_EDGE = 640
 
-def get_face_mesh():
-    global face_mesh
-    if face_mesh is None:
-        mp_face = mp.solutions.face_mesh  # type: ignore
-        face_mesh = mp_face.FaceMesh(static_image_mode=True, max_num_faces=1)
-    return face_mesh
-# -----------------------------
-# INIT MEDIAPIPE
-# -----------------------------
-mp_face = mp.solutions.face_mesh  # type: ignore
-face_mesh = mp_face.FaceMesh(static_image_mode=True, max_num_faces=1)
+# Fitzpatrick classification by ITA° (Individual Typology Angle)
+FITZPATRICK_BANDS = [
+    (55,   float("inf"),  "I",   "Very pale; always burns, never tans."),
+    (41,   55,            "II",  "Fair; usually burns, tans minimally."),
+    (28,   41,            "III", "Light brown/beige; burns sometimes, tans gradually."),
+    (10,   28,            "IV",  "Olive/Moderate brown; rarely burns, tans easily."),
+    (-30,  10,            "V",   "Dark brown; very rarely burns, tans deeply."),
+    (float("-inf"), -30,  "VI",  "Deepest brown/Black; never burns, tans very easily."),
+]
+
+# YCrCb skin range — covers all Fitzpatrick types
+SKIN_YCRB_LOWER = np.array([0,  133, 77],  dtype=np.uint8)
+SKIN_YCRB_UPPER = np.array([255, 173, 127], dtype=np.uint8)
+
+# Load OpenCV Haar cascade (ships with cv2)
+CASCADE_PATH = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+face_cascade = cv2.CascadeClassifier(CASCADE_PATH)
 
 
-# -----------------------------
-# LOAD IMAGE
-# -----------------------------
+def emit_json(payload):
+    sys.stdout.write(json.dumps(payload, separators=(",", ":")))
+    sys.stdout.flush()
+
+
+def fail(message, code="ANALYSIS_ERROR", detail=None, exit_code=1):
+    emit_json({"success": False, "error": {"code": code, "message": message, "detail": detail}})
+    raise SystemExit(exit_code)
+
+
 def load_image(path):
     img = cv2.imread(path)
     if img is None:
-        raise ValueError("Image not found")
-    return cv2.resize(img, (256, 256))  # slightly bigger for mesh accuracy
-
-
-# -----------------------------
-# GET CHEEK REGIONS (KEY PART)
-# -----------------------------
-def get_cheeks(img):
-    fm = get_face_mesh()
-
-    rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    result = fm.process(rgb)
-
-    # ✅ correct indentation
-    if not result.multi_face_landmarks:
-        return None
-
+        raise ValueError("Image not found or unreadable.")
     h, w = img.shape[:2]
-    landmarks = result.multi_face_landmarks[0].landmark
-
-    LEFT_CHEEK = [234, 93, 132, 58]
-    RIGHT_CHEEK = [454, 323, 361, 288]
-
-    def extract_region(indices):
-        pts = [(int(landmarks[i].x * w), int(landmarks[i].y * h)) for i in indices]
-        x, y, w_box, h_box = cv2.boundingRect(np.array(pts))
-        return img[y:y+h_box, x:x+w_box]
-
-    left = extract_region(LEFT_CHEEK)
-    right = extract_region(RIGHT_CHEEK)
-
-    return left, right
+    if max(h, w) > MAX_EDGE:
+        scale = MAX_EDGE / max(h, w)
+        img = cv2.resize(img, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA)
+    return img
 
 
-# -----------------------------
-# SKIN PIXELS
-# -----------------------------
-def extract_skin_pixels(img):
-    pixels = img.reshape(-1, 3)
-
-    b, g, r = pixels[:,0], pixels[:,1], pixels[:,2]
-
-    mask = (
-        (r > 95) & (g > 40) & (b > 20) &
-        (r > g) & (r > b) &
-        (np.abs(r - g) > 15)
-    )
-
-    skin = pixels[mask]
-
-    if len(skin) < 50:
-        return pixels
-
-    return skin
+def grey_world_white_balance(img):
+    result = img.copy().astype(np.float32)
+    avg_b = np.mean(result[:, :, 0])
+    avg_g = np.mean(result[:, :, 1])
+    avg_r = np.mean(result[:, :, 2])
+    avg_all = (avg_b + avg_g + avg_r) / 3.0
+    if avg_b > 0: result[:, :, 0] = np.clip(result[:, :, 0] * (avg_all / avg_b), 0, 255)
+    if avg_g > 0: result[:, :, 1] = np.clip(result[:, :, 1] * (avg_all / avg_g), 0, 255)
+    if avg_r > 0: result[:, :, 2] = np.clip(result[:, :, 2] * (avg_all / avg_r), 0, 255)
+    return result.astype(np.uint8)
 
 
-# -----------------------------
-# SAMPLE
-# -----------------------------
-def sample(pixels):
-    if len(pixels) > 400:
-        idx = np.random.choice(len(pixels), 400, replace=False)
-        return pixels[idx]
-    return pixels
+def detect_face(img):
+    """Returns (x, y, w, h) of largest face, or None."""
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.equalizeHist(gray)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=4, minSize=(60, 60))
+    if len(faces) == 0:
+        return None
+    # Pick largest face
+    return max(faces, key=lambda f: f[2] * f[3])
 
 
-# -----------------------------
-# DOMINANT COLOR (MEDIAN)
-# -----------------------------
-def dominant_color(pixels):
-    b = np.median(pixels[:,0])
-    g = np.median(pixels[:,1])
-    r = np.median(pixels[:,2])
-    return [int(r), int(g), int(b)]
+def get_face_regions(img, face):
+    """
+    Return 4 BGR patch arrays from face bounding box:
+    left_cheek, right_cheek, forehead, chin.
+    Positions as fractions of the face bbox.
+    """
+    fx, fy, fw, fh = face
+    ih, iw = img.shape[:2]
+
+    def crop(x0f, y0f, x1f, y1f):
+        x0 = max(0, int(fx + fw * x0f))
+        y0 = max(0, int(fy + fh * y0f))
+        x1 = min(iw, int(fx + fw * x1f))
+        y1 = min(ih, int(fy + fh * y1f))
+        if x1 <= x0 or y1 <= y0:
+            return None
+        return img[y0:y1, x0:x1]
+
+    return [
+        crop(0.05, 0.45, 0.35, 0.75),  # left cheek
+        crop(0.65, 0.45, 0.95, 0.75),  # right cheek
+        crop(0.25, 0.05, 0.75, 0.30),  # forehead
+        crop(0.30, 0.75, 0.70, 0.95),  # chin
+    ]
 
 
-# -----------------------------
-# UNDERTONE (FINAL FIX)
-# -----------------------------
-def detect_undertone(rgb):
-    r, g, b = rgb
-    total = r + g + b
+def skin_pixels(region):
+    ycrb = cv2.cvtColor(region, cv2.COLOR_BGR2YCrCb)
+    mask = cv2.inRange(ycrb, SKIN_YCRB_LOWER, SKIN_YCRB_UPPER)
+    mask = cv2.medianBlur(mask, 3)
+    px = region[mask > 0]
+    return px if len(px) >= 20 else region.reshape(-1, 3)
 
-    r_n, b_n = r/total, b/total
-    diff = r_n - b_n
 
-    if diff > 0.12:
+def bgr_to_lab(bgr):
+    arr = np.array([[bgr]], dtype=np.uint8)
+    lab = cv2.cvtColor(arr, cv2.COLOR_BGR2LAB)[0][0]
+    L     = float(lab[0]) / 2.55
+    a_val = float(lab[1]) - 128.0
+    b_val = float(lab[2]) - 128.0
+    return L, a_val, b_val
+
+
+def compute_ita(L, b_val):
+    if abs(b_val) < 1e-6:
+        b_val = 1e-6
+    return math.atan2(L - 50.0, b_val) * (180.0 / math.pi)
+
+
+def fitzpatrick_from_ita(ita):
+    for low, high, ftype, desc in FITZPATRICK_BANDS:
+        if low <= ita < high:
+            return ftype, desc
+    return "VI", FITZPATRICK_BANDS[-1][3]
+
+
+def detect_undertone(a_val, b_val):
+    if b_val > 8 and b_val > abs(a_val) * 1.2:
         return "warm"
-    elif diff < -0.12:
+    if a_val > 6 and a_val > b_val * 0.8:
         return "cool"
     return "neutral"
 
 
-# -----------------------------
-# TONE
-# -----------------------------
-def detect_tone(rgb):
-    r, g, b = rgb
-    brightness = 0.299*r + 0.587*g + 0.114*b
-
-    if brightness >= 210:
-        tone = "light"
-    elif brightness >= 140:
-        tone = "medium"
-    else:
-        tone = "dark"
-
-    return tone, brightness
+def delta_e(lab1, lab2):
+    return math.sqrt(sum((a - b) ** 2 for a, b in zip(lab1, lab2)))
 
 
-# -----------------------------
-# SATURATION
-# -----------------------------
-def saturation(rgb):
-    r, g, b = rgb
-    max_c = max(r,g,b)
-    min_c = min(r,g,b)
-    return 0 if max_c == 0 else (max_c-min_c)/max_c
-
-
-# -----------------------------
-# SEASON
-# -----------------------------
-def season(tone, undertone):
-    if undertone == "warm":
-        return "Spring" if tone == "light" else "Autumn"
-    elif undertone == "cool":
-        return "Summer" if tone == "light" else "Winter"
-    return "Neutral"
-
-
-# -----------------------------
-# MAIN
-# -----------------------------
 def main():
-    path = sys.argv[1]
+    started = time.time()
 
-    img = load_image(path)
+    if len(sys.argv) < 2:
+        fail("Image path argument is required.", code="INVALID_ARGUMENT")
 
-    cheeks = get_cheeks(img)
+    try:
+        raw = load_image(sys.argv[1])
+        img = grey_world_white_balance(raw)
 
-    if cheeks is None:
-        # fallback to center crop
-        h, w = img.shape[:2]
-        face = img[int(h*0.4):int(h*0.6), int(w*0.4):int(w*0.6)]
-        pixels = extract_skin_pixels(face)
-    else:
-        left, right = cheeks
-        pixels = np.vstack([
-            extract_skin_pixels(left),
-            extract_skin_pixels(right)
-        ])
+        face = detect_face(img)
+        face_detected = face is not None
 
-    pixels = sample(pixels)
+        region_labs = []
+        region_bgrs = []
 
-    rgb = dominant_color(pixels)
+        if face_detected:
+            patches = get_face_regions(img, face)
+            for patch in patches:
+                if patch is None or patch.size == 0:
+                    continue
+                px = skin_pixels(patch)
+                bgr = np.median(px, axis=0).astype(np.uint8)
+                L, a, b = bgr_to_lab(bgr)
+                region_labs.append((L, a, b))
+                region_bgrs.append(bgr)
 
-    undertone = detect_undertone(rgb)
-    tone, brightness = detect_tone(rgb)
-    sat = saturation(rgb)
+        # Fallback: center crop
+        if not region_labs:
+            h, w = img.shape[:2]
+            center = img[int(h * 0.3):int(h * 0.6), int(w * 0.3):int(w * 0.7)]
+            px = skin_pixels(center)
+            bgr = np.median(px, axis=0).astype(np.uint8)
+            L, a, b = bgr_to_lab(bgr)
+            region_labs.append((L, a, b))
+            region_bgrs.append(bgr)
 
-    result = {
-        "skin_tone": tone,
-        "undertone": undertone,
-        "rgb": rgb,
-        "hex": "#{:02x}{:02x}{:02x}".format(*rgb),
-        "brightness": round(brightness,2),
-        "saturation": round(sat,2),
-        "season": season(tone, undertone),
-        "confidence": 0.92
-    }
+        L_final = float(np.median([l[0] for l in region_labs]))
+        a_final = float(np.median([l[1] for l in region_labs]))
+        b_final = float(np.median([l[2] for l in region_labs]))
 
-    print(json.dumps(result), flush=True)
+        final_bgr = np.median(np.array(region_bgrs), axis=0).astype(np.uint8)
+        rgb = [int(final_bgr[2]), int(final_bgr[1]), int(final_bgr[0])]
+
+        ita = compute_ita(L_final, b_final)
+        fitz_type, fitz_desc = fitzpatrick_from_ita(ita)
+        undertone = detect_undertone(a_final, b_final)
+
+        max_delta = 0.0
+        if len(region_labs) >= 2:
+            max_delta = max(
+                delta_e(region_labs[i], region_labs[j])
+                for i in range(len(region_labs))
+                for j in range(i + 1, len(region_labs))
+            )
+
+        # Confidence
+        if face_detected and len(region_labs) >= 3:
+            conf = 0.90
+        elif face_detected and len(region_labs) >= 2:
+            conf = 0.80
+        elif face_detected:
+            conf = 0.65
+        else:
+            conf = 0.40
+        if max_delta > 20: conf -= 0.20
+        elif max_delta > 10: conf -= 0.10
+        conf = round(max(0.1, min(1.0, conf)), 2)
+
+        emit_json({
+            "success": True,
+            "data": {
+                "fitzpatrick_type": fitz_type,
+                "fitzpatrick_desc": fitz_desc,
+                "undertone": undertone,
+                "rgb": rgb,
+                "hex": "#{:02x}{:02x}{:02x}".format(*rgb),
+                "ita_angle": round(ita, 2),
+                "L_star": round(L_final, 2),
+                "a_star": round(a_final, 2),
+                "b_star": round(b_final, 2),
+                "regions_sampled": len(region_labs),
+                "face_detected": face_detected,
+                "region_delta_e": round(max_delta, 2),
+                "confidence": conf,
+                "elapsed_ms": round((time.time() - started) * 1000, 2),
+            },
+        })
+
+    except SystemExit:
+        raise
+    except Exception as exc:
+        fail("Python detection failed.", code="PYTHON_RUNTIME_ERROR", detail=str(exc))
 
 
 if __name__ == "__main__":
