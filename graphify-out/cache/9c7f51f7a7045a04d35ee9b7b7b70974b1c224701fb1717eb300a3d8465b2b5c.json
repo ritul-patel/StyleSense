@@ -1,1 +1,0 @@
-{"nodes": [{"id": "server_migrations_1679981273711_create_analyses_table_js", "label": "1679981273711_create-analyses-table.js", "file_type": "code", "source_file": "server\\migrations\\1679981273711_create-analyses-table.js", "source_location": "L1"}], "edges": []}
