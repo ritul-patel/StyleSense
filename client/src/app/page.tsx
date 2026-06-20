@@ -186,8 +186,8 @@ export default function HomePage() {
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeRBEibPG4_jcvhvIQhGHqismIFSHrpgMmqiQY7vZJ6YHxs4S3KykWnvrATLYD-irQaPT0To8CVPCQNFJ5E3wNQ2r3d38KSCQ3nQChHucAIPX60HzOjfoI_vkaVLgNoPU_VFUYuedQQ-LV2hszPyNag-zSOe_8eEOGUxNwzfnIEf9JXrn7C-JM5mikxGL4s3ACS6Mu7i91vFu-D1OYsmFmhll9umCBNHCkdwIgn_v2KlNnJ3k7nBGCTKsIFp-AtN5AJ6Iaxj2JXNU"
                 />
               </div>
-              <div className="bg-surface-container rounded-xl overflow-hidden h-48">
-                <Image alt="Fashion Grid 3" className="w-full h-full object-cover" height={192} width={240}
+              <div className="relative bg-surface-container rounded-xl overflow-hidden h-48">
+                <Image alt="Fashion Grid 3" className="object-cover" fill sizes="(min-width: 1024px) 20vw, 50vw"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwFUFlRF-UtN1buey_8xLWA3mjHiXbu_2YivBKnteXFD78UeEOTRP6wzmZsU06P2b6StxkS5a0cVmRSCsJ64uqU5MVxNMOjv9gJyYrWa9u7Fb6FKFc5quXildcqCfaHaexTY1e9Vl17fOd5N3iaXZ2svot_HiEcU0ttsE484KSyLzb1laPoAf3gC34DTbjhj8CqPqTdI1dSiJUvuATxQW0yhMzR2A4yvQ2v893Y0gtAd5B1KiwgPQIXTuTwJPaPpVW75QRyFjILNE"
                 />
               </div>

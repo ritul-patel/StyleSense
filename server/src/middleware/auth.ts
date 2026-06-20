@@ -1,22 +1,17 @@
 import { createClient, type User } from "@supabase/supabase-js";
 import type { NextFunction, Request, Response } from "express";
+import { supabaseServiceRoleKey, supabaseUrl } from "../config/supabase";
 
 export type AuthenticatedRequest = Request & {
   user?: User;
 };
 
-const supabaseUrl = process.env.SUPABASE_URL?.trim() || "";
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "";
-
-const supabase =
-  supabaseUrl && supabaseServiceRoleKey
-    ? createClient(supabaseUrl, supabaseServiceRoleKey, {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-      })
-    : null;
+const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+  },
+});
 
 function getBearerToken(authorizationHeader: string | undefined): string {
   if (!authorizationHeader) return "";
@@ -30,12 +25,6 @@ async function verifyToken(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  if (!supabase) {
-    console.error("[auth] Supabase client not initialised — check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY");
-    res.status(500).json({ success: false, message: "Supabase auth is not configured on the server." });
-    return;
-  }
-
   const { data, error } = await supabase.auth.getUser(token);
 
   if (error || !data.user) {

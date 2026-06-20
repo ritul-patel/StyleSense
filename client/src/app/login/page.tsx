@@ -5,6 +5,16 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 
+function getLoginErrorMessage(error: unknown): string {
+  if (!(error instanceof Error)) return "Something went wrong.";
+
+  if (/failed to fetch|networkerror|network error/i.test(error.message)) {
+    return "Authentication service is unreachable. Check the Supabase URL and network connection.";
+  }
+
+  return error.message;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
@@ -37,7 +47,7 @@ export default function LoginPage() {
       const hasPending = !!localStorage.getItem("pending_result");
       router.push(hasPending ? "/result" : "/analysis");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError(getLoginErrorMessage(err));
     } finally {
       setLoading(false);
     }

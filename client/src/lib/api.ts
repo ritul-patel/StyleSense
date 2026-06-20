@@ -35,11 +35,23 @@ export const API_BASE_URL = normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL);
 // ─── Auth helpers ─────────────────────────────────────────────────────────────
 
 export async function getAccessToken(): Promise<string | null> {
-  const { data: { session }, error } = await supabase.auth.getSession();
-  if (error) console.error("[auth] getSession error:", error.message);
-  const token = session?.access_token ?? null;
-  console.log("[auth] token:", token ? `${token.slice(0, 20)}...` : "null — user may not be logged in");
-  return token;
+  try {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+
+    if (error) {
+      console.warn("[auth] Session unavailable:", error.message);
+      return null;
+    }
+
+    return session?.access_token ?? null;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown auth error";
+    console.warn("[auth] Session unavailable:", message);
+    return null;
+  }
 }
 
 export async function getAuthHeaders(input?: HeadersInit): Promise<Headers> {
@@ -47,8 +59,6 @@ export async function getAuthHeaders(input?: HeadersInit): Promise<Headers> {
   const token = await getAccessToken();
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
-  } else {
-    console.warn("[auth] No token available — request will be sent without Authorization header");
   }
   return headers;
 }
