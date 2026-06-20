@@ -1,6 +1,37 @@
-node_modules
-.next
+﻿# dependencies
+node_modules/
+# env
 .env
 .env.*
+!.env.example
+# next
+.next/
+out/
+# build
+dist/
+build/
 server/dist/
+# logs
+*.log
 debug-*.log
+debug-*.log.claude/
+# vscode
+.vscode/
+# OS files
+.DS_Store
+Thumbs.db
+# database
+*.sql
+# temp
+tmp/
+temp/
+# python
+python3.10/
+# agent / editor files
+.codex/
+.cursor/
+.vexp/
+.agents/
+graphify-out/
+# misc
+coverage/
