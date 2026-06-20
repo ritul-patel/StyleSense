@@ -1,21 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-const supabaseAnonKey = (
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-)?.trim();
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Missing Supabase client configuration. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY."
-  );
-}
+console.log("URL:", JSON.stringify(supabaseUrl));
+console.log("URL length:", supabaseUrl?.length);
+console.log("KEY length:", supabaseAnonKey?.length);
+console.log("KEY prefix:", supabaseAnonKey?.slice(0, 20));
 
-console.log("SUPABASE URL:", JSON.stringify(supabaseUrl));
-console.log(
-  "ANON KEY prefix:",
-  JSON.stringify(supabaseAnonKey?.slice(0, 30))
+export const supabase = createClient(
+  supabaseUrl!,
+  supabaseAnonKey!
 );
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
