@@ -22,7 +22,15 @@ const limiter = rateLimit({
 });
 
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://style-sense-2ajo3lu7v-rituls-projects-9b15c39c.vercel.app"
+    ],
+    credentials: true
+  })
+);
 app.use(express.json());
 app.use(logger);
 app.use(limiter);
