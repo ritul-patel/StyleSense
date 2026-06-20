@@ -12,4 +12,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+console.log("SUPABASE URL:", JSON.stringify(supabaseUrl));
+console.log(
+  "ANON KEY prefix:",
+  JSON.stringify(supabaseAnonKey?.slice(0, 30))
+);
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
