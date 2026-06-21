@@ -369,7 +369,7 @@ router.post("/upload", authMiddleware, upload.single("image"), async (req: Authe
     try {
       analysisId = (await saveAnalysis(data, imageUrl, req.user?.id, reqId)) || null;
     } catch (error) {
-      console.error(`[analysis/upload][${reqId}] DB save skipped: ${describeError(error)}`);
+      console.error(`[analysis/upload][${reqId}] DB save failed`, error);
     }
 
     console.log(`[analysis/upload][${reqId}] success in ${Date.now() - requestStartedAt}ms | saved=${Boolean(analysisId)} | imageUploaded=${Boolean(imageUrl)}`);
