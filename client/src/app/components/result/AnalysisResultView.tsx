@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { AnalysisResultData, MaterialItem, AccessoryItem, OutfitInput } from "./types";
+import RequireAuth from "../RequireAuth";
 
 // ─── constants ────────────────────────────────────────────────────────────────
 

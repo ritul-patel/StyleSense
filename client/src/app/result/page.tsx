@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import AnalysisResultView from "../components/result/AnalysisResultView";
 import { parseResultPayload } from "../components/result/result-utils";
 import type { AnalysisResultData } from "../components/result/types";
+import RequireAuth from "../components/RequireAuth";
 
 function ResultPageContent() {
   const router = useRouter();

@@ -41,6 +41,7 @@ export async function getAccessToken(): Promise<string | null> {
       error,
     } = await supabase.auth.getSession();
 
+
     if (error) {
       console.warn("[auth] Session unavailable:", error.message);
       return null;
@@ -48,7 +49,9 @@ export async function getAccessToken(): Promise<string | null> {
 
     return session?.access_token ?? null;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown auth error";
+    const message =
+      error instanceof Error ? error.message : "Unknown auth error";
+
     console.warn("[auth] Session unavailable:", message);
     return null;
   }

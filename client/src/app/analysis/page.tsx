@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
+import RequireAuth from "../components/RequireAuth";
 const PENDING_IMAGE_KEY = "pending_image";
 
 type ErrorState = { kind: "no_face" | "generic"; message: string } | null;
