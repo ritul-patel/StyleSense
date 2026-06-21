@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+numpy
+opencv-python-headless
+mediapipe
+pydantic
+protobuf<5
