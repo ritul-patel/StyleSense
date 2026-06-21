@@ -25,8 +25,10 @@ app.use(helmet());
 app.use(
   cors({
     origin: [
-      "http://localhost:3000",
-      "https://style-sense-2ajo3lu7v-rituls-projects-9b15c39c.vercel.app"
+       "http://localhost:3000",
+      "https://style-sense-2ajo3lu7v-rituls-projects-9b15c39c.vercel.app",
+      "https://www.stylesens.in",
+      "https://stylesens.in"
     ],
     credentials: true
   })
