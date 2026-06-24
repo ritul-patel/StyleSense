@@ -190,7 +190,7 @@ export default function DiscoverPage() {
         {/* Outfit Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
           {LOOKS.map((look) => (
-            <div key={look.id} className="flex flex-col group">
+            <Link href={`/outfit/${look.id}`} key={look.id} className="flex flex-col group cursor-pointer block">
               <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[2rem] mb-5 bg-gray-100">
                 <img
                   src={look.image}
@@ -213,15 +213,18 @@ export default function DiscoverPage() {
                 </div>
                 
                 <div className="flex items-center gap-3 mt-auto">
-                  <button className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-gray-200 transition-colors shrink-0">
+                  <button 
+                    onClick={(e) => e.preventDefault()}
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-gray-200 transition-colors shrink-0"
+                  >
                     <span className="material-symbols-outlined text-[18px]">favorite_border</span>
                   </button>
-                  <button className="flex-1 bg-[#1a1a1a] text-white h-10 rounded-lg text-xs font-bold tracking-wide hover:bg-black transition-colors">
+                  <div className="flex-1 bg-[#1a1a1a] text-white h-10 rounded-lg flex items-center justify-center text-xs font-bold tracking-wide hover:bg-black transition-colors">
                     View Look
-                  </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </main>
