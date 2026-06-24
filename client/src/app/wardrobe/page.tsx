@@ -380,4 +380,3 @@ export default function WardrobePage() {
     </RequireAuth>
   );
 }
-}
