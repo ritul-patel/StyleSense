@@ -2,101 +2,62 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { OUTFITS } from "@/data/outfits";
 
 const CATEGORIES = ["All", "T-Shirts", "Polo", "Shirts", "Jeans", "Sneakers"];
 const BUDGETS = ["All", "₹0-999", "₹1000-1999", "₹2000+"];
 const BRANDS = ["All", "Myntra", "Snitch", "H&M", "US Polo Assn", "Roadster", "Flying Machine"];
 
-const MOCK_LOOKS = [
-  {
-    id: "01",
-    image: "https://i.pinimg.com/736x/7b/f7/5a/7bf75acdc1d1c58e5ac02fac72ca62ba.jpg",
-    title: "Look 01",
-    subtitle: "Urban everyday outfit.",
-    items: [
-      { name: "Beige Tee", dot: "bg-[#8b9a71]" },
-      { name: "Blue Jeans", dot: "bg-[#4a729e]" },
-      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
-    ]
-  },
-  {
-    id: "02",
-    image: "https://i.pinimg.com/1200x/dc/9b/2b/dc9b2bf3802ffb84bd73dbd46beb3862.jpg",
-    title: "Look 02",
-    subtitle: "Urban everyday outfit.",
-    items: [
-      { name: "Black Polo", dot: "bg-[#1a1a1a]" },
-      { name: "Blue Jeans", dot: "bg-[#4a729e]" },
-      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
-    ]
-  },
-  {
-    id: "03",
-    image: "https://i.pinimg.com/736x/ef/76/da/ef76daaf83ba3ec31e7d34c1d7930857.jpg",
-    title: "Look 03",
-    subtitle: "Urban everyday outfit.",
-    items: [
-      { name: "Brown Shirt", dot: "bg-[#5c4033]" },
-      { name: "White Jeans", dot: "bg-[#f5f5f5] border border-gray-200" },
-      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
-    ]
-  },
-  {
-    id: "04",
-    image: "https://i.pinimg.com/1200x/b4/92/5b/b4925bfe2292fecc75944b63fa4f9fb3.jpg",
-    title: "Look 04",
-    subtitle: "Urban everyday outfit.",
-    items: [
-      { name: "White Tee", dot: "bg-white border border-gray-300" },
-      { name: "Black Jeans", dot: "bg-[#1a1a1a]" },
-      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
-    ]
-  },
-  {
-    id: "05",
-    image: "https://i.pinimg.com/1200x/35/38/85/353885058ac47f5a8169adf9b5e06402.jpg",
-    title: "Look 05",
-    subtitle: "Urban everyday outfit.",
-    items: [
-      { name: "Navy Blue Polo", dot: "bg-[#1e2a4f]" },
-      { name: "Grey Jeans", dot: "bg-[#6b7280]" },
-      { name: "Black Sneakers", dot: "bg-[#1a1a1a]" },
-    ]
-  },
-  {
-    id: "06",
-    image: "https://i.pinimg.com/1200x/6a/83/93/6a8393f4aa0e8e01c93308ec8f37bd5c.jpg",
-    title: "Look 06",
-    subtitle: "Urban everyday outfit.",
-    items: [
-      { name: "Brown Shirt", dot: "bg-[#8b6b5d]" },
-      { name: "Black Jeans", dot: "bg-[#1a1a1a]" },
-      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
-    ]
-  },
-  {
-    id: "07",
-    image: "https://i.pinimg.com/736x/9d/32/14/9d3214d318c351a25e443dd413485215.jpg",
-    title: "Look 07",
-    subtitle: "Urban everyday outfit.",
-    items: [
-      { name: "Maroon Tee", dot: "bg-[#6e2b34]" },
-      { name: "Dark Blue Jeans", dot: "bg-[#2b4162]" },
-      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
-    ]
-  },
-  {
-    id: "08",
-    image: "https://i.pinimg.com/736x/31/c4/01/31c401af58ca337fa47c1b374dfef5eb.jpg",
-    title: "Look 08",
-    subtitle: "Urban everyday outfit.",
-    items: [
-      { name: "Brown Polo", dot: "bg-[#6b5035]" },
-      { name: "Blue Jeans", dot: "bg-[#4a729e]" },
-      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
-    ]
-  }
+const ITEM_COMBOS = [
+  [
+    { name: "Beige Tee", dot: "bg-[#8b9a71]" },
+    { name: "Blue Jeans", dot: "bg-[#4a729e]" },
+    { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+  ],
+  [
+    { name: "Black Polo", dot: "bg-[#1a1a1a]" },
+    { name: "Blue Jeans", dot: "bg-[#4a729e]" },
+    { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+  ],
+  [
+    { name: "Brown Shirt", dot: "bg-[#5c4033]" },
+    { name: "White Jeans", dot: "bg-[#f5f5f5] border border-gray-200" },
+    { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+  ],
+  [
+    { name: "White Tee", dot: "bg-white border border-gray-300" },
+    { name: "Black Jeans", dot: "bg-[#1a1a1a]" },
+    { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+  ],
+  [
+    { name: "Navy Blue Polo", dot: "bg-[#1e2a4f]" },
+    { name: "Grey Jeans", dot: "bg-[#6b7280]" },
+    { name: "Black Sneakers", dot: "bg-[#1a1a1a]" },
+  ],
+  [
+    { name: "Brown Shirt", dot: "bg-[#8b6b5d]" },
+    { name: "Black Jeans", dot: "bg-[#1a1a1a]" },
+    { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+  ],
+  [
+    { name: "Maroon Tee", dot: "bg-[#6e2b34]" },
+    { name: "Dark Blue Jeans", dot: "bg-[#2b4162]" },
+    { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+  ],
+  [
+    { name: "Brown Polo", dot: "bg-[#6b5035]" },
+    { name: "Blue Jeans", dot: "bg-[#4a729e]" },
+    { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+  ]
 ];
+
+const LOOKS = OUTFITS.map((outfit, index) => ({
+  id: outfit.outfit_id,
+  image: outfit.imageUrl,
+  title: `Look ${String(index + 1).padStart(2, "0")}`,
+  subtitle: "Urban everyday outfit.",
+  items: ITEM_COMBOS[index % ITEM_COMBOS.length],
+}));
 
 export default function DiscoverPage() {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -228,12 +189,13 @@ export default function DiscoverPage() {
 
         {/* Outfit Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
-          {MOCK_LOOKS.map((look) => (
+          {LOOKS.map((look) => (
             <div key={look.id} className="flex flex-col group">
               <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[2rem] mb-5 bg-gray-100">
                 <img
                   src={look.image}
                   alt={look.title}
+                  loading="lazy"
                   className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                 />
               </div>
