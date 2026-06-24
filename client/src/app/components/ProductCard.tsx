@@ -86,7 +86,7 @@ function ProductCard({ product }: ProductCardProps) {
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200 dark:from-[#1a1a1a] dark:to-[#121212] text-stone-400 dark:text-stone-600">
-            <ArrowRight className="text-xs uppercase tracking-widest font-bold">No Image</span>
+            <span className="text-xs uppercase tracking-widest font-bold">No Image</span>
           </div>
         )}
       </div>

@@ -12,7 +12,7 @@ import { OUTFIT_PRODUCTS, getProductsForOutfit } from "@/data/outfitProducts";
 import { generateOutfitTitle, getOutfitStyle, generateOutfitDescription, getSimilarOutfits, getAlternativeProducts, generateOutfitTags } from "@/utils/outfitLogic";
 import ProductCard from "../../components/ProductCard";
 import RelatedLookCard from "../../components/RelatedLookCard";
-import { ArrowLeft, ArrowRight, CreditCard, Download, Favorite, Image, SearchX, Share2, Shirt, Wand2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CreditCard, Download, Heart, Image as ImageIcon, SearchX, Share2, Shirt, Wand2 } from "lucide-react";
 
 function shortProductName(p: { name: string; color: string; category: string }): string {
   const color = p.color ? p.color.split("-")[0].split("/")[0].split("+")[0].trim() : "";
@@ -230,7 +230,7 @@ export default function OutfitDetailsPage() {
           <button aria-label="Go back" onClick={() => router.back()} className="w-10 h-10 flex items-center justify-center rounded-full bg-[#f0edec] dark:bg-[#202020] hover:opacity-80 transition-opacity">
             <ArrowLeft className="text-[20px]" />
           </button>
-          <Favorite className="text-sm font-bold uppercase tracking-widest text-[#1b1c1b] dark:text-[#fcf9f8]"
+          <span className="text-sm font-bold uppercase tracking-widest text-[#1b1c1b] dark:text-[#fcf9f8]"
             style={{ fontFamily: "Manrope, sans-serif" }}
           >
             Outfit Details
@@ -280,7 +280,7 @@ export default function OutfitDetailsPage() {
 
             {outfit.pinterestUrl && (
               <div className="mt-6 flex flex-col justify-center md:justify-start text-center md:text-left">
-                <ArrowRight className="text-[11px] font-bold tracking-widest uppercase text-[#747686] dark:text-[#a0a0b8] mb-1">
+                <span className="text-[11px] font-bold tracking-widest uppercase text-[#747686] dark:text-[#a0a0b8] mb-1">
                   Inspired by Pinterest
                 </span>
                 <a
@@ -312,8 +312,8 @@ export default function OutfitDetailsPage() {
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200 dark:from-[#1a1a1a] dark:to-[#121212]">
-                <Image className="text-stone-300 dark:text-stone-600 text-5xl mb-2" />
-                <CreditCard className="text-sm font-bold tracking-widest uppercase text-stone-400 dark:text-stone-600">No image</span>
+                <ImageIcon className="text-stone-300 dark:text-stone-600 text-5xl mb-2" />
+                <span className="text-sm font-bold tracking-widest uppercase text-stone-400 dark:text-stone-600">No image</span>
               </div>
             )}
 
@@ -363,7 +363,7 @@ export default function OutfitDetailsPage() {
           <div className="flex flex-wrap gap-2 overflow-x-auto md:overflow-visible justify-center px-2 mb-10 no-scrollbar">
             {outfitTags.map((tag) => (
               <div key={tag} className="flex items-center px-4 py-2 bg-white dark:bg-[#1b1c1b] border border-black/5 dark:border-white/5 rounded-full shadow-sm hover:border-black/20 dark:hover:border-white/20 transition-colors flex-shrink-0 cursor-default">
-                <Shirt className="text-[11px] font-bold tracking-wider uppercase text-zinc-600 dark:text-zinc-400">{tag}</span>
+                <span className="text-[11px] font-bold tracking-wider uppercase text-zinc-600 dark:text-zinc-400">{tag}</span>
               </div>
             ))}
           </div>
