@@ -58,6 +58,11 @@ export default function OutfitDetailsPage() {
   const [recentOutfits, setRecentOutfits] = useState<Outfit[]>([]);
   const [isHeroPortrait, setIsHeroPortrait] = useState(true);
   const [heroImgError, setHeroImgError] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const outfitId = typeof params?.id === "string" ? params.id : "";
 
@@ -188,6 +193,36 @@ export default function OutfitDetailsPage() {
       console.warn("[recent-looks] localStorage error:", err);
     }
   }, [safeOutfit.outfit_id]);
+
+  if (!isMounted) {
+    return (
+      <div className="bg-[#fcf9f8] dark:bg-[#0f0f14] min-h-screen pb-24 transition-colors duration-300">
+        <nav className="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-[#0f0f14]/80 backdrop-blur-xl border-b border-black/5 dark:border-white/5">
+          <div className="flex justify-between items-center w-full px-4 h-16 max-w-[600px] mx-auto">
+            <div className="w-10 h-10 rounded-full bg-stone-200 dark:bg-stone-800 animate-pulse"></div>
+            <div className="w-32 h-4 rounded bg-stone-200 dark:bg-stone-800 animate-pulse"></div>
+            <div className="w-10 h-10"></div>
+          </div>
+        </nav>
+        <main className="pt-24 max-w-3xl mx-auto px-4 md:px-6 w-full">
+          <div className="mb-6 flex flex-col">
+            <div className="h-10 bg-stone-200 dark:bg-stone-800 rounded w-3/4 mb-4 animate-pulse"></div>
+            <div className="h-4 bg-stone-200 dark:bg-stone-800 rounded w-1/2 mb-6 animate-pulse"></div>
+            <div className="flex gap-3 mb-6">
+              <div className="h-10 w-24 bg-stone-200 dark:bg-stone-800 rounded-full animate-pulse"></div>
+              <div className="h-10 w-32 bg-stone-200 dark:bg-stone-800 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+          <div className="w-full max-w-[700px] mx-auto h-[450px] md:h-[550px] rounded-[2rem] bg-stone-200 dark:bg-stone-800 animate-pulse mb-6"></div>
+          <div className="flex justify-center gap-3 mb-10">
+             <div className="h-8 w-20 bg-stone-200 dark:bg-stone-800 rounded-full animate-pulse"></div>
+             <div className="h-8 w-20 bg-stone-200 dark:bg-stone-800 rounded-full animate-pulse"></div>
+             <div className="h-8 w-20 bg-stone-200 dark:bg-stone-800 rounded-full animate-pulse"></div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   // Route safety: show not-found for invalid outfit IDs
   if (!outfit) {

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Outfit } from "@/data/outfits";
 import { getProductsForOutfit } from "@/data/outfitProducts";
 import { generateOutfitTitle, getOutfitStyle } from "@/utils/outfitLogic";
-import { Image } from "lucide-react";
+import { Image as ImageIcon } from "lucide-react";
 
 interface RelatedLookCardProps {
   related: Outfit;
@@ -39,7 +39,7 @@ function RelatedLookCard({ related }: RelatedLookCardProps) {
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200 dark:from-[#1a1a1a] dark:to-[#121212]">
-            <Image className="text-stone-300 dark:text-stone-600 text-3xl mb-1" />
+            <ImageIcon className="text-stone-300 dark:text-stone-600 text-3xl mb-1" />
             <span className="text-[9px] font-bold tracking-widest uppercase text-stone-400 dark:text-stone-600">No image</span>
           </div>
         )}

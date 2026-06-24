@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { OUTFITS } from "@/data/outfits";
+import { getProductsForOutfit } from "@/data/outfitProducts";
+import { useSavedOutfits } from "@/app/context/SavedOutfitsContext";
 
 const CATEGORIES = ["All", "T-Shirts", "Polo", "Shirts", "Jeans", "Sneakers"];
 const BUDGETS = ["All", "₹0-999", "₹1000-1999", "₹2000+"];
@@ -51,18 +53,81 @@ const ITEM_COMBOS = [
   ]
 ];
 
-const LOOKS = OUTFITS.map((outfit, index) => ({
-  id: outfit.outfit_id,
-  image: outfit.imageUrl,
-  title: `Look ${String(index + 1).padStart(2, "0")}`,
-  subtitle: "Urban everyday outfit.",
-  items: ITEM_COMBOS[index % ITEM_COMBOS.length],
-}));
+const LOOKS = OUTFITS.map((outfit, index) => {
+  const { top, bottom, shoes } = getProductsForOutfit(outfit.outfit_id);
+  const products = [...top, ...bottom, ...shoes];
+  
+  const price = products.reduce((sum, p) => sum + p.price, 0);
+  const brands = products.map(p => p.brand);
+  const productNames = products.map(p => p.name).join(" ");
+  
+  const categories = new Set<string>();
+  products.forEach(p => {
+    const pCat = p.category.toLowerCase();
+    const pName = p.name.toLowerCase();
+    if (pCat.includes("tshirt") || pName.includes("tee") || pName.includes("t-shirt")) categories.add("T-Shirts");
+    if (pCat.includes("polo") || pName.includes("polo")) categories.add("Polo");
+    if (pCat.includes("shirt") && !pCat.includes("tshirt") && !pCat.includes("polo")) categories.add("Shirts");
+    if (pCat.includes("jeans") || pName.includes("jeans")) categories.add("Jeans");
+    if (pCat.includes("sneakers") || pName.includes("sneaker")) categories.add("Sneakers");
+  });
+
+  return {
+    id: outfit.outfit_id,
+    image: outfit.imageUrl,
+    title: `Look ${String(index + 1).padStart(2, "0")}`,
+    subtitle: "Urban everyday outfit.",
+    items: ITEM_COMBOS[index % ITEM_COMBOS.length],
+    price,
+    brands,
+    categories: Array.from(categories),
+    searchTerms: productNames.toLowerCase(),
+  };
+});
 
 export default function DiscoverPage() {
+  const { isSaved, saveOutfit, removeOutfit } = useSavedOutfits();
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeBudget, setActiveBudget] = useState("All");
-  const [activeBrand, setActiveBrand] = useState("All");
+  const [activeBrands, setActiveBrands] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredLooks = useMemo(() => {
+    return LOOKS.filter(look => {
+      // Search
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        if (!look.title.toLowerCase().includes(query) && 
+            !look.searchTerms.includes(query) && 
+            !look.brands.some(b => b.toLowerCase().includes(query))) {
+          return false;
+        }
+      }
+
+      // Category
+      if (activeCategory !== "All" && !look.categories.includes(activeCategory)) {
+        return false;
+      }
+
+      // Budget
+      if (activeBudget !== "All") {
+        if (activeBudget === "₹0-999" && look.price > 999) return false;
+        if (activeBudget === "₹1000-1999" && (look.price < 1000 || look.price > 1999)) return false;
+        if (activeBudget === "₹2000+" && look.price < 2000) return false;
+      }
+
+      // Brands
+      if (activeBrands.length > 0) {
+        const hasMatch = activeBrands.some(ab => {
+          const normAb = ab.toLowerCase().replace(/[^a-z0-9]/g, '');
+          return look.brands.some(lb => lb.toLowerCase().replace(/[^a-z0-9]/g, '').includes(normAb));
+        });
+        if (!hasMatch) return false;
+      }
+
+      return true;
+    });
+  }, [searchQuery, activeCategory, activeBudget, activeBrands]);
 
   return (
     <div className="bg-white text-[#1b1c1b] antialiased min-h-screen font-sans">
@@ -119,6 +184,8 @@ export default function DiscoverPage() {
           </span>
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search products, colors, or brands..."
             className="w-full bg-gray-100/70 text-sm font-medium rounded-full py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-gray-200"
           />
@@ -170,62 +237,85 @@ export default function DiscoverPage() {
           <div>
             <h3 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-3">Brands</h3>
             <div className="flex flex-wrap gap-2">
-              {BRANDS.map((br) => (
-                <button
-                  key={br}
-                  onClick={() => setActiveBrand(br)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                    activeBrand === br
-                      ? "bg-[#1a1a1a] text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {br}
-                </button>
-              ))}
+              {BRANDS.map((br) => {
+                const isActive = br === "All" ? activeBrands.length === 0 : activeBrands.includes(br);
+                return (
+                  <button
+                    key={br}
+                    onClick={() => {
+                      if (br === "All") {
+                        setActiveBrands([]);
+                      } else {
+                        setActiveBrands(prev => 
+                          prev.includes(br) ? prev.filter(b => b !== br) : [...prev, br]
+                        );
+                      }
+                    }}
+                    className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                      isActive
+                        ? "bg-[#1a1a1a] text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {br}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
 
         {/* Outfit Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
-          {LOOKS.map((look) => (
-            <Link href={`/outfit/${look.id}`} key={look.id} className="flex flex-col group cursor-pointer block">
-              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[2rem] mb-5 bg-gray-100">
-                <img
-                  src={look.image}
-                  alt={look.title}
-                  loading="lazy"
-                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                />
-              </div>
-              <div className="flex flex-col px-1">
-                <h3 className="text-lg font-bold text-[#1a1a1a] mb-1">{look.title}</h3>
-                <p className="text-xs font-medium text-gray-500 mb-5">{look.subtitle}</p>
-                
-                <div className="flex flex-col gap-2.5 mb-6">
-                  {look.items.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className={`w-2.5 h-2.5 rounded-sm ${item.dot}`}></div>
-                      <span className="text-xs font-bold text-gray-700">{item.name}</span>
-                    </div>
-                  ))}
+          {filteredLooks.length === 0 ? (
+            <div className="col-span-full py-20 text-center text-gray-500 font-medium">
+              No outfits found
+            </div>
+          ) : (
+            filteredLooks.map((look) => (
+              <Link href={`/outfit/${look.id}`} key={look.id} className="flex flex-col group cursor-pointer block">
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[2rem] mb-5 bg-gray-100">
+                  <img
+                    src={look.image}
+                    alt={look.title}
+                    loading="lazy"
+                    className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  />
                 </div>
-                
-                <div className="flex items-center gap-3 mt-auto">
-                  <button 
-                    onClick={(e) => e.preventDefault()}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-gray-200 transition-colors shrink-0"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">favorite_border</span>
-                  </button>
-                  <div className="flex-1 bg-[#1a1a1a] text-white h-10 rounded-lg flex items-center justify-center text-xs font-bold tracking-wide hover:bg-black transition-colors">
-                    View Look
+                <div className="flex flex-col px-1">
+                  <h3 className="text-lg font-bold text-[#1a1a1a] mb-1">{look.title}</h3>
+                  <p className="text-xs font-medium text-gray-500 mb-5">{look.subtitle}</p>
+                  
+                  <div className="flex flex-col gap-2.5 mb-6">
+                    {look.items.map((item, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className={`w-2.5 h-2.5 rounded-sm ${item.dot}`}></div>
+                        <span className="text-xs font-bold text-gray-700">{item.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="flex items-center gap-3 mt-auto">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (isSaved(look.id)) removeOutfit(look.id);
+                        else saveOutfit(look.id);
+                      }}
+                      className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-gray-200 transition-colors shrink-0"
+                    >
+                      <span className={`material-symbols-outlined text-[18px] ${isSaved(look.id) ? "text-red-500" : ""}`}>
+                        {isSaved(look.id) ? "favorite" : "favorite_border"}
+                      </span>
+                    </button>
+                    <div className="flex-1 bg-[#1a1a1a] text-white h-10 rounded-lg flex items-center justify-center text-xs font-bold tracking-wide hover:bg-black transition-colors">
+                      View Look
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))
+          )}
         </div>
       </main>
 
