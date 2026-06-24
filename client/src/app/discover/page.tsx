@@ -3,45 +3,122 @@
 import { useState } from "react";
 import Link from "next/link";
 
-const CATEGORIES = ["All Aesthetics", "Avant-Garde", "Minimalism", "Hyper-Tactile", "Archive Workwear", "Neo-Luxe"];
+const CATEGORIES = ["All", "T-Shirts", "Polo", "Shirts", "Jeans", "Sneakers"];
+const BUDGETS = ["All", "₹0-999", "₹1000-1999", "₹2000+"];
+const BRANDS = ["All", "Myntra", "Snitch", "H&M", "US Polo Assn", "Roadster", "Flying Machine"];
 
-const CARDS = [
-  { label: "Winter Core", title: "Sculptural Wool", tag: null, colors: ["#3e3e3e", "#6b7280"], icon: "checkroom" },
-  { label: "Color Theory", title: "Solar Flare", tag: null, colors: ["#f4a261", "#e9c46a"], icon: "palette" },
-  { label: "Neo-Business", title: "Liquid Tailoring", tag: null, colors: ["#f5f0eb", "#c9b99a"], icon: "style" },
-  { label: null, title: "Hyper-Luxe Bag", tag: "Trending", colors: ["#843b23", "#c27c3e"], icon: "shopping_bag" },
-  { label: "Street Core", title: "Urban Tech-Wear", tag: null, colors: ["#1a1a2e", "#2d2d44"], icon: "directions_walk" },
-  { label: "AI Texture Report", title: "Liquid Metallics", tag: null, colors: ["#d4d4d4", "#a8a8b3"], icon: "diamond" },
-  { label: "Spring Edit", title: "Botanical Layers", tag: "New", colors: ["#4d5d30", "#6b8e23"], icon: "local_florist" },
-  { label: "Archive Fetch", title: "Denim Revival", tag: null, colors: ["#1a2a3a", "#2c3e50"], icon: "layers" },
+const MOCK_LOOKS = [
+  {
+    id: "01",
+    image: "https://i.pinimg.com/736x/7b/f7/5a/7bf75acdc1d1c58e5ac02fac72ca62ba.jpg",
+    title: "Look 01",
+    subtitle: "Urban everyday outfit.",
+    items: [
+      { name: "Beige Tee", dot: "bg-[#8b9a71]" },
+      { name: "Blue Jeans", dot: "bg-[#4a729e]" },
+      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+    ]
+  },
+  {
+    id: "02",
+    image: "https://i.pinimg.com/1200x/dc/9b/2b/dc9b2bf3802ffb84bd73dbd46beb3862.jpg",
+    title: "Look 02",
+    subtitle: "Urban everyday outfit.",
+    items: [
+      { name: "Black Polo", dot: "bg-[#1a1a1a]" },
+      { name: "Blue Jeans", dot: "bg-[#4a729e]" },
+      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+    ]
+  },
+  {
+    id: "03",
+    image: "https://i.pinimg.com/736x/ef/76/da/ef76daaf83ba3ec31e7d34c1d7930857.jpg",
+    title: "Look 03",
+    subtitle: "Urban everyday outfit.",
+    items: [
+      { name: "Brown Shirt", dot: "bg-[#5c4033]" },
+      { name: "White Jeans", dot: "bg-[#f5f5f5] border border-gray-200" },
+      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+    ]
+  },
+  {
+    id: "04",
+    image: "https://i.pinimg.com/1200x/b4/92/5b/b4925bfe2292fecc75944b63fa4f9fb3.jpg",
+    title: "Look 04",
+    subtitle: "Urban everyday outfit.",
+    items: [
+      { name: "White Tee", dot: "bg-white border border-gray-300" },
+      { name: "Black Jeans", dot: "bg-[#1a1a1a]" },
+      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+    ]
+  },
+  {
+    id: "05",
+    image: "https://i.pinimg.com/1200x/35/38/85/353885058ac47f5a8169adf9b5e06402.jpg",
+    title: "Look 05",
+    subtitle: "Urban everyday outfit.",
+    items: [
+      { name: "Navy Blue Polo", dot: "bg-[#1e2a4f]" },
+      { name: "Grey Jeans", dot: "bg-[#6b7280]" },
+      { name: "Black Sneakers", dot: "bg-[#1a1a1a]" },
+    ]
+  },
+  {
+    id: "06",
+    image: "https://i.pinimg.com/1200x/6a/83/93/6a8393f4aa0e8e01c93308ec8f37bd5c.jpg",
+    title: "Look 06",
+    subtitle: "Urban everyday outfit.",
+    items: [
+      { name: "Brown Shirt", dot: "bg-[#8b6b5d]" },
+      { name: "Black Jeans", dot: "bg-[#1a1a1a]" },
+      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+    ]
+  },
+  {
+    id: "07",
+    image: "https://i.pinimg.com/736x/9d/32/14/9d3214d318c351a25e443dd413485215.jpg",
+    title: "Look 07",
+    subtitle: "Urban everyday outfit.",
+    items: [
+      { name: "Maroon Tee", dot: "bg-[#6e2b34]" },
+      { name: "Dark Blue Jeans", dot: "bg-[#2b4162]" },
+      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+    ]
+  },
+  {
+    id: "08",
+    image: "https://i.pinimg.com/736x/31/c4/01/31c401af58ca337fa47c1b374dfef5eb.jpg",
+    title: "Look 08",
+    subtitle: "Urban everyday outfit.",
+    items: [
+      { name: "Brown Polo", dot: "bg-[#6b5035]" },
+      { name: "Blue Jeans", dot: "bg-[#4a729e]" },
+      { name: "White Sneakers", dot: "bg-white border border-gray-300" },
+    ]
+  }
 ];
 
 export default function DiscoverPage() {
-  const [active, setActive] = useState("All Aesthetics");
-  const [hovered, setHovered] = useState<number | null>(null);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeBudget, setActiveBudget] = useState("All");
+  const [activeBrand, setActiveBrand] = useState("All");
 
   return (
-    <div
-      className="bg-[#fcf9f8] text-[#1b1c1b] antialiased min-h-screen"
-      style={{ fontFamily: "Inter, sans-serif" }}
-    >
-      {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 glass-nav">
+    <div className="bg-white text-[#1b1c1b] antialiased min-h-screen font-sans">
+      {/* Header Nav */}
+      <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div className="flex justify-between items-center w-full px-6 md:px-12 h-20 max-w-[1920px] mx-auto">
-          <Link
-            href="/"
-            className="text-2xl font-bold text-[#002b92] tracking-tighter"
-            style={{ fontFamily: "Manrope, sans-serif" }}
-          >
-            Couture AI
+          <Link href="/" className="flex items-center gap-3">
+            <img src="/logo.png" alt="StyleSense" className="w-8 h-8 object-contain" />
+            <span className="text-xl font-bold tracking-tight text-black">StyleSense</span>
           </Link>
-          <div className="hidden md:flex items-center gap-10">
-            <span
-              className="text-sm uppercase tracking-tight font-bold border-b-2 border-[#002b92] pb-1 text-[#002b92]"
-              style={{ fontFamily: "Manrope, sans-serif" }}
+          <div className="hidden md:flex items-center gap-8 mt-1">
+            <Link
+              href="/discover"
+              className="text-sm font-bold text-blue-700 border-b-2 border-blue-700 pb-1 uppercase tracking-tight"
             >
               Discover
-            </span>
+            </Link>
             {[
               { href: "/analysis", label: "Analysis" },
               { href: "/wardrobe", label: "Wardrobe" },
@@ -50,164 +127,145 @@ export default function DiscoverPage() {
               <Link
                 key={href}
                 href={href}
-                className="text-stone-500 font-medium hover:text-[#002b92] transition-colors text-sm uppercase tracking-tight"
-                style={{ fontFamily: "Manrope, sans-serif" }}
+                className="text-sm font-semibold text-gray-500 hover:text-black transition-colors uppercase tracking-tight pb-1"
               >
                 {label}
               </Link>
             ))}
           </div>
-          <div className="flex items-center gap-6">
-            <button className="text-[#434654] hover:opacity-80 transition-opacity">
+          <div className="flex items-center gap-5">
+            <button className="text-gray-600 hover:text-black transition-colors">
               <span className="material-symbols-outlined">shopping_bag</span>
             </button>
-            <button className="text-[#434654] hover:opacity-80 transition-opacity">
-              <span className="material-symbols-outlined">account_circle</span>
-            </button>
+            <div className="w-8 h-8 rounded-full bg-[#8c5230] text-white flex items-center justify-center text-sm font-bold">
+              R
+            </div>
           </div>
         </div>
       </nav>
 
-      <main className="pt-32 pb-32 px-6 md:px-12 max-w-[1920px] mx-auto">
-        {/* Editorial header */}
-        <header className="mb-16 max-w-3xl">
-          <span
-            className="text-xs tracking-[0.2em] uppercase text-[#002b92] mb-4 block font-bold"
-            style={{ fontFamily: "Manrope, sans-serif" }}
-          >
-            Seasonal Edit
-          </span>
-          <h1
-            className="text-5xl md:text-7xl font-extrabold tracking-tighter text-[#1b1c1b] leading-[0.95] mb-8"
-            style={{ fontFamily: "Manrope, sans-serif" }}
-          >
-            Inspiration <br />
-            <span style={{ WebkitTextStroke: "1px #1b1c1b", color: "transparent" }}>Sanctuary</span>
-          </h1>
-          <p className="text-lg text-[#434654] max-w-lg leading-relaxed">
-            Curated by AI, refined by global trends. Explore the intersection of high-fashion craftsmanship and digital precision.
-          </p>
+      {/* Main Content */}
+      <main className="pt-28 pb-32 px-6 md:px-12 max-w-[1920px] mx-auto">
+        <header className="mb-6">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-black mb-2 tracking-tight">Discover</h1>
+          <p className="text-gray-500 text-sm md:text-base font-medium">Find outfit ideas that suit your style.</p>
         </header>
 
-        {/* Category chips */}
-        <div className="flex flex-wrap gap-3 mb-12">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActive(cat)}
-              className="px-6 py-2 rounded-full text-sm font-semibold tracking-wide transition-all"
-              style={
-                active === cat
-                  ? { background: "#002b92", color: "#fff" }
-                  : { background: "#b3c1ff", color: "#404e83" }
-              }
-            >
-              {cat}
-            </button>
-          ))}
+        {/* Search */}
+        <div className="relative w-full max-w-2xl mb-8">
+          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
+            search
+          </span>
+          <input
+            type="text"
+            placeholder="Search products, colors, or brands..."
+            className="w-full bg-gray-100/70 text-sm font-medium rounded-full py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-gray-200"
+          />
         </div>
 
-        {/* Masonry grid */}
-        <div style={{ columns: "1", columnGap: "1.5rem" }} className="md:[column-count:2] lg:[column-count:3] xl:[column-count:4]">
-          <style>{`
-            @media (min-width: 768px)  { .masonry { column-count: 2; } }
-            @media (min-width: 1024px) { .masonry { column-count: 3; } }
-            @media (min-width: 1280px) { .masonry { column-count: 4; } }
-          `}</style>
-          <div className="masonry" style={{ columnGap: "1.5rem" }}>
-            {CARDS.map((card, i) => {
-              const isHovered = hovered === i;
-              const heights = [320, 260, 380, 200, 300, 360, 240, 280];
-              const h = heights[i % heights.length];
-
-              return (
-                <div
-                  key={i}
-                  className="mb-6 cursor-pointer"
-                  style={{ breakInside: "avoid" }}
-                  onMouseEnter={() => setHovered(i)}
-                  onMouseLeave={() => setHovered(null)}
+        {/* Filters */}
+        <div className="flex flex-col gap-6 mb-10">
+          {/* Categories */}
+          <div>
+            <h3 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-3">Categories</h3>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    activeCategory === cat
+                      ? "bg-[#1a1a1a] text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
                 >
-                  <div
-                    className="relative overflow-hidden rounded-xl transition-all duration-500"
-                    style={{
-                      height: h,
-                      background: `linear-gradient(135deg, ${card.colors[0]}, ${card.colors[1]})`,
-                      transform: isHovered ? "scale(1.01)" : "scale(1)",
-                    }}
-                  >
-                    {/* Icon */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                      <span className="material-symbols-outlined text-white" style={{ fontSize: 80 }}>
-                        {card.icon}
-                      </span>
-                    </div>
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                    {/* Hover overlay with "Try This Look" */}
-                    <div
-                      className="absolute inset-0 transition-opacity duration-500 flex flex-col justify-end p-8"
-                      style={{
-                        opacity: isHovered ? 1 : 0,
-                        background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)",
-                      }}
-                    >
-                      {card.label && (
-                        <span className="text-white/70 text-xs tracking-widest uppercase mb-2">
-                          {card.label}
-                        </span>
-                      )}
-                      <h3
-                        className="text-white text-xl font-bold mb-3"
-                        style={{ fontFamily: "Manrope, sans-serif" }}
-                      >
-                        {card.title}
-                      </h3>
-                      <button
-                        className="self-start px-4 py-2 bg-white text-[#002b92] rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#dde1ff] transition-colors"
-                        onClick={() => console.log(`Try This Look: ${card.title}`)}
-                      >
-                        Try This Look
-                      </button>
-                    </div>
+          {/* Budget */}
+          <div>
+            <h3 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-3">Budget</h3>
+            <div className="flex flex-wrap gap-2">
+              {BUDGETS.map((bg) => (
+                <button
+                  key={bg}
+                  onClick={() => setActiveBudget(bg)}
+                  className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    activeBudget === bg
+                      ? "bg-[#1a1a1a] text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {bg}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                    {/* Tag badge */}
-                    {card.tag && (
-                      <div className="absolute top-4 right-4">
-                        <span className="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase text-[#002b92]">
-                          {card.tag}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Bottom label (always visible when not hovered) */}
-                    {card.label && !isHovered && i === 5 && (
-                      <div className="absolute bottom-0 left-0 p-6 w-full bg-white/70 backdrop-blur-md">
-                        <p className="text-xs font-bold text-[#002b92] tracking-widest uppercase mb-1">{card.label}</p>
-                        <h4 className="text-[#1b1c1b] font-bold" style={{ fontFamily: "Manrope, sans-serif" }}>
-                          {card.title}
-                        </h4>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+          {/* Brands */}
+          <div>
+            <h3 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-3">Brands</h3>
+            <div className="flex flex-wrap gap-2">
+              {BRANDS.map((br) => (
+                <button
+                  key={br}
+                  onClick={() => setActiveBrand(br)}
+                  className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    activeBrand === br
+                      ? "bg-[#1a1a1a] text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {br}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Load more */}
-        <div className="flex justify-center mt-16">
-          <button
-            className="px-12 py-4 border-2 border-[#002b92] text-[#002b92] rounded-full font-bold text-sm uppercase tracking-widest hover:bg-[#002b92] hover:text-white transition-all"
-            style={{ fontFamily: "Manrope, sans-serif" }}
-          >
-            Load More
-          </button>
+        {/* Outfit Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
+          {MOCK_LOOKS.map((look) => (
+            <div key={look.id} className="flex flex-col group">
+              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[2rem] mb-5 bg-gray-100">
+                <img
+                  src={look.image}
+                  alt={look.title}
+                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+              <div className="flex flex-col px-1">
+                <h3 className="text-lg font-bold text-[#1a1a1a] mb-1">{look.title}</h3>
+                <p className="text-xs font-medium text-gray-500 mb-5">{look.subtitle}</p>
+                
+                <div className="flex flex-col gap-2.5 mb-6">
+                  {look.items.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className={`w-2.5 h-2.5 rounded-sm ${item.dot}`}></div>
+                      <span className="text-xs font-bold text-gray-700">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex items-center gap-3 mt-auto">
+                  <button className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-gray-200 transition-colors shrink-0">
+                    <span className="material-symbols-outlined text-[18px]">favorite_border</span>
+                  </button>
+                  <button className="flex-1 bg-[#1a1a1a] text-white h-10 rounded-lg text-xs font-bold tracking-wide hover:bg-black transition-colors">
+                    View Look
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </main>
 
       {/* Mobile nav */}
-      <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-8 pt-4 bg-[#f6f3f2]/80 backdrop-blur-2xl rounded-t-3xl md:hidden z-50">
+      <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-8 pt-4 bg-white/90 backdrop-blur-2xl border-t border-gray-100 md:hidden z-50">
         {[
           { href: "/discover", icon: "explore", label: "Discover", active: true },
           { href: "/analysis", icon: "analytics", label: "Analysis" },
@@ -217,10 +275,10 @@ export default function DiscoverPage() {
           <Link
             key={href}
             href={href}
-            className={`flex flex-col items-center justify-center p-2 ${isActive ? "text-[#002b92]" : "text-stone-400"}`}
+            className={`flex flex-col items-center justify-center p-2 ${isActive ? "text-blue-700" : "text-gray-400"}`}
           >
             <span className="material-symbols-outlined">{icon}</span>
-            <span className="text-[10px] font-semibold uppercase tracking-widest mt-1">{label}</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest mt-1">{label}</span>
           </Link>
         ))}
       </nav>
