@@ -3,8 +3,24 @@ from pydantic import BaseModel
 import cv2
 import numpy as np
 import mediapipe as mp
+import os
+import uuid
+from dotenv import load_dotenv
+from posthog import Posthog
+
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+
+posthog = Posthog(
+    os.environ.get("POSTHOG_API_KEY", ""),
+    host=os.environ.get("POSTHOG_HOST", "https://us.i.posthog.com"),
+)
 
 app = FastAPI(title="StyleSense FastAPI Analyzer")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    posthog.shutdown()
 
 # -----------------------------
 # LOAD MEDIAPIPE ONCE (FAST)
@@ -148,17 +164,27 @@ def get_cheeks(img):
 # -----------------------------
 @app.post("/analyze", response_model=AnalysisResponse)
 async def analyze(file: UploadFile = File(...)):
+    distinct_id = str(uuid.uuid4())
+
+    posthog.capture(distinct_id, "analysis_requested", {
+        "content_type": file.content_type,
+        "filename": file.filename,
+    })
+
     if not file.content_type or not file.content_type.startswith("image/"):
+        posthog.capture(distinct_id, "analysis_failed", {"reason": "invalid_content_type"})
         raise HTTPException(status_code=400, detail="Only image uploads are supported.")
 
     contents = await file.read()
     if not contents:
+        posthog.capture(distinct_id, "analysis_failed", {"reason": "empty_upload"})
         raise HTTPException(status_code=400, detail="Empty upload received.")
 
     npimg = np.frombuffer(contents, np.uint8)
     img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
 
     if img is None:
+        posthog.capture(distinct_id, "analysis_failed", {"reason": "decode_error"})
         raise HTTPException(status_code=400, detail="Could not decode image.")
 
     img = cv2.resize(img, (256, 256))
@@ -184,7 +210,7 @@ async def analyze(file: UploadFile = File(...)):
     tone, brightness = detect_tone(rgb)
     sat = saturation(rgb)
 
-    return AnalysisResponse(
+    result = AnalysisResponse(
         skin_tone=tone,
         undertone=undertone,
         rgb=rgb,
@@ -194,3 +220,13 @@ async def analyze(file: UploadFile = File(...)):
         season=season(tone, undertone),
         confidence=0.92,
     )
+
+    posthog.capture(distinct_id, "analysis_completed", {
+        "skin_tone": result.skin_tone,
+        "undertone": result.undertone,
+        "season": result.season,
+        "brightness": result.brightness,
+        "face_detected": cheeks is not None,
+    })
+
+    return result

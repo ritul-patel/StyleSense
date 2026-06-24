@@ -9,12 +9,12 @@ import RequireAuth from "../RequireAuth";
 // ─── constants ────────────────────────────────────────────────────────────────
 
 const FITZ_DESC: Record<string, string> = {
-  I:   "Very fair, always burns",
-  II:  "Fair, usually burns",
+  I: "Very fair, always burns",
+  II: "Fair, usually burns",
   III: "Medium, sometimes burns",
-  IV:  "Olive to medium, rarely burns",
-  V:   "Brown, very rarely burns",
-  VI:  "Deep brown to black, never burns",
+  IV: "Olive to medium, rarely burns",
+  V: "Brown, very rarely burns",
+  VI: "Deep brown to black, never burns",
 };
 
 // ─── helpers ──────────────────────────────────────────────────────────────────

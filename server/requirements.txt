@@ -5,3 +5,5 @@ opencv-python-headless
 mediapipe
 pydantic
 protobuf<5
+posthog
+python-dotenv

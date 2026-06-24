@@ -1,0 +1,265 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "StyleSense | Discover Your Perfect Colors",
+  description:
+    "Unlock your natural radiance with AI-powered personal color analysis and wardrobe recommendations.",
+};
+
+import Logo from "./components/Logo";
+import ProfileDropdown from "./components/ProfileDropdown";
+
+export default function HomePage() {
+  return (
+    <div className="min-h-screen bg-[#fcf9f8] dark:bg-[#0f0f14] text-[#1b1c1b] dark:text-[#fcf9f8] antialiased transition-colors duration-300">
+
+      {/* ── Nav ── */}
+      <nav className="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-[#0f0f14]/80 backdrop-blur-xl border-b border-black/5 dark:border-white/5 transition-colors duration-300">
+        <div className="flex justify-between items-center px-4 md:px-[6%] py-4">
+          <Logo />
+          <div className="hidden md:flex items-center gap-8">
+            <Link className="text-[#002b92] dark:text-[#b7c4ff] font-bold border-b-2 border-[#002b92] dark:border-[#b7c4ff] transition-all" href="/analysis">Analysis</Link>
+            <Link className="text-[#1b1c1b] dark:text-[#fcf9f8] font-medium opacity-80 hover:opacity-100 hover:text-[#002b92] dark:hover:text-[#b7c4ff] transition-all" href="/history">History</Link>
+            <Link className="text-[#1b1c1b] dark:text-[#fcf9f8] font-medium opacity-80 hover:opacity-100 hover:text-[#002b92] dark:hover:text-[#b7c4ff] transition-all" href="/wardrobe">Wardrobe</Link>
+            <a className="text-[#1b1c1b] dark:text-[#fcf9f8] font-medium opacity-80 hover:opacity-100 hover:text-[#002b92] dark:hover:text-[#b7c4ff] transition-all" href="#">Pricing</a>
+          </div>
+          <div className="flex items-center gap-4">
+            <ProfileDropdown />
+          </div>
+        </div>
+      </nav>
+
+      <main className="pt-20 pb-24 md:pb-0">
+
+        {/* ── Hero ── */}
+        <section className="relative px-4 md:px-[6%] py-12 md:py-32 overflow-hidden">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary-container dark:bg-[#002b92]/20 text-on-secondary-container dark:text-[#b7c4ff] rounded-full text-xs font-bold uppercase tracking-wider mb-5">
+                <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
+                Next-Gen Color Theory
+              </div>
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tighter leading-tight mb-6 text-[#1b1c1b] dark:text-[#fcf9f8]">
+                Discover Your Perfect Colors with AI
+              </h1>
+              <p className="text-on-surface-variant dark:text-[#a0a0b8] text-base md:text-xl leading-relaxed max-w-xl mb-8">
+                Unlock your natural radiance. Our proprietary Atelier Engine analyzes your features to curate a bespoke wardrobe palette that complements your unique skin tone.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col gap-2">
+                  <Link
+                    className="signature-gradient text-on-primary px-8 py-4 rounded-full font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform cursor-pointer"
+                    href="/analysis"
+                  >
+                    Start Analysis
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                  </Link>
+                  <p className="text-sm text-on-surface-variant dark:text-[#a0a0b8] opacity-70 text-center mt-2">Takes 10 seconds • No signup required</p>
+                </div>
+                <div className="flex flex-col">
+                  <button className="border-2 border-[#003ec7] dark:border-[#b7c4ff] text-[#003ec7] dark:text-[#b7c4ff] px-8 py-4 rounded-full font-bold hover:bg-[#003ec7]/5 dark:hover:bg-[#b7c4ff]/10 transition-colors cursor-pointer">
+                    View Example
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Card */}
+            <div className="relative group lg:scale-110">
+              <div className="absolute -inset-20 bg-gradient-to-tr from-primary/10 via-transparent to-primary/5 blur-[120px] rounded-full pointer-events-none" />
+              <div className="absolute -inset-10 bg-primary/20 blur-[100px] rounded-full opacity-60 group-hover:opacity-80 transition-opacity" />
+              <div className="relative bg-surface-container-lowest dark:bg-[#1b1c1b] p-6 rounded-xl border border-outline-variant/10 dark:border-[#303030] shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-none">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-surface-container dark:bg-[#303030] overflow-hidden">
+                      <div className="bg-zinc-100 rounded-3xl h-full w-full" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-[#1b1c1b] dark:text-[#fcf9f8]">Analysis Complete</div>
+                      <div className="text-xs text-on-surface-variant dark:text-[#a0a0b8]">Profile: Elena S.</div>
+                    </div>
+                  </div>
+                  <span className="material-symbols-outlined text-primary dark:text-[#b7c4ff]">verified_user</span>
+                </div>
+                <div className="space-y-6">
+                  <div className="p-4 bg-surface-container-low dark:bg-[#121214] rounded-lg border border-transparent dark:border-[#303030]">
+                    <div className="text-[10px] uppercase font-black text-on-surface-variant dark:text-[#a0a0b8] mb-2 tracking-widest">Primary Palette</div>
+                    <div className="flex gap-2">
+                      <div className="h-12 w-full rounded-md bg-[#843b23]" />
+                      <div className="h-12 w-full rounded-md bg-[#c27c3e]" />
+                      <div className="h-12 w-full rounded-md bg-[#4d5d30]" />
+                      <div className="h-12 w-full rounded-md bg-[#e9c46a]" />
+                      <div className="h-12 w-full rounded-md bg-[#f4a261]" />
+                    </div>
+                    <div className="mt-3 flex justify-between items-end">
+                      <span className="text-2xl font-black text-primary dark:text-[#b7c4ff] italic">Deep Autumn</span>
+                      <span className="text-xs font-medium opacity-60 dark:text-[#fcf9f8]/60">98% Confidence</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="aspect-square bg-surface-container dark:bg-[#121214] rounded-lg overflow-hidden group/item border border-transparent dark:border-[#303030]">
+                      <div className="bg-zinc-100 rounded-3xl h-full w-full" />
+                    </div>
+                    <div className="aspect-square bg-surface-container dark:bg-[#121214] rounded-lg overflow-hidden group/item border border-transparent dark:border-[#303030]">
+                      <div className="bg-zinc-100 rounded-3xl h-full w-full" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ── Three Steps ── */}
+        <section className="bg-surface-container-low dark:bg-[#121214] py-16 md:py-24 px-4 md:px-[6%] transition-colors duration-300">
+          <div className="text-center mb-16">
+            <div className="text-sm font-black uppercase text-primary dark:text-[#b7c4ff] tracking-[0.2em] mb-4">The Process</div>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[#1b1c1b] dark:text-[#fcf9f8]">Three Steps to Radiance</h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-surface-container-lowest dark:bg-[#1b1c1b] p-10 rounded-xl hover:scale-[1.02] transition-all group hover:shadow-2xl border border-transparent dark:border-[#303030]">
+              <div className="w-14 h-14 bg-primary dark:bg-[#003ec7] text-on-primary rounded-xl flex items-center justify-center mb-8 group-hover:rotate-12 transition-transform">
+                <span className="material-symbols-outlined text-4xl">upload_file</span>
+              </div>
+              <h3 className="text-xl font-bold mb-4 text-[#1b1c1b] dark:text-[#fcf9f8]">1. Upload</h3>
+              <p className="text-on-surface-variant dark:text-[#a0a0b8] leading-relaxed">Share a well-lit portrait. Our privacy-first AI processes your features locally before generating results.</p>
+            </div>
+            <div className="bg-surface-container-lowest dark:bg-[#1b1c1b] p-10 rounded-xl hover:scale-[1.02] transition-all group hover:shadow-2xl border border-transparent dark:border-[#303030]">
+              <div className="w-14 h-14 signature-gradient text-on-primary rounded-xl flex items-center justify-center mb-8 group-hover:rotate-12 transition-transform">
+                <span className="material-symbols-outlined text-4xl">insights</span>
+              </div>
+              <h3 className="text-xl font-bold mb-4 text-[#1b1c1b] dark:text-[#fcf9f8]">2. Analyze</h3>
+              <p className="text-on-surface-variant dark:text-[#a0a0b8] leading-relaxed">The Atelier Engine cross-references skin undertones, eye contrast, and hair depth against 4,000+ color profiles.</p>
+            </div>
+            <div className="bg-surface-container-lowest dark:bg-[#1b1c1b] p-10 rounded-xl hover:scale-[1.02] transition-all group hover:shadow-2xl border border-transparent dark:border-[#303030]">
+              <div className="w-14 h-14 bg-tertiary-container dark:bg-[#952301]/20 text-on-tertiary dark:text-[#ffb4a1] rounded-xl flex items-center justify-center mb-8 group-hover:rotate-12 transition-transform">
+                <span className="material-symbols-outlined text-4xl">stylus_note</span>
+              </div>
+              <h3 className="text-xl font-bold mb-4 text-[#1b1c1b] dark:text-[#fcf9f8]">3. Recommend</h3>
+              <p className="text-on-surface-variant dark:text-[#a0a0b8] leading-relaxed">Receive a permanent digital lookbook with palette-matched clothing, makeup, and accessory recommendations.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Digital Atelier ── */}
+        <section className="py-16 md:py-24 px-4 md:px-[6%]">
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-5">
+              <div className="text-sm font-black uppercase text-tertiary dark:text-[#ffb4a1] tracking-[0.2em] mb-4">Live Preview</div>
+              <h2 className="text-4xl font-extrabold mb-6 tracking-tight text-[#1b1c1b] dark:text-[#fcf9f8]">Your Digital Atelier</h2>
+              <p className="text-on-surface-variant dark:text-[#a0a0b8] text-lg mb-8">Stop guessing in the dressing room. Our real-time dashboard gives you the confidence to wear colors you never thought possible.</p>
+              <ul className="space-y-4">
+                <li className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary dark:text-[#b7c4ff]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                  <span className="font-medium text-[#1b1c1b] dark:text-[#fcf9f8]">Sub-season precision (e.g., Deep Autumn)</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary dark:text-[#b7c4ff]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                  <span className="font-medium text-[#1b1c1b] dark:text-[#fcf9f8]">Hex codes for online shopping</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary dark:text-[#b7c4ff]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                  <span className="font-medium text-[#1b1c1b] dark:text-[#fcf9f8]">Customizable outfit capsules</span>
+                </li>
+              </ul>
+            </div>
+            <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="col-span-2 bg-surface-container dark:bg-[#121214] p-1 rounded-xl border border-transparent dark:border-[#303030]">
+                <div className="relative rounded-lg overflow-hidden h-64">
+                  <div className="bg-zinc-100 rounded-3xl h-full w-full" />
+                  <div className="absolute bottom-4 left-4 bg-surface/90 dark:bg-black/90 backdrop-blur-md px-4 py-2 rounded-full text-xs font-bold text-[#1b1c1b] dark:text-[#fcf9f8]">
+                    WARM PALETTE SELECTION
+                  </div>
+                </div>
+              </div>
+              <div className="bg-surface-container dark:bg-[#121214] rounded-xl overflow-hidden border border-transparent dark:border-[#303030]">
+                <div className="bg-zinc-100 rounded-3xl h-full w-full" />
+              </div>
+              <div className="relative bg-surface-container dark:bg-[#121214] rounded-xl overflow-hidden h-48 border border-transparent dark:border-[#303030]">
+                <div className="bg-zinc-100 rounded-3xl h-full w-full" />
+              </div>
+              <div className="col-span-2 bg-surface-container-highest dark:bg-[#1b1c1b] p-8 rounded-xl flex flex-col justify-center border border-transparent dark:border-[#303030]">
+                <div className="text-3xl font-black italic mb-2 text-[#1b1c1b] dark:text-[#fcf9f8]">Autumn / 24</div>
+                <div className="flex gap-2">
+                  <div className="w-8 h-8 rounded-full bg-[#5d4037]" />
+                  <div className="w-8 h-8 rounded-full bg-[#8d6e63]" />
+                  <div className="w-8 h-8 rounded-full bg-[#d7ccc8]" />
+                  <div className="w-8 h-8 rounded-full bg-[#3e2723]" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── CTA ── */}
+        <section className="px-4 md:px-[6%] py-16 md:py-24">
+          <div className="signature-gradient rounded-[1.5rem] md:rounded-[2rem] p-8 sm:p-12 md:p-24 text-center text-on-primary relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+              <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+                <path d="M0 100 C 20 0 50 0 100 100 Z" fill="currentColor" />
+              </svg>
+            </div>
+            <div className="relative z-10">
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tighter mb-6 md:mb-8">Ready to upgrade your style?</h2>
+              <p className="text-on-primary-container text-lg md:text-xl mb-12 max-w-2xl mx-auto opacity-90">
+                Join over 50,000 style enthusiasts who have discovered their perfect color palette with AI precision.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link className="bg-surface-bright dark:bg-[#fcf9f8] text-primary dark:text-[#002b92] px-10 py-5 rounded-full font-black hover:scale-105 transition-transform cursor-pointer" href="/analysis">
+                  Try Now
+                </Link>
+                <button className="border-2 border-on-primary/30 text-on-primary px-10 py-5 rounded-full font-black hover:bg-on-primary/10 transition-colors cursor-pointer">
+                  Contact Sales
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      {/* ── Footer ── */}
+      <footer className="bg-surface-container-low dark:bg-[#121214] w-full py-12 md:py-20 border-t border-transparent dark:border-[#303030]">
+        <div className="flex flex-col md:flex-row justify-between items-center px-4 md:px-[6%] gap-8">
+          <div className="text-center md:text-left">
+            <div className="text-xl font-bold text-[#1b1c1b] dark:text-[#fcf9f8] mb-2">StyleSense</div>
+            <p className="text-on-surface-variant dark:text-[#a0a0b8] text-sm max-w-xs">Elevating personal style through high-precision computational aesthetics.</p>
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-wrap justify-center gap-6">
+              <a className="text-on-surface-variant dark:text-[#a0a0b8] opacity-70 hover:opacity-100 hover:text-[#1b1c1b] dark:hover:text-[#fcf9f8] transition-all text-sm" href="#">Privacy Policy</a>
+              <a className="text-on-surface-variant dark:text-[#a0a0b8] opacity-70 hover:opacity-100 hover:text-[#1b1c1b] dark:hover:text-[#fcf9f8] transition-all text-sm" href="#">Terms of Service</a>
+              <a className="text-on-surface-variant dark:text-[#a0a0b8] opacity-70 hover:opacity-100 hover:text-[#1b1c1b] dark:hover:text-[#fcf9f8] transition-all text-sm" href="#">Contact</a>
+            </div>
+            <div className="text-on-surface-variant dark:text-[#a0a0b8] opacity-70 text-sm">© 2026 StyleSense. All rights reserved.</div>
+          </div>
+        </div>
+      </footer>
+
+      {/* ── Mobile Bottom Nav ── */}
+      <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-[#fcf9f8]/90 dark:bg-[#0f0f14]/90 backdrop-blur-2xl border-t border-black/5 dark:border-white/10 flex justify-around items-center px-2 h-16">
+        <Link href="/discover" className="flex flex-col items-center justify-center text-stone-400 dark:text-[#a0a0b8] px-3 py-1">
+          <span className="material-symbols-outlined text-[22px]">explore</span>
+          <span className="text-[9px] font-semibold uppercase tracking-widest mt-0.5">Discover</span>
+        </Link>
+        <Link href="/analysis" className="flex flex-col items-center justify-center text-stone-400 dark:text-[#a0a0b8] px-3 py-1">
+          <span className="material-symbols-outlined text-[22px]">add_circle</span>
+          <span className="text-[9px] font-semibold uppercase tracking-widest mt-0.5">Analysis</span>
+        </Link>
+        <Link href="/wardrobe" className="flex flex-col items-center justify-center text-stone-400 dark:text-[#a0a0b8] px-3 py-1">
+          <span className="material-symbols-outlined text-[22px]">checkroom</span>
+          <span className="text-[9px] font-semibold uppercase tracking-widest mt-0.5">Wardrobe</span>
+        </Link>
+        <Link href="/history" className="flex flex-col items-center justify-center text-stone-400 dark:text-[#a0a0b8] px-3 py-1">
+          <span className="material-symbols-outlined text-[22px]">history</span>
+          <span className="text-[9px] font-semibold uppercase tracking-widest mt-0.5">History</span>
+        </Link>
+      </nav>
+
+    </div>
+  );
+}

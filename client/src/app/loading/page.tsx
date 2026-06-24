@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import posthog from "posthog-js";
+import { type AnalysisResultData } from "../components/result/types";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 
@@ -218,17 +221,13 @@ export default function LoadingPage() {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
 
-  // Animate progress 0 → 90 while API runs, tied to time bands
+  // Safety timeout: If loading exceeds 60 seconds, show error state
   useEffect(() => {
-    const iv = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 90) { clearInterval(iv); return p; }
-        // Slow down as we approach each band ceiling
-        const target = p < 30 ? 30 : p < 60 ? 60 : 90;
-        return p + (target - p) * 0.05;
-      });
-    }, 300);
-    return () => clearInterval(iv);
+    const fallbackTimeout = setTimeout(() => {
+      console.warn("Safety timeout triggered: Analysis exceeded 60 seconds.");
+      setError("This is taking longer than expected.");
+    }, 60000);
+    return () => clearTimeout(fallbackTimeout);
   }, []);
 
   // Make the API call once on mount
@@ -244,6 +243,7 @@ export default function LoadingPage() {
       }
 
       const persistAndNavigate = (resultData: unknown, notice?: AnalysisNotice) => {
+        posthog.capture("analysis_completed");
         sessionStorage.removeItem(PENDING_IMAGE_KEY);
         sessionStorage.setItem(ANALYSIS_RESULT_KEY, JSON.stringify(resultData));
         localStorage.setItem(LAST_ANALYSIS_KEY, JSON.stringify(resultData));
@@ -253,20 +253,28 @@ export default function LoadingPage() {
           sessionStorage.removeItem(ANALYSIS_NOTICE_KEY);
         }
         setProgress(100);
-        setTimeout(() => {
-          router.replace("/result");
-        }, 450);
+        router.replace("/result");
+
       };
 
       const runClientFallback = async (message: string) => {
+
+        setProgress(80);
         const fallbackResult = await buildFallbackResult(raw);
         persistAndNavigate(fallbackResult, { kind: "demo", message });
       };
 
       let timeoutId: ReturnType<typeof setTimeout> | null = null;
       try {
+
+        setProgress(20);
+
         // Convert base64 data URL back to a File blob
-        const [meta, b64] = raw.split(",");
+        const splitRaw = raw.split(",");
+        if (splitRaw.length < 2) throw new Error("Invalid image data");
+        const meta = splitRaw[0];
+        const b64 = splitRaw[1];
+
         const mime = meta.match(/:(.*?);/)?.[1] ?? "image/jpeg";
         const bytes = atob(b64);
         const arr = new Uint8Array(bytes.length);
@@ -279,6 +287,7 @@ export default function LoadingPage() {
         const controller = new AbortController();
         timeoutId = setTimeout(() => controller.abort(), 40000);
 
+        setProgress(40);
         const res = await apiFetch("/api/v1/analysis/upload", {
           method: "POST",
           body: formData,
@@ -286,6 +295,9 @@ export default function LoadingPage() {
         });
 
         if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+
+
+        setProgress(60);
 
         if (!res.ok) {
           if (res.status === 401) { router.push("/login"); return; }
@@ -300,7 +312,7 @@ export default function LoadingPage() {
             (res.status === 400 && "Invalid image. Try another.") ||
             "Analysis failed. Please try again.";
 
-          console.error("Backend error:", errPayload || res.status);
+          console.warn("Backend error:", errPayload || res.status);
 
           // Face gate: redirect back to /analysis with the specific error
           if (res.status === 422 && typeof msg === "string" && /no face/i.test(msg)) {
@@ -314,39 +326,43 @@ export default function LoadingPage() {
             setError(msg);
             return;
           }
-          await runClientFallback("Backend unavailable. Showing client-side preview.");
+          await runClientFallback("Service unavailable. Showing client-side preview.");
           return;
         }
 
         const ct = res.headers.get("content-type") || "";
         if (!ct.includes("application/json")) {
-          await runClientFallback("Unexpected backend response. Showing client-side preview.");
+          await runClientFallback("Service unavailable. Showing client-side preview.");
           return;
         }
 
+        setProgress(80);
         const payload = await res.json();
         if (!payload.success) {
-          await runClientFallback("Backend response incomplete. Showing client-side preview.");
+          await runClientFallback("Service unavailable. Showing client-side preview.");
           return;
         }
 
         const resultData = payload.data ?? payload;
+
         persistAndNavigate(resultData);
-      } catch (err) {
+      } catch (err: any) {
         if (timeoutId) clearTimeout(timeoutId);
+        console.warn("Analysis caught error:", err);
+
         if (err instanceof DOMException && err.name === "AbortError") {
-          await runClientFallback("Backend timed out. Showing client-side preview.");
+          await runClientFallback("Service unavailable. Showing client-side preview.");
           return;
         }
-        if (err instanceof TypeError && /failed to fetch|networkerror|network error/i.test(err.message)) {
-          await runClientFallback("Backend not reachable. Showing client-side preview.");
+        if (err instanceof TypeError && /failed to fetch|networkerror|network error/i.test(err?.message || "")) {
+          await runClientFallback("Service unavailable. Showing client-side preview.");
           return;
         }
         await runClientFallback("Analysis service unavailable. Showing client-side preview.");
       }
     }
 
-    void runAnalysis();
+    runAnalysis();
   }, [router]);
 
   if (error) {
@@ -362,11 +378,19 @@ export default function LoadingPage() {
           <p className="text-[#5a6060] mb-8">{error}</p>
           <Link
             href="/analysis"
-            className="inline-block px-8 py-3 rounded-full text-white font-semibold transition-transform hover:scale-[1.02]"
+            className="inline-block px-8 py-3 rounded-full text-white font-semibold transition-transform hover:scale-[1.02] mb-4"
             style={{ background: "linear-gradient(135deg, #002b92 0%, #003ec7 100%)" }}
           >
-            Try Again
+            Retry Analysis
           </Link>
+          <div className="block">
+            <button
+              onClick={() => router.back()}
+              className="text-[#5a6060] font-semibold hover:text-[#1b1c1b] transition-colors"
+            >
+              Go Back
+            </button>
+          </div>
         </div>
       </div>
     );
