@@ -3,7 +3,7 @@
 import { useState, memo } from "react";
 import Image from "next/image";
 import posthog from "posthog-js";
-import { Product } from "@/data/products";
+import { type LegacyProduct as Product } from "@/lib/products-api";
 import { ArrowRight, Check, Copy } from "lucide-react";
 import { useWardrobe } from "@/app/context/WardrobeContext";
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import RequireAdmin from "../components/RequireAdmin";
 import AdminLayout from "../components/AdminLayout";
 import { apiFetch } from "@/lib/api";
@@ -239,9 +240,14 @@ function ProductsContent() {
             <h1 className="text-3xl font-bold tracking-tight" style={{ fontFamily: "Manrope, sans-serif" }}>Products</h1>
             <p className="text-sm text-gray-500 mt-1">{total} total products</p>
           </div>
-          <button onClick={openNew} className="px-5 py-2.5 rounded-xl text-white text-sm font-bold" style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}>
-            + Add Product
-          </button>
+          <div className="flex gap-3">
+            <Link href="/admin/products/import" className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">upload_file</span> Import CSV
+            </Link>
+            <button onClick={openNew} className="px-5 py-2.5 rounded-xl text-white text-sm font-bold" style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}>
+              + Add Product
+            </button>
+          </div>
         </div>
 
         {/* Search */}

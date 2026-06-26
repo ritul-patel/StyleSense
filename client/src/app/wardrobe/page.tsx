@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
 import RequireAuth from "../components/RequireAuth";
 import { useWardrobe } from "../context/WardrobeContext";
-import { PRODUCTS, type Product } from "@/data/products";
+import { fetchProductsLegacy, type LegacyProduct } from "@/lib/products-api";
 import type { ColorEntry } from "@/types/analysis";
 import type { ClosetItem, OutfitBuild } from "@/lib/wardrobe-repository";
+
+// Use LegacyProduct as the local Product type for backward compat
+type Product = LegacyProduct;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -161,8 +164,8 @@ function OutfitBuilderPanel({ onSave }: { onSave: (outfit: Omit<OutfitBuild, "id
 
   const wishlistProducts = useMemo(() => {
     const ids = items.map((i) => i.productId);
-    return PRODUCTS.filter((p) => ids.includes(p.id) && p.name);
-  }, [items]);
+    return allProducts.filter((p) => ids.includes(p.id) && p.name);
+  }, [items, allProducts]);
 
   const toggleProduct = (id: string) => {
     setSelected((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -257,7 +260,13 @@ function WardrobePageContent() {
     outfits, saveOutfit, removeOutfit, ready,
   } = useWardrobe();
 
-  const validProducts = useMemo(() => PRODUCTS.filter((p) => p.name && p.id), []);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetchProductsLegacy().then((p) => setAllProducts(p));
+  }, []);
+
+  const validProducts = useMemo(() => allProducts.filter((p) => p.name && p.id), [allProducts]);
   const categories = useMemo(() => {
     const m = new Map<string, Product[]>();
     for (const p of validProducts) { const c = p.category || "other"; if (!m.has(c)) m.set(c, []); m.get(c)!.push(p); }
@@ -401,7 +410,7 @@ function WardrobePageContent() {
                       <p className="text-[10px] text-[#747686] uppercase tracking-wider">{o.productIds.length + o.closetItemIds.length} items</p>
                       <div className="flex gap-1 mt-2 overflow-hidden">
                         {o.productIds.slice(0, 4).map((pid) => {
-                          const p = PRODUCTS.find((x) => x.id === pid);
+                          const p = allProducts.find((x) => x.id === pid);
                           return p?.image ? <div key={pid} className="w-10 h-10 rounded-lg overflow-hidden relative flex-shrink-0"><Image src={p.image} alt="" fill className="object-cover" unoptimized /></div> : null;
                         })}
                       </div>

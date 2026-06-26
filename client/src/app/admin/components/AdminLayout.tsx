@@ -8,6 +8,9 @@ import { useAuth } from "@/lib/auth-context";
 const NAV_ITEMS = [
   { href: "/admin/dashboard", label: "Dashboard", icon: "dashboard" },
   { href: "/admin/products", label: "Products", icon: "inventory_2" },
+  { href: "/admin/products/import", label: "Import CSV", icon: "upload_file", indent: true },
+  { href: "/admin/products/images", label: "Upload Images", icon: "add_photo_alternate", indent: true },
+  { href: "/admin/products/metadata", label: "AI Queue", icon: "auto_awesome", indent: true },
   { href: "/admin/outfits", label: "Outfits", icon: "checkroom" },
   { href: "/admin/users", label: "Users", icon: "group" },
   { href: "/admin/analytics", label: "Analytics", icon: "analytics" },
@@ -51,13 +54,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Nav */}
         <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          {NAV_ITEMS.map(({ href, label, icon }) => {
-            const isActive = pathname === href || (href !== "/admin/dashboard" && pathname.startsWith(href));
+          {NAV_ITEMS.map(({ href, label, icon, indent }: any) => {
+            const isActive = pathname === href;
             return (
               <Link key={href} href={href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all ${isActive ? "bg-white/10 text-white font-semibold" : "text-white/60 hover:text-white hover:bg-white/5"}`}>
-                <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}>{icon}</span>
-                {label}
+                className={`flex items-center gap-3 ${indent ? "pl-10" : "px-4"} py-2.5 rounded-xl text-sm transition-all ${isActive ? "bg-white/10 text-white font-semibold" : "text-white/60 hover:text-white hover:bg-white/5"}`}>
+                <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}>{icon}</span>
+                <span className={indent ? "text-xs" : ""}>{label}</span>
               </Link>
             );
           })}

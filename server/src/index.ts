@@ -8,6 +8,11 @@ import wardrobeRouter from './routes/wardrobe';
 import profileRouter from './routes/profile';
 import productsRouter from './routes/products';
 import adminProductsRouter from './routes/adminProducts';
+import adminOutfitsRouter from './routes/adminOutfits';
+import adminImportRouter from './routes/adminImport';
+import adminImagesRouter from './routes/adminImages';
+import adminMetadataRouter from './routes/adminMetadata';
+import adminRouter from './routes/admin';
 import recommendationsRouter from './routes/recommendations';
 import { logger } from './middleware/logger';
 import { errorHandler } from './middleware/errorHandler';
@@ -51,7 +56,7 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(logger);
 app.use(limiter);
 
@@ -64,6 +69,11 @@ app.use("/api/v1/wardrobe", wardrobeRouter);
 app.use("/api/v1/profile", profileRouter);
 app.use("/api/v1/products", productsRouter);
 app.use("/api/v1/admin/products", adminProductsRouter);
+app.use("/api/v1/admin/outfits", adminOutfitsRouter);
+app.use("/api/v1/admin/import", adminImportRouter);
+app.use("/api/v1/admin/images", adminImagesRouter);
+app.use("/api/v1/admin/metadata", adminMetadataRouter);
+app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/recommendations", recommendationsRouter);
 
 app.use(errorHandler);
