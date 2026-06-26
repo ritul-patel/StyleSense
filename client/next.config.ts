@@ -6,7 +6,13 @@ const nextConfig: NextConfig = {
     root: path.resolve(__dirname),
   },
   experimental: {
-    optimizePackageImports: ["framer-motion", "@supabase/supabase-js"],
+    optimizePackageImports: [
+      "framer-motion",
+      "@supabase/supabase-js",
+      "lucide-react",
+      "posthog-js",
+      "@sentry/nextjs",
+    ],
   },
   images: {
     qualities: [60, 75],
@@ -22,33 +28,27 @@ const nextConfig: NextConfig = {
   },
 };
 
-import { withSentryConfig } from "@sentry/nextjs";
+// Only wrap with Sentry in production builds — it significantly slows dev compilation
+const isDev = process.env.NODE_ENV === "development";
 
-export default withSentryConfig(
-  nextConfig,
-  {
-    // Suppresses source map uploading logs during build
-    silent: true,
-    org: "stylesense-42",
-    project: "javascript-nextjs",
-  },
-  {
-    // Upload a larger set of source maps for prettier stack traces (increases build time)
-    widenClientFileUpload: true,
+let exportedConfig: NextConfig = nextConfig;
 
-    // Transpiles SDK to be compatible with IE11 (increases bundle size)
-    transpileClientSDK: true,
+if (!isDev) {
+  const { withSentryConfig } = require("@sentry/nextjs");
+  exportedConfig = withSentryConfig(
+    nextConfig,
+    {
+      silent: true,
+      org: "stylesense-42",
+      project: "javascript-nextjs",
+    },
+    {
+      widenClientFileUpload: true,
+      hideSourceMaps: true,
+      disableLogger: true,
+      automaticVercelMonitors: true,
+    }
+  );
+}
 
-    // Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-    tunnelRoute: "/monitoring",
-
-    // Hides source maps from generated client bundles
-    hideSourceMaps: true,
-
-    // Automatically tree-shake Sentry logger statements to reduce bundle size
-    disableLogger: true,
-
-    // Enables automatic instrumentation of Vercel Cron Monitors.
-    automaticVercelMonitors: true,
-  }
-);
+export default exportedConfig;
