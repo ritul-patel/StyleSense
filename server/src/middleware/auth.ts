@@ -33,7 +33,6 @@ async function verifyToken(
     return;
   }
 
-  console.log("[auth] User verified:", data.user.id);
   req.user = data.user;
   next();
 }
@@ -47,7 +46,6 @@ export async function authMiddleware(
   const token = getBearerToken(req.headers.authorization);
 
   if (!token) {
-    console.warn("[auth] No token — returning 401");
     res.status(401).json({ success: false, message: "Unauthorized" });
     return;
   }

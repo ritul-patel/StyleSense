@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { softDeleteAccount } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import SettingsCard from "./SettingsCard";
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
@@ -55,7 +55,7 @@ export default function DangerZone() {
     if (deleteInput !== "DELETE") return;
     setIsDeleting(true);
     try {
-      await softDeleteAccount();
+      await apiFetch("/api/v1/profile/delete", { method: "POST" });
       await supabase.auth.signOut();
       showToast("Account deleted successfully.", "success");
       setTimeout(() => {

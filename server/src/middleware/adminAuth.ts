@@ -3,8 +3,9 @@ import { authMiddleware, type AuthenticatedRequest } from "./auth";
 
 /**
  * Admin authorization middleware.
- * Must be used AFTER authMiddleware (or chains it).
- * Checks user.app_metadata.role === "admin" OR user.user_metadata.role === "admin".
+ * SECURITY: Only trusts app_metadata.role which can only be set server-side
+ * via the Supabase service role key. user_metadata is NOT trusted as users
+ * can self-modify it via the client SDK.
  */
 export async function adminMiddleware(
   req: AuthenticatedRequest,
@@ -16,7 +17,6 @@ export async function adminMiddleware(
     authMiddleware(req, res, () => resolve());
   });
 
-  // If authMiddleware already sent a response (401), stop
   if (res.headersSent) return;
 
   const user = req.user;
@@ -24,10 +24,10 @@ export async function adminMiddleware(
     return res.status(401).json({ success: false, message: "Unauthorized" });
   }
 
+  // ONLY trust app_metadata — it can only be set by service_role (server-side)
   const appRole = (user as any).app_metadata?.role;
-  const userRole = (user as any).user_metadata?.role;
 
-  if (appRole !== "admin" && userRole !== "admin") {
+  if (appRole !== "admin") {
     return res.status(403).json({ success: false, message: "Forbidden: admin access required." });
   }
 

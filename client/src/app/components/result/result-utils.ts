@@ -111,7 +111,7 @@ function parseStringArray(value: unknown): string[] {
 function parseMaterials(input: unknown): MaterialItem[] {
   if (!Array.isArray(input)) return [];
   return input.flatMap((item): MaterialItem[] => {
-    if (typeof item === "string" && item.trim()) return [item.trim()];
+    if (typeof item === "string" && item.trim()) return [{ name: item.trim() }];
     if (isRecord(item)) {
       const name = typeof item.name === "string" ? item.name.trim() : "";
       if (!name) return [];
@@ -124,7 +124,7 @@ function parseMaterials(input: unknown): MaterialItem[] {
 function parseAccessories(input: unknown): AccessoryItem[] {
   if (!Array.isArray(input)) return [];
   return input.flatMap((item): AccessoryItem[] => {
-    if (typeof item === "string" && item.trim()) return [item.trim()];
+    if (typeof item === "string" && item.trim()) return [{ type: item.trim(), value: item.trim() }];
     if (isRecord(item)) {
       const type = typeof item.type === "string" ? item.type.trim() : "";
       const value = typeof item.value === "string" ? item.value.trim() : "";

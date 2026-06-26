@@ -6,15 +6,12 @@ import { useAuth } from "@/lib/auth-context";
 
 /**
  * Admin route guard.
- * Checks: user is authenticated AND has admin role in app_metadata or user_metadata.
- * Non-admins are redirected to home.
+ * SECURITY: Only trusts app_metadata.role (server-set only).
+ * user_metadata is NOT trusted — users can self-modify it.
  */
 function isAdmin(user: any): boolean {
   if (!user) return false;
-  // Supabase stores roles in app_metadata (set by service role) or user_metadata
-  const appRole = user.app_metadata?.role;
-  const userRole = user.user_metadata?.role;
-  return appRole === "admin" || userRole === "admin";
+  return user.app_metadata?.role === "admin";
 }
 
 export default function RequireAdmin({ children }: { children: React.ReactNode }) {

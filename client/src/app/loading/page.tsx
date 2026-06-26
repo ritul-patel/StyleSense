@@ -100,7 +100,7 @@ function buildAvoidColors(base: RgbTuple): Array<{ name: string; hex: string }> 
 
 function getAverageRgbFromDataUrl(dataUrl: string): Promise<RgbTuple> {
   return new Promise((resolve) => {
-    const img = new Image();
+    const img = new (globalThis as any).Image() as HTMLImageElement;
     img.onload = () => {
       const canvas = document.createElement("canvas");
       const size = 24;

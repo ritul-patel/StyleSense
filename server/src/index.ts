@@ -21,15 +21,22 @@ app.set('trust proxy', 1);
 
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 20, // 20 requests per IP
+  max: 100, // 100 requests per IP per minute (general)
   message: { error: 'Too many requests from this IP, please try again after a minute' }
+});
+
+// Stricter limit for expensive AI/upload operations
+const analysisLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 10, // 10 analysis requests per minute per IP
+  message: { error: 'Too many analysis requests. Please wait a moment.' }
 });
 
 app.use(helmet());
 const allowedOrigins = [
-  "http://localhost:3000",
   "https://www.stylesens.in",
   "https://stylesens.in",
+  ...(process.env.NODE_ENV !== "production" ? ["http://localhost:3000", "http://localhost:3001"] : []),
 ];
 
 app.use(
@@ -52,7 +59,7 @@ app.get('/health', (req, res) => {
   res.status(200).send('Server is healthy');
 });
 
-app.use("/api/v1/analysis", analysisRouter);
+app.use("/api/v1/analysis", analysisLimiter, analysisRouter);
 app.use("/api/v1/wardrobe", wardrobeRouter);
 app.use("/api/v1/profile", profileRouter);
 app.use("/api/v1/products", productsRouter);

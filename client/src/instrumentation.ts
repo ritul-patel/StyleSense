@@ -3,8 +3,8 @@ export function register() {
 
   import("@sentry/nextjs").then((Sentry) => {
     Sentry.init({
-      dsn: "https://b9488793f85eacfe2694ed523491b064@o4511618976382976.ingest.us.sentry.io/4511618979594240",
-      tracesSampleRate: 1.0,
+      dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+      tracesSampleRate: 0.1,
       debug: false,
     });
   });

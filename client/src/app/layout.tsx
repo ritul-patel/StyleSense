@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "StyleSense | AI Personal Stylist",
     description: "Your personal AI stylist. Discover your seasonal color palette and get outfit recommendations.",
-    url: "https://stylesense.app",
+    url: "https://www.stylesens.in",
     siteName: "StyleSense",
     type: "website",
   },
@@ -32,11 +32,10 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Material Symbols — preload so icons are available immediately */}
-        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" as="style" />
-        {/* Text fonts — swap so text renders immediately with fallback */}
+        {/* Text fonts */}
         <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-        {/* Material Symbols — swap so icons show fallback then render correctly */}
+        {/* Material Symbols — preload + swap for immediate icon rendering */}
+        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" as="style" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
       </head>
       <body style={{ overflowX: "hidden" }}><Providers>{children}</Providers></body>
