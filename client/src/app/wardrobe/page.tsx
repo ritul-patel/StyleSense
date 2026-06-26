@@ -7,6 +7,7 @@ import Navbar from "@/app/components/Navbar";
 import RequireAuth from "../components/RequireAuth";
 import { useWardrobe } from "../context/WardrobeContext";
 import { fetchProductsLegacy, type LegacyProduct } from "@/lib/products-api";
+import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
 import type { ColorEntry } from "@/types/analysis";
 import type { ClosetItem, OutfitBuild } from "@/lib/wardrobe-repository";
 
@@ -164,8 +165,8 @@ function OutfitBuilderPanel({ onSave }: { onSave: (outfit: Omit<OutfitBuild, "id
 
   const wishlistProducts = useMemo(() => {
     const ids = items.map((i) => i.productId);
-    return allProducts.filter((p) => ids.includes(p.id) && p.name);
-  }, [items, allProducts]);
+    return STATIC_PRODUCTS.filter((p) => ids.includes(p.id) && p.name);
+  }, [items]);
 
   const toggleProduct = (id: string) => {
     setSelected((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -263,7 +264,14 @@ function WardrobePageContent() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetchProductsLegacy().then((p) => setAllProducts(p));
+    fetchProductsLegacy().then((apiProducts) => {
+      // Use API products if available, otherwise fall back to static catalog
+      if (apiProducts.length > 0) {
+        setAllProducts(apiProducts);
+      } else {
+        setAllProducts(STATIC_PRODUCTS as Product[]);
+      }
+    });
   }, []);
 
   const validProducts = useMemo(() => allProducts.filter((p) => p.name && p.id), [allProducts]);
