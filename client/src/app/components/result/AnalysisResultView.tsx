@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useMemo } from "react";
-import type { AnalysisResultData, MaterialItem, AccessoryItem, OutfitInput } from "./types";
+import type { AnalysisResultData, MaterialItem, AccessoryItem, OutfitItem, PaletteItem, AvoidColorItem } from "./types";
+import { getRecommendedOutfits, type RecommendedOutfit } from "@/lib/outfit-recommendation";
 import RequireAuth from "../RequireAuth";
 
 // ─── constants ────────────────────────────────────────────────────────────────
@@ -24,23 +25,20 @@ function fitzFromSkinTone(skinTone: string): string {
   return skinTone.replace(/^type\s+/i, "").trim() || "?";
 }
 
-function materialLabel(m: MaterialItem): { label: string; finish?: string } {
-  if (typeof m === "string") return { label: m };
+function materialLabel(m: MaterialItem): { label: string; finish?: string; note?: string } {
   const label = m.name || "—";
   const finish = m.finish && m.finish !== "any" ? m.finish : undefined;
-  return { label, finish };
+  return { label, finish, note: m.note };
 }
 
-function accessoryLabel(a: AccessoryItem): { label: string; kind?: string } {
-  if (typeof a === "string") return { label: a };
+function accessoryLabel(a: AccessoryItem): { label: string; kind?: string; note?: string } {
   const label = a.value || a.type || "—";
   const kind = a.type && a.value ? a.type : undefined;
-  return { label, kind };
+  return { label, kind, note: a.note };
 }
 
-function outfitCard(o: OutfitInput, i: number): { title: string; description: string } {
-  if (typeof o === "string") return { title: o, description: "" };
-  return { title: o.title || `Look ${i + 1}`, description: o.description || "" };
+function outfitCard(o: OutfitItem, i: number): OutfitItem {
+  return { ...o, title: o.title || `Look ${i + 1}` };
 }
 
 // ─── main component ────────────────────────────────────────────────────────────
@@ -69,17 +67,19 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
   const confidence = rawConf > 0 && rawConf <= 1 ? Math.round(rawConf * 100) : Math.max(0, Math.min(100, Math.round(rawConf || 85)));
   const analysisDate = useMemo(() => new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date()), []);
 
+  // Recommended outfits from Discover catalog
+  const recommendedOutfits = useMemo(() => getRecommendedOutfits(data, 6), [data]);
+
   const bestColors = data.best_colors || [];
   const avoidColors = data.avoid_colors || [];
-  const OUTFIT_NAMES = ["Office Ready", "Weekend Casual", "Date Night", "Smart Casual", "Everyday Essential"];
-  const outfits = (data.outfits || []).map((o, i) => {
-    const parsed = outfitCard(o, i);
-    return { ...parsed, title: OUTFIT_NAMES[i] || parsed.title };
-  });
+  const outfits = (data.outfits || []).map((o, i) => outfitCard(o, i));
   const styleRules = data.style_rules || [];
   const materials = data.materials || [];
   const accessories = data.accessories || [];
-  const signatureColors = data.signature_colors || bestColors.slice(0, 3).map(c => ({ name: c.name, hex: c.hex, reason: (c as any).why || "Makes your complexion appear brighter." }));
+  const signatureColors = data.signature_colors || bestColors.slice(0, 3).map(c => ({ name: c.name || "", hex: c.hex, reason: c.why || "Complements your complexion." }));
+  const skinDescription = data.skin_description || "";
+  const nextSteps = data.next_steps || [];
+  const confidenceReason = data.confidence_reason;
 
   const miniDots = bestColors.slice(0, 6);
   const mainOutfit = outfits[0] ?? null;
@@ -242,20 +242,26 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
 
               {/* Style Characteristics */}
               <div style={{ background: "#f6f3f2", borderRadius: 12, padding: 16, marginTop: 12 }}>
-                <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.6rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#747686", marginBottom: 12 }}>Style Characteristics</p>
+                <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.6rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#747686", marginBottom: 12 }}>AI Confidence Breakdown</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#434654", display: "flex", alignItems: "center", gap: 4 }}><span className="material-symbols-outlined" style={{ fontSize: 14 }}>contrast</span> Contrast</span>
-                    <div style={{ display: "flex", gap: 2 }} title="Contrast intensity">{[1,2,3,4,5].map(i => <div key={i} style={{ width: 12, height: 4, borderRadius: 2, background: i <= 3 ? "#002b92" : "#d0ccc9" }} />)}</div>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#434654", display: "flex", alignItems: "center", gap: 4 }}><span className="material-symbols-outlined" style={{ fontSize: 14 }}>light_mode</span> Brightness</span>
-                    <div style={{ display: "flex", gap: 2 }} title="Luminance intensity">{[1,2,3,4,5].map(i => <div key={i} style={{ width: 12, height: 4, borderRadius: 2, background: i <= 4 ? "#002b92" : "#d0ccc9" }} />)}</div>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#434654", display: "flex", alignItems: "center", gap: 4 }}><span className="material-symbols-outlined" style={{ fontSize: 14 }}>palette</span> Saturation</span>
-                    <div style={{ display: "flex", gap: 2 }} title="Chroma saturation">{[1,2,3,4,5].map(i => <div key={i} style={{ width: 12, height: 4, borderRadius: 2, background: i <= 2 ? "#002b92" : "#d0ccc9" }} />)}</div>
-                  </div>
+                  {(confidenceReason ? [
+                    { icon: "palette", label: "Undertone", level: confidenceReason.undertone },
+                    { icon: "contrast", label: "Contrast", level: confidenceReason.contrast },
+                    { icon: "light_mode", label: "Brightness", level: confidenceReason.brightness },
+                    { icon: "face", label: "Facial Harmony", level: confidenceReason.facial_harmony },
+                  ] : [
+                    { icon: "contrast", label: "Contrast", level: "medium" },
+                    { icon: "light_mode", label: "Brightness", level: "medium" },
+                    { icon: "palette", label: "Saturation", level: "medium" },
+                  ]).map((item, idx) => {
+                    const bars = item.level === "high" ? 5 : item.level === "medium" ? 3 : 1;
+                    return (
+                      <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#434654", display: "flex", alignItems: "center", gap: 4 }}><span className="material-symbols-outlined" style={{ fontSize: 14 }}>{item.icon}</span> {item.label}</span>
+                        <div style={{ display: "flex", gap: 2 }} title={`${item.level}`}>{[1,2,3,4,5].map(i => <div key={i} style={{ width: 12, height: 4, borderRadius: 2, background: i <= bars ? "#002b92" : "#d0ccc9" }} />)}</div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -350,7 +356,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                         <div style={{ width: 32, height: 32, borderRadius: 8, background: c.hex, boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.1)", flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           {c.name && <span style={{ display: "block", fontSize: 12, color: "#1b1c1b", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</span>}
-                          <span style={{ display: "block", fontSize: 10, color: "#747686" }}>Clashes with undertone</span>
+                          <span style={{ display: "block", fontSize: 10, color: "#747686" }}>{c.reason || "Clashes with undertone"}</span>
                         </div>
                         <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#b00020", opacity: 0.7 }}>warning</span>
                       </div>
@@ -430,7 +436,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                 </div>
               </motion.div>
 
-              {/* Curated wardrobe */}
+              {/* Curated Wardrobe — Real Discover Outfits */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -439,93 +445,94 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
               >
                 <div style={{ background: "linear-gradient(90deg, rgba(0,43,146,0.03) 0%, rgba(0,43,146,0) 100%)", padding: "10px 16px", borderRadius: 10, marginBottom: 20, borderLeft: "3px solid #002b92" }}>
                   <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 600, color: "#002b92" }}>
-                    Your profile unlocks 30 recommended outfits
+                    {recommendedOutfits.length} outfits matched to your {season} profile
                   </p>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-                  <h3 style={{ fontFamily: "'Manrope', sans-serif", fontSize: "1.4rem", fontWeight: 800, letterSpacing: "-0.02em" }}>Curated Wardrobe</h3>
-                  <button
-                    type="button"
-                    onClick={() => router.push("/wardrobe")}
-                    style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#002b92" }}
-                  >
+                  <h3 style={{ fontFamily: "'Manrope', sans-serif", fontSize: "1.4rem", fontWeight: 800, letterSpacing: "-0.02em" }}>Recommended Looks</h3>
+                  <button type="button" onClick={() => router.push("/discover")} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#002b92" }}>
                     View All →
                   </button>
                 </div>
 
-                {!mainOutfit && (
+                {recommendedOutfits.length === 0 ? (
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px 0", gap: 10 }}>
                     <span className="material-symbols-outlined" style={{ fontSize: 32, color: "#d0ccc9" }}>checkroom</span>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", color: "#bbb" }}>No outfits available</p>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", color: "#bbb" }}>No outfit matches found</p>
                   </div>
-                )}
-
-                {mainOutfit && (
-                  <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14 }}>
-                    {/* Main outfit card */}
-                    <motion.div
-                      whileHover={{ scale: 1.01, boxShadow: "0 24px 64px rgba(0,30,100,0.18)" }}
-                      transition={{ duration: 0.3 }}
-                      onClick={() => router.push(`/outfit/${mainOutfit.title?.replace(/[^a-zA-Z0-9]/g, '') || 'O001'}`)}
-                      style={{
-                        borderRadius: 14, overflow: "hidden", height: 360, position: "relative", cursor: "pointer",
-                        background: `linear-gradient(135deg, ${bestColors[0]?.hex || hex} 0%, ${hex} 100%)`,
-                        boxShadow: "0 8px 40px rgba(0,30,100,0.12)",
-                      }}
-                    >
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.65), transparent 50%)" }} />
-                      <div style={{ position: "absolute", top: 20, right: 20 }}>
-                        <span className="material-symbols-outlined" style={{ color: "#fff", fontSize: 22, opacity: 0.8 }}>open_in_new</span>
-                      </div>
-                      <div style={{ position: "absolute", bottom: 20, left: 20, right: 20 }}>
-                        <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", marginBottom: 8 }}>
-                          Look 1
-                        </p>
-                        <h4 style={{ fontFamily: "'Manrope', sans-serif", fontSize: "1.25rem", fontWeight: 700, color: "#fff", lineHeight: 1.2, marginBottom: 8 }}>
-                          {mainOutfit.title}
-                        </h4>
-                        {mainOutfit.description && (
-                          <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.78)", lineHeight: 1.5 }}>
-                            {mainOutfit.description}
+                ) : (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+                    {recommendedOutfits.map((rec, i) => (
+                      <motion.div
+                        key={rec.outfit.outfit_id}
+                        whileHover={{ scale: 1.02, boxShadow: "0 20px 50px rgba(0,30,100,0.15)" }}
+                        transition={{ duration: 0.25 }}
+                        onClick={() => router.push(`/outfit/${rec.outfit.outfit_id}`)}
+                        style={{ borderRadius: 14, overflow: "hidden", position: "relative", cursor: "pointer", aspectRatio: "3/4", background: "#f0edec" }}
+                      >
+                        <img
+                          src={rec.outfit.imageUrl}
+                          alt={`Look ${i + 1}`}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          loading={i < 3 ? "eager" : "lazy"}
+                        />
+                        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)" }} />
+                        {/* Match badge */}
+                        <div style={{ position: "absolute", top: 10, left: 10 }}>
+                          <span style={{ background: "#002b92", color: "#fff", fontSize: "0.6rem", fontWeight: 700, padding: "4px 8px", borderRadius: 6, letterSpacing: "0.05em" }}>
+                            {rec.score}% Match
+                          </span>
+                        </div>
+                        {/* Bottom info */}
+                        <div style={{ position: "absolute", bottom: 12, left: 12, right: 12 }}>
+                          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.55rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", marginBottom: 4 }}>
+                            Look {i + 1}
                           </p>
-                        )}
-                      </div>
-                    </motion.div>
-
-                    {/* Stacked side cards */}
-                    <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", gap: 14 }}>
-                      {outfits.slice(1, 3).map((o, i) => (
-                        <motion.div
-                          key={i}
-                          whileHover={{ scale: 1.02 }}
-                          transition={{ duration: 0.25 }}
-                          onClick={() => router.push(`/outfit/${o.title?.replace(/[^a-zA-Z0-9]/g, '') || 'O001'}`)}
-                          style={{
-                            borderRadius: 12, overflow: "hidden", position: "relative", cursor: "pointer",
-                            background: `linear-gradient(135deg, ${bestColors[i + 1]?.hex || hex} 0%, ${hex} 100%)`,
-                            boxShadow: "0 6px 28px rgba(0,30,100,0.1)",
-                          }}
-                        >
-                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.5), transparent 55%)" }} />
-                          <div style={{ position: "absolute", top: 12, right: 12 }}>
-                            <span className="material-symbols-outlined" style={{ color: "#fff", fontSize: 16, opacity: 0.8 }}>open_in_new</span>
-                          </div>
-                          <div style={{ position: "absolute", bottom: 12, left: 14, right: 14 }}>
-                            <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.55rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", marginBottom: 4 }}>
-                              Look {i + 2}
-                            </p>
-                            <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "#fff", lineHeight: 1.3 }}>
-                              {o.title}
-                            </p>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
+                          <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.85)", lineHeight: 1.3 }}>
+                            {rec.reason}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
                 )}
               </motion.div>
             </div>
           </div>
+
+          {/* Skin Description + Next Steps */}
+          {(skinDescription || nextSteps.length > 0) && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              style={{ display: "grid", gridTemplateColumns: skinDescription && nextSteps.length > 0 ? "1fr 1fr" : "1fr", gap: 16, marginTop: 16 }}
+            >
+              {skinDescription && (
+                <div style={{ background: "#fff", borderRadius: 20, padding: 24, boxShadow: "0 16px 40px rgba(16,24,40,0.05)", border: "1px solid rgba(16,24,40,0.06)" }}>
+                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "#002b92", marginBottom: 12 }}>
+                    About Your Skin
+                  </p>
+                  <p style={{ fontSize: "0.9rem", color: "#434654", lineHeight: 1.7 }}>{skinDescription}</p>
+                </div>
+              )}
+              {nextSteps.length > 0 && (
+                <div style={{ background: "#fff", borderRadius: 20, padding: 24, boxShadow: "0 16px 40px rgba(16,24,40,0.05)", border: "1px solid rgba(16,24,40,0.06)" }}>
+                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "#002b92", marginBottom: 12 }}>
+                    Next Steps
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {nextSteps.map((step, i) => (
+                      <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                        <span style={{ width: 22, height: 22, borderRadius: "50%", background: "#dde1ff", color: "#002b92", fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{i + 1}</span>
+                        <span style={{ fontSize: 13, color: "#1b1c1b", lineHeight: 1.5 }}>{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
 
           {/* Footer CTAs */}
           <motion.div

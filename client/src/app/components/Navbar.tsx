@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import ProfileDropdown from "./ProfileDropdown";
 
 type ActivePath = "discover" | "analysis" | "wardrobe" | "history" | "outfit" | "none";
 
@@ -48,12 +49,7 @@ export default function Navbar({ activePath }: Props) {
             })}
           </div>
           <div className="flex items-center gap-5">
-            <button className="text-gray-600 hover:text-black transition-colors">
-              <span className="material-symbols-outlined">shopping_bag</span>
-            </button>
-            <div className="w-8 h-8 rounded-full bg-[#8c5230] text-white flex items-center justify-center text-sm font-bold">
-              R
-            </div>
+            <ProfileDropdown />
           </div>
         </div>
       </nav>

@@ -1,4 +1,4 @@
-import type { AnalysisResultData, OutfitInput, PaletteItem, RgbTuple, MaterialItem, AccessoryItem } from "./types";
+import type { AnalysisResultData, OutfitInput, OutfitItem, PaletteItem, AvoidColorItem, RgbTuple, MaterialItem, AccessoryItem, SignatureColorItem, ConfidenceReasonData } from "./types";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -38,7 +38,7 @@ function parseRgb(input: unknown): RgbTuple {
   ];
 }
 
-// Handles both string[] (old) and ColorEntry[]/AvoidColor[] (new) with name+hex
+// Handles both string[] (old) and ColorEntry[] (new) with full fields preserved
 function parseColorPalette(value: unknown): PaletteItem[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((item): PaletteItem[] => {
@@ -48,18 +48,53 @@ function parseColorPalette(value: unknown): PaletteItem[] {
     if (isRecord(item)) {
       const hex = typeof item.hex === "string" && item.hex.trim() ? normalizeHex(item.hex) : "#808080";
       const name = typeof item.name === "string" && item.name.trim() ? item.name.trim() : undefined;
-      return [{ name, hex }];
+      const why = typeof item.why === "string" ? item.why : undefined;
+      const usage = typeof item.usage === "string" ? item.usage : undefined;
+      const group = typeof item.group === "string" ? item.group as PaletteItem["group"] : undefined;
+      return [{ name, hex, why, usage, group }];
     }
     return [];
   });
 }
 
-function parseOutfits(input: unknown): OutfitInput[] {
+function parseAvoidColors(value: unknown): AvoidColorItem[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item): AvoidColorItem[] => {
+    if (typeof item === "string" && item.trim()) {
+      return [{ name: item.trim(), hex: "#808080" }];
+    }
+    if (isRecord(item)) {
+      const hex = typeof item.hex === "string" && item.hex.trim() ? normalizeHex(item.hex) : "#808080";
+      const name = typeof item.name === "string" && item.name.trim() ? item.name.trim() : undefined;
+      const reason = typeof item.reason === "string" ? item.reason : undefined;
+      const effect = typeof item.effect === "string" ? item.effect : undefined;
+      return [{ name, hex, reason, effect }];
+    }
+    return [];
+  });
+}
+
+function parseOutfits(input: unknown): OutfitItem[] {
   if (!Array.isArray(input)) return [];
-  return input.filter((item): item is OutfitInput => {
-    if (typeof item === "string") return item.trim().length > 0;
-    if (!isRecord(item)) return false;
-    return typeof item.title === "string" || typeof item.description === "string";
+  return input.flatMap((item): OutfitItem[] => {
+    if (typeof item === "string" && item.trim()) {
+      const [rawTitle, ...rest] = item.split(":");
+      return [{ title: rawTitle?.trim() || "Look", description: rest.join(":").trim() || item.trim() }];
+    }
+    if (isRecord(item)) {
+      const title = typeof item.title === "string" ? item.title.trim() : "";
+      const description = typeof item.description === "string" ? item.description.trim() : "";
+      if (!title && !description) return [];
+      return [{
+        title: title || "Look",
+        description,
+        colors: Array.isArray(item.colors) ? item.colors.filter((c): c is string => typeof c === "string") : undefined,
+        occasion: typeof item.occasion === "string" ? item.occasion : undefined,
+        category: typeof item.category === "string" ? item.category : undefined,
+        season_suitability: typeof item.season_suitability === "string" ? item.season_suitability : undefined,
+      }];
+    }
+    return [];
   });
 }
 
@@ -156,6 +191,31 @@ export function parseResultPayload(payload: unknown): AnalysisResultData {
 
   const rawSeason = raw.season ?? raw.season_name ?? raw.detected_season;
 
+  // Parse confidence_reason
+  let confidence_reason: ConfidenceReasonData | undefined;
+  if (isRecord(raw.confidence_reason)) {
+    const cr = raw.confidence_reason;
+    confidence_reason = {
+      undertone: typeof cr.undertone === "string" ? cr.undertone : undefined,
+      contrast: typeof cr.contrast === "string" ? cr.contrast : undefined,
+      brightness: typeof cr.brightness === "string" ? cr.brightness : undefined,
+      facial_harmony: typeof cr.facial_harmony === "string" ? cr.facial_harmony : undefined,
+    };
+  }
+
+  // Parse signature_colors
+  let signature_colors: SignatureColorItem[] | undefined;
+  if (Array.isArray(raw.signature_colors)) {
+    signature_colors = raw.signature_colors.flatMap((item: unknown): SignatureColorItem[] => {
+      if (!isRecord(item)) return [];
+      const name = typeof item.name === "string" ? item.name : "";
+      const hex = typeof item.hex === "string" ? normalizeHex(item.hex) : "";
+      const reason = typeof item.reason === "string" ? item.reason : "";
+      if (!name || !hex) return [];
+      return [{ name, hex, reason }];
+    });
+  }
+
   return {
     skin_tone: typeof raw.skin_tone === "string" && raw.skin_tone.trim() ? raw.skin_tone : "Unknown",
     undertone: typeof raw.undertone === "string" && raw.undertone.trim() ? raw.undertone : "Unknown",
@@ -164,13 +224,17 @@ export function parseResultPayload(payload: unknown): AnalysisResultData {
     rgb,
     hex: safeHex,
     best_colors: parseColorPalette(raw.best_colors),
-    avoid_colors: parseColorPalette(raw.avoid_colors),
+    avoid_colors: parseAvoidColors(raw.avoid_colors),
     outfits: parseOutfits(raw.outfits),
     style_rules: parseStringArray(raw.style_rules),
     season_explanation: typeof raw.season_explanation === "string" ? raw.season_explanation.trim() : "",
     materials: parseMaterials(raw.materials),
     accessories: parseAccessories(raw.accessories),
     palette,
+    confidence_reason,
+    signature_colors,
+    skin_description: typeof raw.skin_description === "string" ? raw.skin_description.trim() : undefined,
+    next_steps: parseStringArray(raw.next_steps),
   };
 }
 

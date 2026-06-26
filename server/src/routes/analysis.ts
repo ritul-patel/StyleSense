@@ -524,8 +524,11 @@ router.get("/:id", optionalAuthMiddleware, async (req: AuthenticatedRequest, res
       season_explanation: parsed.season_explanation || "",
       materials: parsed.materials || [],
       accessories: parsed.accessories || [],
+      confidence_reason: parsed.confidence_reason,
+      signature_colors: parsed.signature_colors,
+      skin_description: parsed.skin_description,
+      next_steps: parsed.next_steps,
     };
-    console.log(`[analysis/fetch][${reqId}] Sending data — season: ${data.season} | best_colors: ${data.best_colors.length} | outfits: ${data.outfits.length}`);
     return res.json({ success: true, analysisId: String(row.id), data, requestId: reqId });
   } catch (error) {
     const appError = error instanceof AppError ? error : new AppError("Failed to fetch analysis.", 500);
