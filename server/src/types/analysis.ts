@@ -38,6 +38,19 @@ export interface Accessory {
   note: string;
 }
 
+export interface ConfidenceReason {
+  undertone: "low" | "medium" | "high";
+  contrast: "low" | "medium" | "high";
+  brightness: "low" | "medium" | "high";
+  facial_harmony: "low" | "medium" | "high";
+}
+
+export interface SignatureColor {
+  name: string;
+  hex: string;
+  reason: string;
+}
+
 // Full payload stored in the DB and returned by POST /upload and GET /:id.
 // best_colors, avoid_colors, and outfits are always rich objects — never string[].
 export interface AnalysisPayload {
@@ -54,6 +67,10 @@ export interface AnalysisPayload {
   season_explanation: string;
   materials: Material[];
   accessories: Accessory[];
+  confidence_reason?: ConfidenceReason;
+  signature_colors?: SignatureColor[];
+  skin_description?: string;
+  next_steps?: string[];
 }
 
 // Summary row returned by GET /history — no recommendation detail.

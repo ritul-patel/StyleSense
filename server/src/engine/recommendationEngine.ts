@@ -1,4 +1,4 @@
-import type { ColorEntry, AvoidColor, Outfit, Material, Accessory } from "../types/analysis";
+import type { ColorEntry, AvoidColor, Outfit, Material, Accessory, ConfidenceReason, SignatureColor } from "../types/analysis";
 
 export type { ColorEntry, AvoidColor, Outfit, Material, Accessory };
 
@@ -29,6 +29,10 @@ export interface RecommendationResult {
   materials: Material[];
   accessories: Accessory[];
   confidence: { score: number; explanation: string };
+  confidence_reason?: ConfidenceReason;
+  signature_colors?: SignatureColor[];
+  skin_description?: string;
+  next_steps?: string[];
 }
 
 // ─── Palette data ─────────────────────────────────────────────────────────────
@@ -920,6 +924,32 @@ export function getRecommendation(profile: SkinProfile): RecommendationResult {
     return seasonMap[key] || "Autumn";
   })();
 
+  const SKIN_DEPTH: Record<string, string> = {
+    I: "Very Fair",
+    II: "Fair",
+    III: "Medium",
+    IV: "Olive",
+    V: "Brown",
+    VI: "Deep",
+  };
+  const u = undertone.toLowerCase();
+  const skinDescription = `${SKIN_DEPTH[type] || "Medium"} ${u.charAt(0).toUpperCase() + u.slice(1)} Skin`;
+
+  const signatureColors = data.best_colors.slice(0, 3).map(c => ({
+    name: c.name,
+    hex: c.hex,
+    reason: c.why || "Makes your complexion appear brighter"
+  }));
+
+  const nextSteps = data.style_rules.slice(0, 3);
+  
+  const confidenceReason: ConfidenceReason = {
+    undertone: "high",
+    contrast: "medium",
+    brightness: "high",
+    facial_harmony: "high"
+  };
+
   return {
     profile: {
       detected_season: season,
@@ -938,6 +968,10 @@ export function getRecommendation(profile: SkinProfile): RecommendationResult {
       score: 0.95,
       explanation: "Offline rule engine — Fitzpatrick type matched to curated colour palette.",
     },
+    confidence_reason: confidenceReason,
+    signature_colors: signatureColors,
+    skin_description: skinDescription,
+    next_steps: nextSteps,
   };
 }
 

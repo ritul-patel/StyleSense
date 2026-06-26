@@ -193,6 +193,10 @@ function resultFromUnknown(raw: unknown): Partial<AnalysisPayload> {
     season_explanation: typeof d.season_explanation === "string" ? d.season_explanation : undefined,
     materials: parseMaterials(d.materials),
     accessories: parseAccessories(d.accessories),
+    confidence_reason: typeof d.confidence_reason === "object" && d.confidence_reason !== null ? (d.confidence_reason as any) : undefined,
+    signature_colors: Array.isArray(d.signature_colors) ? (d.signature_colors as any) : undefined,
+    skin_description: typeof d.skin_description === "string" ? d.skin_description : undefined,
+    next_steps: Array.isArray(d.next_steps) ? (d.next_steps as any) : undefined,
   };
 }
 async function analysesCaps(reqId: string): Promise<AnalysesCaps> {
@@ -278,6 +282,10 @@ function buildData(detected: z.infer<typeof detectSchema>["data"], rec: Recommen
     season_explanation: rec.season_explanation || "",
     materials: Array.isArray(rec.materials) ? rec.materials : [],
     accessories: Array.isArray(rec.accessories) ? rec.accessories : [],
+    confidence_reason: rec.confidence_reason,
+    signature_colors: rec.signature_colors,
+    skin_description: rec.skin_description,
+    next_steps: rec.next_steps,
   };
 }
 function sendError(res: Response, statusCode: number, message: string, reqId: string) {
@@ -326,6 +334,10 @@ router.post("/manual", authMiddleware, async (req: AuthenticatedRequest, res: Re
       season_explanation: rec.season_explanation || "",
       materials: Array.isArray(rec.materials) ? rec.materials : [],
       accessories: Array.isArray(rec.accessories) ? rec.accessories : [],
+      confidence_reason: rec.confidence_reason,
+      signature_colors: rec.signature_colors,
+      skin_description: rec.skin_description,
+      next_steps: rec.next_steps,
     };
     const analysisId = await saveAnalysis(data, "manual", req.user?.id, reqId);
     return res.json({ success: true, analysisId: analysisId || null, data, requestId: reqId });
@@ -387,23 +399,36 @@ router.get("/history", optionalAuthMiddleware, async (req: AuthenticatedRequest,
   const reqId = requestId();
   try {
     if (!req.user?.id) return res.json([]);
+
     const caps = await analysesCaps(reqId);
-    const params: unknown[] = [req.user.id];
+
     const where = caps.hasUserId ? "WHERE user_id = $1" : "WHERE FALSE";
+    const params: unknown[] = caps.hasUserId ? [req.user.id] : [];
     const fields = caps.hasResult ? "id, skin_tone, undertone, created_at, result" : "id, skin_tone, undertone, created_at";
-    const q = await db.query(`SELECT ${fields} FROM analyses ${where} ORDER BY created_at DESC LIMIT 10`, params as any[]);
+    const sql = `SELECT ${fields} FROM analyses ${where} ORDER BY created_at DESC LIMIT 10`;
+    
+    const q = await db.query(sql, params);
     const payload = q.rows.map((row) => {
       const parsed = resultFromUnknown(row.result);
+      let createdAtStr: string | null = null;
+      if (row.created_at) {
+        try {
+          createdAtStr = new Date(String(row.created_at)).toISOString();
+        } catch {
+          createdAtStr = null;
+        }
+      }
       return {
         analysisId: String(row.id),
         skin_tone: typeof row.skin_tone === "string" ? row.skin_tone : parsed.skin_tone || "Unknown",
         undertone: typeof row.undertone === "string" ? row.undertone : parsed.undertone || "Unknown",
         hex: parsed.hex || DEFAULT_HEX,
-        created_at: row.created_at ? new Date(String(row.created_at)).toISOString() : null,
+        created_at: createdAtStr,
       };
     });
     return res.json(payload);
-  } catch (error) {
+  } catch (error: any) {
+    console.error(`[history][${reqId}] ${error.message || error}`);
     const appError = error instanceof AppError ? error : new AppError("Failed to fetch analysis history.", 500);
     return sendError(res, appError.statusCode, appError.message, reqId);
   }

@@ -86,7 +86,7 @@ function OutfitCard({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200 dark:from-[#1a1a1a] dark:to-[#121212]">
             <Image className="text-stone-300 dark:text-stone-600 text-4xl mb-1" />
-            <Trash2 className="text-[10px] font-bold tracking-widest uppercase text-stone-400 dark:text-stone-600">No image</span>
+            <span className="text-[10px] font-bold tracking-widest uppercase text-stone-400 dark:text-stone-600">No image</span>
           </div>
         )}
       </div>

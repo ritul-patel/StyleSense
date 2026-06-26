@@ -5,6 +5,9 @@ import { PostHogProvider as PHProvider } from "posthog-js/react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, Suspense } from "react";
 
+console.log("POSTHOG KEY:", process.env.NEXT_PUBLIC_POSTHOG_KEY);
+console.log("POSTHOG HOST:", process.env.NEXT_PUBLIC_POSTHOG_HOST);
+
 if (typeof window !== "undefined") {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
     api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",

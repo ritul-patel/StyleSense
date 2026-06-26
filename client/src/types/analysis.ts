@@ -37,6 +37,19 @@ export interface Accessory {
   note: string;
 }
 
+export interface ConfidenceReason {
+  undertone: "low" | "medium" | "high";
+  contrast: "low" | "medium" | "high";
+  brightness: "low" | "medium" | "high";
+  facial_harmony: "low" | "medium" | "high";
+}
+
+export interface SignatureColor {
+  name: string;
+  hex: string;
+  reason: string;
+}
+
 export interface AnalysisPayload {
   skin_tone: string;
   undertone: string;
@@ -51,6 +64,10 @@ export interface AnalysisPayload {
   season_explanation: string;
   materials: Material[];
   accessories: Accessory[];
+  confidence_reason?: ConfidenceReason;
+  signature_colors?: SignatureColor[];
+  skin_description?: string;
+  next_steps?: string[];
 }
 
 export interface AnalysisHistoryItem {

@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Navbar from "@/app/components/Navbar";
 import posthog from "posthog-js";
 import RequireAuth from "../components/RequireAuth";
 const PENDING_IMAGE_KEY = "pending_image";
@@ -90,32 +91,10 @@ export default function AnalysisPage() {
         <div className="fixed bottom-[-10%] left-[-5%] w-[30vw] h-[30vw] rounded-full bg-[#fedbca]/20 blur-[100px] -z-10 pointer-events-none" />
 
         {/* Header */}
-        <header className="bg-[#fcf9f8]/70 backdrop-blur-xl fixed top-0 left-0 right-0 z-50 border-b border-black/5">
-          <div className="flex justify-between items-center px-8 h-20 w-full max-w-screen-2xl mx-auto">
-            <Link
-              href="/"
-              className="text-2xl font-black tracking-tighter text-[#002b92]"
-              style={{ fontFamily: "Manrope, sans-serif" }}
-            >
-              ATELIER AI
-            </Link>
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link href="/discover" className="text-stone-400 font-medium hover:text-[#002b92] transition-colors">Discover</Link>
-              <span className="text-[#002b92] font-bold border-b-2 border-[#002b92]">Analysis</span>
-              <Link href="/wardrobe" className="text-stone-400 font-medium hover:text-[#002b92] transition-colors">Wardrobe</Link>
-              <Link href="/history" className="text-stone-400 font-medium hover:text-[#002b92] transition-colors">History</Link>
-              <Link href="/settings" className="text-stone-400 font-medium hover:text-[#002b92] transition-colors">Settings</Link>
-            </nav>
-            <div className="flex items-center gap-4">
-              <span className="material-symbols-outlined text-[#1b1c1b] hover:text-[#002b92] transition-colors cursor-pointer">
-                account_circle
-              </span>
-            </div>
-          </div>
-        </header>
+        <Navbar activePath="analysis" />
 
         {/* Main */}
-        <main className="flex-grow flex items-center justify-center pt-32 pb-20 px-6 w-full max-w-4xl">
+        <main className="flex-grow flex items-center justify-center pt-32 pb-20 px-6 w-full max-w-[1440px]">
           <div className="w-full flex flex-col items-center">
             {/* Header text */}
             <div className="text-center mb-10">
@@ -305,24 +284,7 @@ export default function AnalysisPage() {
         </main>
 
         {/* Mobile bottom nav */}
-        <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-[#fcf9f8]/80 backdrop-blur-2xl border-t border-black/5 flex justify-around items-center px-4 h-20">
-          <Link href="/discover" className="flex flex-col items-center justify-center text-stone-400 px-4 py-2">
-            <span className="material-symbols-outlined">explore</span>
-            <span className="text-[10px] font-semibold uppercase tracking-widest mt-1">Discover</span>
-          </Link>
-          <div className="flex flex-col items-center justify-center bg-[#002b92] text-white rounded-full px-4 py-2">
-            <span className="material-symbols-outlined">add_circle</span>
-            <span className="text-[10px] font-semibold uppercase tracking-widest mt-1">Analysis</span>
-          </div>
-          <Link href="/wardrobe" className="flex flex-col items-center justify-center text-stone-400 px-4 py-2">
-            <span className="material-symbols-outlined">checkroom</span>
-            <span className="text-[10px] font-semibold uppercase tracking-widest mt-1">Wardrobe</span>
-          </Link>
-          <Link href="/history" className="flex flex-col items-center justify-center text-stone-400 px-4 py-2">
-            <span className="material-symbols-outlined">history</span>
-            <span className="text-[10px] font-semibold uppercase tracking-widest mt-1">History</span>
-          </Link>
-        </nav>
+        
 
         <style>{`
         @keyframes spin {

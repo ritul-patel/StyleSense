@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Navbar from "@/app/components/Navbar";
 import RequireAuth from "../components/RequireAuth";
 
 // ─── Static mock data ─────────────────────────────────────────────────────────
@@ -71,47 +72,7 @@ function WardrobePageContent() {
       style={{ fontFamily: "Inter, sans-serif" }}
     >
       {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 glass-nav">
-        <div className="flex justify-between items-center w-full px-6 md:px-12 h-20 max-w-[1920px] mx-auto">
-          <Link
-            href="/"
-            className="text-2xl font-bold text-[#002b92] tracking-tighter"
-            style={{ fontFamily: "Manrope, sans-serif" }}
-          >
-            Couture AI
-          </Link>
-          <div className="hidden md:flex items-center gap-8">
-            {[
-              { href: "/discover", label: "Discover" },
-              { href: "/analysis", label: "Analysis" },
-              { href: "/history", label: "History" },
-            ].map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className="text-stone-500 font-medium hover:text-[#002b92] transition-colors text-sm uppercase tracking-tight"
-                style={{ fontFamily: "Manrope, sans-serif" }}
-              >
-                {label}
-              </Link>
-            ))}
-            <span
-              className="text-[#002b92] font-bold border-b-2 border-[#002b92] pb-1 text-sm uppercase tracking-tight"
-              style={{ fontFamily: "Manrope, sans-serif" }}
-            >
-              Wardrobe
-            </span>
-          </div>
-          <div className="flex items-center gap-6">
-            <button className="hover:opacity-80 transition-opacity">
-              <span className="material-symbols-outlined text-[#434654]">shopping_bag</span>
-            </button>
-            <button className="hover:opacity-80 transition-opacity">
-              <span className="material-symbols-outlined text-[#434654]">account_circle</span>
-            </button>
-          </div>
-        </div>
-      </nav>
+      <Navbar activePath="wardrobe" />
 
       <main className="pt-28 pb-32 px-6 md:px-12 max-w-[1440px] mx-auto space-y-24">
         {/* 1. Hero Outfit */}
@@ -352,23 +313,7 @@ function WardrobePageContent() {
       </main>
 
       {/* Mobile nav */}
-      <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-8 pt-4 bg-[#f6f3f2]/80 backdrop-blur-2xl rounded-t-3xl md:hidden z-50">
-        {[
-          { href: "/discover", icon: "explore", label: "Discover" },
-          { href: "/analysis", icon: "analytics", label: "Analysis" },
-          { href: "/wardrobe", icon: "checkroom", label: "Wardrobe", active: true },
-          { href: "/history", icon: "history", label: "History" },
-        ].map(({ href, icon, label, active }) => (
-          <Link
-            key={href}
-            href={href}
-            className={`flex flex-col items-center justify-center p-2 ${active ? "text-[#002b92]" : "text-stone-400"}`}
-          >
-            <span className="material-symbols-outlined">{icon}</span>
-            <span className="text-[10px] font-semibold uppercase tracking-widest mt-1">{label}</span>
-          </Link>
-        ))}
-      </nav>
+      
     </div>
   );
 }

@@ -148,7 +148,7 @@ Large images (>5MB), slow network / timeouts, AI failure fallback path, empty hi
 - **Plan before non-trivial work** — write a short plan to `tasks/todo.md` for anything >3 steps or touching architecture; confirm before implementing
 - **Verify before "done"** — demonstrate the change works (test output, screenshot, or reproduced-then-fixed log) rather than asserting it
 
-## vexp - Context-Aware AI Coding <!-- vexp v2.0.32 -->
+## vexp - Context-Aware AI Coding <!-- vexp v2.0.33 -->
 
 ### MANDATORY: use vexp pipeline - do NOT grep or glob the codebase
 For every task - bug fixes, features, refactors, debugging:

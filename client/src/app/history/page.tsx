@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Navbar from "@/app/components/Navbar";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchAnalysisHistory, type AnalysisHistoryItem } from "@/lib/api";
@@ -155,46 +156,7 @@ function HistoryPageContent() {
       style={{ fontFamily: "Inter, sans-serif" }}
     >
       {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 backdrop-blur-xl flex justify-between items-center px-8 h-20 max-w-[1920px] mx-auto">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="text-2xl font-bold tracking-tighter text-[#1b1c1b]" style={{ fontFamily: "Manrope, sans-serif" }}>
-            VogueAI
-          </Link>
-          <div className="hidden md:flex gap-6 items-center">
-            {[
-              { href: "/discover", label: "Discover" },
-              { href: "/analysis", label: "Analysis" },
-              { href: "/wardrobe", label: "Wardrobe" },
-            ].map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className="text-slate-500 hover:text-[#1b1c1b] tracking-tight transition-all duration-300"
-                style={{ fontFamily: "Manrope, sans-serif" }}
-              >
-                {label}
-              </Link>
-            ))}
-            <span
-              className="text-[#002b92] font-semibold border-b-2 border-[#002b92] pb-1 tracking-tight"
-              style={{ fontFamily: "Manrope, sans-serif" }}
-            >
-              History
-            </span>
-            <Link href="/settings" className="text-slate-500 hover:text-[#1b1c1b] tracking-tight transition-all duration-300" style={{ fontFamily: "Manrope, sans-serif" }}>
-              Settings
-            </Link>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <button className="p-2 hover:opacity-80 transition-all text-[#434654]">
-            <span className="material-symbols-outlined">notifications</span>
-          </button>
-          <Link href="/settings" className="p-2 hover:opacity-80 transition-all text-[#434654]">
-            <span className="material-symbols-outlined">settings</span>
-          </Link>
-        </div>
-      </nav>
+      <Navbar activePath="history" />
 
       <main className="pt-32 pb-20 px-8 max-w-[1400px] mx-auto min-h-screen">
         {/* Header */}

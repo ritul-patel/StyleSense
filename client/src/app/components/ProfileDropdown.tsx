@@ -73,7 +73,7 @@ export default function ProfileDropdown() {
         {profile?.avatar_url ? (
           <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
         ) : profile?.full_name?.trim() ? (
-          <User className="text-white font-bold text-sm tracking-tighter">
+          <span className="text-white font-bold text-sm tracking-tighter">
             {profile.full_name.trim().charAt(0).toUpperCase()}
           </span>
         ) : (

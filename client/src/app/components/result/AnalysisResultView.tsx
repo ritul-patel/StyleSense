@@ -9,13 +9,13 @@ import RequireAuth from "../RequireAuth";
 
 // ─── constants ────────────────────────────────────────────────────────────────
 
-const FITZ_DESC: Record<string, string> = {
-  I: "Very fair, always burns",
-  II: "Fair, usually burns",
-  III: "Medium, sometimes burns",
-  IV: "Olive to medium, rarely burns",
-  V: "Brown, very rarely burns",
-  VI: "Deep brown to black, never burns",
+const SKIN_DEPTH: Record<string, string> = {
+  I: "Very Fair",
+  II: "Fair",
+  III: "Medium",
+  IV: "Olive",
+  V: "Brown",
+  VI: "Deep",
 };
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -61,18 +61,25 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
   const fitzType = fitzFromSkinTone(data.skin_tone || "");
   const season = data.season || "Unknown";
   const undertone = data.undertone || "Unknown";
+  const userFriendlySkinType = `${SKIN_DEPTH[fitzType] || "Medium"} ${undertone.charAt(0).toUpperCase() + undertone.slice(1) || "Neutral"} Skin`;
   const hex = data.hex || "#9A796C";
   const seasonExplanation = data.season_explanation || "";
   
-  const confidence = data.confidence ? Math.round(data.confidence * 100) : 85;
+  const rawConf = Number(data.confidence);
+  const confidence = rawConf > 0 && rawConf <= 1 ? Math.round(rawConf * 100) : Math.max(0, Math.min(100, Math.round(rawConf || 85)));
   const analysisDate = useMemo(() => new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date()), []);
 
   const bestColors = data.best_colors || [];
   const avoidColors = data.avoid_colors || [];
-  const outfits = (data.outfits || []).map((o, i) => outfitCard(o, i));
+  const OUTFIT_NAMES = ["Office Ready", "Weekend Casual", "Date Night", "Smart Casual", "Everyday Essential"];
+  const outfits = (data.outfits || []).map((o, i) => {
+    const parsed = outfitCard(o, i);
+    return { ...parsed, title: OUTFIT_NAMES[i] || parsed.title };
+  });
   const styleRules = data.style_rules || [];
   const materials = data.materials || [];
   const accessories = data.accessories || [];
+  const signatureColors = data.signature_colors || bestColors.slice(0, 3).map(c => ({ name: c.name, hex: c.hex, reason: (c as any).why || "Makes your complexion appear brighter." }));
 
   const miniDots = bestColors.slice(0, 6);
   const mainOutfit = outfits[0] ?? null;
@@ -145,7 +152,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
               marginBottom: 16,
             }}>
               <span className="material-symbols-outlined" style={{ fontSize: 13 }}>auto_awesome</span>
-              Analysis Complete
+              Your Personal Style Profile
             </span>
             <h1 style={{
               fontFamily: "'Manrope', sans-serif",
@@ -163,7 +170,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
           </motion.div>
 
           {/* Two-column layout */}
-          <div className="flex flex-col lg:grid lg:grid-cols-[360px_1fr] gap-6 items-start">
+          <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: 24, alignItems: "start" }}>
 
             {/* LEFT — Identity */}
             <motion.div
@@ -181,7 +188,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                 <div style={{ minWidth: 0, width: "100%" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#747686", marginBottom: 6 }}>
-                      Detected Season
+                      Your Best Color Season
                     </p>
                     <span style={{ fontSize: "0.65rem", color: "#a0a0b8", fontWeight: 500 }} title="Analysis Date">{analysisDate}</span>
                   </div>
@@ -189,9 +196,9 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                     {season}
                   </h2>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 4, background: confidence > 70 ? "#e6f4ea" : "#fef7e0", padding: "4px 8px", borderRadius: 999, color: confidence > 70 ? "#137333" : "#b06000", fontSize: "0.65rem", fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "0.05em", cursor: "help" }} title="Confidence level of the AI prediction">
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, background: confidence > 70 ? "rgba(19,115,51,0.06)" : "rgba(176,96,0,0.06)", border: `1px solid ${confidence > 70 ? "rgba(19,115,51,0.15)" : "rgba(176,96,0,0.15)"}`, padding: "6px 12px", borderRadius: 999, color: confidence > 70 ? "#137333" : "#b06000", fontSize: "0.7rem", fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "0.05em", cursor: "help" }} title="Confidence is calculated from skin undertone, facial contrast, brightness, and color harmony analysis.">
                       <span className="material-symbols-outlined" style={{ fontSize: 13 }}>{confidence > 70 ? 'verified' : 'info'}</span>
-                      {confidence}% Match
+                      {confidence > 70 ? `High Confidence • ${confidence}%` : `Confidence • ${confidence}%`}
                     </div>
                     <div style={{ display: "flex", gap: 4 }}>
                       {miniDots.slice(0, 4).map((c, i) => (
@@ -199,32 +206,43 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                       ))}
                     </div>
                   </div>
+                  <p style={{ fontSize: "0.65rem", color: "#747686", marginTop: 8, lineHeight: 1.3 }}>
+                    Based on skin undertone, facial contrast, brightness, and color harmony.
+                  </p>
                 </div>
               </div>
 
               {/* Skin type + Undertone grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12, marginTop: 24 }}>
                 <div style={{ background: "#f6f3f2", borderRadius: 12, padding: 16 }}>
                   <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.6rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#747686" }}>
-                    Skin Type
+                    Skin Profile
                   </p>
-                  <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: "1.6rem", fontWeight: 800, color: "#002b92", marginTop: 4, letterSpacing: "-0.02em" }}>
-                    Type {fitzType}
-                  </p>
-                </div>
-                <div style={{ background: "#f6f3f2", borderRadius: 12, padding: 16 }}>
-                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.6rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#747686" }}>
-                    Undertone
-                  </p>
-                  <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: "1.6rem", fontWeight: 800, marginTop: 4, letterSpacing: "-0.02em", textTransform: "capitalize" }}>
-                    {undertone}
+                  <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: "1.4rem", fontWeight: 800, color: "#002b92", marginTop: 4, letterSpacing: "-0.02em" }}>
+                    {userFriendlySkinType}
                   </p>
                 </div>
               </div>
 
-              {/* Advanced Analysis visually styled */}
+              {/* Quick Wardrobe Access */}
+              <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+                <button
+                  onClick={() => router.push("/wardrobe")}
+                  style={{ flex: 1, padding: "10px", background: "#fcf9f8", border: "1px solid rgba(0,43,146,0.1)", borderRadius: 10, color: "#002b92", fontFamily: "'Manrope', sans-serif", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}
+                >
+                  View Wardrobe
+                </button>
+                <button
+                  onClick={() => router.push("/discover")}
+                  style={{ flex: 1, padding: "10px", background: "#fcf9f8", border: "1px solid rgba(0,43,146,0.1)", borderRadius: 10, color: "#002b92", fontFamily: "'Manrope', sans-serif", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}
+                >
+                  Discover Outfits
+                </button>
+              </div>
+
+              {/* Style Characteristics */}
               <div style={{ background: "#f6f3f2", borderRadius: 12, padding: 16, marginTop: 12 }}>
-                <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.6rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#747686", marginBottom: 12 }}>Advanced Metrics</p>
+                <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.6rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#747686", marginBottom: 12 }}>Style Characteristics</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#434654", display: "flex", alignItems: "center", gap: 4 }}><span className="material-symbols-outlined" style={{ fontSize: 14 }}>contrast</span> Contrast</span>
@@ -263,12 +281,38 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
             {/* RIGHT */}
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
+              {/* Signature Colors */}
+              {signatureColors.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.12 }}
+                  style={{ background: "#fff", borderRadius: 20, padding: 24, boxShadow: "0 16px 40px rgba(16,24,40,0.05)", border: "1px solid rgba(16,24,40,0.06)" }}
+                >
+                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "#002b92", marginBottom: 16 }}>
+                    Your 3 Signature Colors
+                  </p>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+                    {signatureColors.map((c, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, borderRadius: 16, background: "#fcf9f8", border: "1px solid rgba(16,24,40,0.04)" }}>
+                        <div style={{ width: 48, height: 48, borderRadius: 12, background: c.hex, boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.1)", flexShrink: 0 }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          {c.name && <span style={{ display: "block", fontSize: 13, color: "#1b1c1b", fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</span>}
+                          <span style={{ display: "block", fontSize: 10, color: "#747686", fontFamily: "'Space Grotesk', sans-serif", marginTop: 2 }}>{c.hex.toUpperCase()}</span>
+                          <span style={{ display: "block", fontSize: 10, color: "#434654", marginTop: 4, lineHeight: 1.2 }}>{c.reason}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
               {/* Colors row */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="flex flex-col lg:grid lg:grid-cols-[1.4fr_1fr] gap-4"
+                style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16 }}
               >
                 {/* Best colors */}
                 <div style={{ background: "#fff", borderRadius: 20, padding: 24, boxShadow: "0 16px 40px rgba(16,24,40,0.05)", border: "1px solid rgba(16,24,40,0.06)" }}>
@@ -321,7 +365,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="flex flex-col lg:grid lg:grid-cols-[1.4fr_1fr_1fr] gap-4"
+                style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr", gap: 16 }}
               >
                 {/* Style rules */}
                 <div style={{ background: "#fff", borderRadius: 20, padding: 24, boxShadow: "0 16px 40px rgba(16,24,40,0.05)", border: "1px solid rgba(16,24,40,0.06)", gridColumn: "1 / -1" }}>
@@ -345,7 +389,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                 </div>
 
                 {/* Materials & Accessories Row */}
-                <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:col-span-full">
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, gridColumn: "1 / -1" }}>
                   {/* Materials */}
                   <div style={{ background: "#fff", borderRadius: 20, padding: 24, boxShadow: "0 16px 40px rgba(16,24,40,0.05)", border: "1px solid rgba(16,24,40,0.06)" }}>
                     <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "#002b92", marginBottom: 14 }}>
@@ -393,6 +437,11 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                 transition={{ delay: 0.25 }}
                 style={{ background: "#fff", borderRadius: 20, padding: 28, boxShadow: "0 16px 40px rgba(16,24,40,0.05)", border: "1px solid rgba(16,24,40,0.06)" }}
               >
+                <div style={{ background: "linear-gradient(90deg, rgba(0,43,146,0.03) 0%, rgba(0,43,146,0) 100%)", padding: "10px 16px", borderRadius: 10, marginBottom: 20, borderLeft: "3px solid #002b92" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 600, color: "#002b92" }}>
+                    Your profile unlocks 30 recommended outfits
+                  </p>
+                </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
                   <h3 style={{ fontFamily: "'Manrope', sans-serif", fontSize: "1.4rem", fontWeight: 800, letterSpacing: "-0.02em" }}>Curated Wardrobe</h3>
                   <button
@@ -412,36 +461,62 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                 )}
 
                 {mainOutfit && (
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14 }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
-                      {outfits.map((o, i) => (
+                  <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14 }}>
+                    {/* Main outfit card */}
+                    <motion.div
+                      whileHover={{ scale: 1.01, boxShadow: "0 24px 64px rgba(0,30,100,0.18)" }}
+                      transition={{ duration: 0.3 }}
+                      onClick={() => router.push(`/outfit/${mainOutfit.title?.replace(/[^a-zA-Z0-9]/g, '') || 'O001'}`)}
+                      style={{
+                        borderRadius: 14, overflow: "hidden", height: 360, position: "relative", cursor: "pointer",
+                        background: `linear-gradient(135deg, ${bestColors[0]?.hex || hex} 0%, ${hex} 100%)`,
+                        boxShadow: "0 8px 40px rgba(0,30,100,0.12)",
+                      }}
+                    >
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.65), transparent 50%)" }} />
+                      <div style={{ position: "absolute", top: 20, right: 20 }}>
+                        <span className="material-symbols-outlined" style={{ color: "#fff", fontSize: 22, opacity: 0.8 }}>open_in_new</span>
+                      </div>
+                      <div style={{ position: "absolute", bottom: 20, left: 20, right: 20 }}>
+                        <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", marginBottom: 8 }}>
+                          Look 1
+                        </p>
+                        <h4 style={{ fontFamily: "'Manrope', sans-serif", fontSize: "1.25rem", fontWeight: 700, color: "#fff", lineHeight: 1.2, marginBottom: 8 }}>
+                          {mainOutfit.title}
+                        </h4>
+                        {mainOutfit.description && (
+                          <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.78)", lineHeight: 1.5 }}>
+                            {mainOutfit.description}
+                          </p>
+                        )}
+                      </div>
+                    </motion.div>
+
+                    {/* Stacked side cards */}
+                    <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", gap: 14 }}>
+                      {outfits.slice(1, 3).map((o, i) => (
                         <motion.div
                           key={i}
-                          whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(0,30,100,0.12)" }}
-                          transition={{ duration: 0.2 }}
+                          whileHover={{ scale: 1.02 }}
+                          transition={{ duration: 0.25 }}
                           onClick={() => router.push(`/outfit/${o.title?.replace(/[^a-zA-Z0-9]/g, '') || 'O001'}`)}
                           style={{
-                            borderRadius: 16, overflow: "hidden", minHeight: 200, position: "relative", cursor: "pointer",
-                            background: `linear-gradient(135deg, ${bestColors[i % bestColors.length]?.hex || hex} 0%, ${hex} 100%)`,
-                            boxShadow: "0 8px 24px rgba(0,30,100,0.08)", padding: 24, display: "flex", flexDirection: "column", justifyContent: "flex-end"
+                            borderRadius: 12, overflow: "hidden", position: "relative", cursor: "pointer",
+                            background: `linear-gradient(135deg, ${bestColors[i + 1]?.hex || hex} 0%, ${hex} 100%)`,
+                            boxShadow: "0 6px 28px rgba(0,30,100,0.1)",
                           }}
                         >
-                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.6))" }} />
-                          <div style={{ position: "relative", zIndex: 1 }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                              <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", background: "rgba(0,0,0,0.2)", padding: "4px 8px", borderRadius: 4, backdropFilter: "blur(4px)" }}>
-                                Look {i + 1}
-                              </p>
-                              <span className="material-symbols-outlined" style={{ color: "#fff", fontSize: 18, opacity: 0.8 }}>open_in_new</span>
-                            </div>
-                            <h4 style={{ fontFamily: "'Manrope', sans-serif", fontSize: "1.2rem", fontWeight: 700, color: "#fff", lineHeight: 1.2, marginBottom: 8 }}>
+                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.5), transparent 55%)" }} />
+                          <div style={{ position: "absolute", top: 12, right: 12 }}>
+                            <span className="material-symbols-outlined" style={{ color: "#fff", fontSize: 16, opacity: 0.8 }}>open_in_new</span>
+                          </div>
+                          <div style={{ position: "absolute", bottom: 12, left: 14, right: 14 }}>
+                            <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.55rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", marginBottom: 4 }}>
+                              Look {i + 2}
+                            </p>
+                            <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "#fff", lineHeight: 1.3 }}>
                               {o.title}
-                            </h4>
-                            {o.description && (
-                              <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
-                                {o.description}
-                              </p>
-                            )}
+                            </p>
                           </div>
                         </motion.div>
                       ))}
@@ -457,35 +532,36 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            style={{ marginTop: 40, display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap" }}
+            style={{ marginTop: 40, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}
           >
+            <p style={{ fontSize: "0.95rem", color: "#434654", fontWeight: 500, marginBottom: 4 }}>
+              Your color profile has been applied to 30 curated outfit combinations.
+            </p>
             <button
               type="button"
-              onClick={() => router.push("/wardrobe")}
+              onClick={() => router.push("/discover")}
               style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
-                padding: "14px 32px", borderRadius: 9999, border: "none",
+                padding: "16px 40px", borderRadius: 9999, border: "none",
                 background: "linear-gradient(135deg, #002b92 0%, #003ec7 100%)",
                 color: "#fff", fontFamily: "'Manrope', sans-serif",
-                fontSize: "0.9375rem", fontWeight: 700, letterSpacing: "-0.025em",
+                fontSize: "1.05rem", fontWeight: 800, letterSpacing: "-0.01em",
                 cursor: "pointer", boxShadow: "0 10px 25px rgba(0,43,146,0.25)",
               }}
             >
-              View My Wardrobe <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_forward</span>
+              Explore Outfits For My Colors <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
             </button>
             <button
               type="button"
               onClick={onRetry}
               style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                padding: "14px 32px", borderRadius: 9999,
-                border: "2px solid #003ec7", background: "transparent",
-                color: "#003ec7", fontFamily: "'Manrope', sans-serif",
-                fontSize: "0.9375rem", fontWeight: 700, letterSpacing: "-0.025em",
-                cursor: "pointer",
+                background: "transparent", border: "none", color: "#747686",
+                fontFamily: "'Inter', sans-serif", fontSize: "0.85rem",
+                fontWeight: 500, cursor: "pointer", textDecoration: "underline",
+                textUnderlineOffset: 4
               }}
             >
-              New Analysis
+              Run a new analysis
             </button>
           </motion.div>
         </div>

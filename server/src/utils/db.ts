@@ -10,5 +10,9 @@ const pool = new Pool({
   },
 });
 
+pool.on('error', (err) => {
+  console.error('[pg] Unexpected pool error:', err.message);
+});
+
 export const query = (text: string, params: any[]) => pool.query(text, params);
 export const connect = () => pool.connect();

@@ -11,7 +11,6 @@ dotenv.config();
 
 const app = express();
 const port = process.env.STYLESENSE_PORT || process.env.PORT || 4000;
-
 // Required for express-rate-limit to accurately identify IPs behind reverse proxies (like Railway/Render)
 app.set('trust proxy', 1);
 

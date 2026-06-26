@@ -30,4 +30,6 @@ export type AnalysisResultData = {
   materials: MaterialItem[];
   accessories: AccessoryItem[];
   palette?: PaletteItem[];
+  signature_colors?: { name: string; hex: string; reason: string }[];
+  next_steps?: string[];
 };
