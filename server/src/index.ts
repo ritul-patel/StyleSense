@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import analysisRouter from './routes/analysis';
+import wardrobeRouter from './routes/wardrobe';
 import { logger } from './middleware/logger';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -48,6 +49,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use("/api/v1/analysis", analysisRouter);
+app.use("/api/v1/wardrobe", wardrobeRouter);
 
 app.use(errorHandler);
 

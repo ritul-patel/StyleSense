@@ -5,6 +5,7 @@ import Image from "next/image";
 import posthog from "posthog-js";
 import { Product } from "@/data/products";
 import { ArrowRight, Check, Copy } from "lucide-react";
+import { useWardrobe } from "@/app/context/WardrobeContext";
 
 interface ProductCardProps {
   product: Product;
@@ -14,6 +15,9 @@ function ProductCard({ product }: ProductCardProps) {
   const [imgError, setImgError] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
+  const { isInWardrobe, addToWardrobe, removeFromWardrobe } = useWardrobe();
+
+  const wishlisted = isInWardrobe(product.id);
 
   // Link logic: prefer affiliate link, fallback to store URL
   const destinationUrl = product.affiliateLink || product.storeUrl;
@@ -63,6 +67,28 @@ function ProductCard({ product }: ProductCardProps) {
         <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-md bg-white/90 dark:bg-black/90 backdrop-blur-md shadow-sm border border-black/5 dark:border-white/10 text-[10px] font-bold text-[#1b1c1b] dark:text-[#fcf9f8] uppercase tracking-wider">
           {storeBadge}
         </div>
+
+        {/* Wishlist Heart */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (wishlisted) removeFromWardrobe(product.id);
+            else addToWardrobe(product.id, "Wishlist");
+          }}
+          aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+          className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/90 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center shadow-sm transition-transform hover:scale-110 active:scale-95"
+        >
+          <span
+            className="material-symbols-outlined text-[20px] transition-colors"
+            style={{
+              fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0",
+              color: wishlisted ? "#e11d48" : "#6b7280",
+            }}
+          >
+            favorite
+          </span>
+        </button>
 
         {/* Loading Skeleton */}
         {!imgLoaded && !imgError && product.image && (

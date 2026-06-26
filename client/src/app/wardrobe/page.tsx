@@ -1,328 +1,438 @@
 "use client";
 
+import { useState, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
 import RequireAuth from "../components/RequireAuth";
+import { useWardrobe } from "../context/WardrobeContext";
+import { PRODUCTS, type Product } from "@/data/products";
+import type { ColorEntry } from "@/types/analysis";
+import type { ClosetItem, OutfitBuild } from "@/lib/wardrobe-repository";
 
-// ─── Static mock data ─────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-const HERO = {
-  title: "Architectural Minimalism.",
-  label: "The Daily Curated",
-  badge: "Recommended Look",
-  insight:
-    'This combination leverages your "Deep Autumn" color profile. The high contrast between the charcoal base and the warm terracotta accent mirrors the structural precision of your seasonal palette.',
-  colors: ["#843b23", "#c27c3e", "#4d5d30"],
-};
+const CATEGORY_MAP: Record<string, string> = { tshirt: "T-Shirts", polo: "Polo", shirt: "Shirts", jeans: "Jeans", sneakers: "Sneakers" };
+const CLOSET_CATEGORIES = ["T-Shirt", "Shirt", "Polo", "Jeans", "Pants", "Jacket", "Sneakers", "Other"];
+const TABS = ["Recommended", "Wishlist", "My Closet", "Collections", "Outfit Builder", "All Products"] as const;
+type Tab = (typeof TABS)[number];
 
-const BREAKDOWN = [
-  { name: "Wool Structure Coat", price: "$420", badge: "Best Fit", colors: ["#3e3e3e", "#555"] },
-  { name: "Silk-Cotton Shirt", price: "$180", colors: ["#f5f0eb", "#e8e0d8"] },
-  { name: "Selvedge Denim", price: "$210", colors: ["#1a2a3a", "#2c3e50"] },
-  { name: "Leather Tassel Loafers", price: "$285", colors: ["#5d3a1a", "#7a4f2d"] },
-];
+// ─── AI Recommendation Logic ──────────────────────────────────────────────────
 
-const SIMILAR_LOOKS = [
-  { score: "94%", label: "Navy Power Suit", colors: ["#1a2b4a", "#2c3e66"] },
-  { score: "88%", label: "Monochrome Grey", colors: ["#6b7280", "#9ca3af"] },
-  { score: "82%", label: "Cream Knitwear", colors: ["#f5f0e8", "#e8ddd0"] },
-  { score: "79%", label: "Tech Minimal", colors: ["#2d3748", "#4a5568"] },
-];
+function getLatestAnalysis(): { best_colors: ColorEntry[] } | null {
+  // Read from sessionStorage first (fresh), then localStorage (persistent)
+  for (const key of ["analysis_result", "last_analysis"]) {
+    try {
+      const storage = key === "analysis_result" ? sessionStorage : localStorage;
+      const raw = storage.getItem(key);
+      if (!raw) continue;
+      const parsed = JSON.parse(raw);
+      const data = parsed?.data || parsed;
+      if (data?.best_colors?.length > 0) return data;
+    } catch { /* ignore */ }
+  }
+  return null;
+}
 
-const SAVED = [
-  {
-    name: "Parisian Morning",
-    ago: "2 Days Ago",
-    swatches: [["#c27c3e", "#843b23"], ["#4d5d30", "#e9c46a"]],
-  },
-  {
-    name: "Tech Minimalist",
-    ago: "5 Days Ago",
-    swatches: [["#1a2a3a", "#3e3e3e"], ["#9ca3af", "#6b7280"]],
-  },
-];
+function computeMatchScore(product: Product, bestColors: ColorEntry[]): number {
+  const pc = product.color.toLowerCase();
+  if (!pc) return 0;
+  let best = 0;
+  for (const c of bestColors) {
+    const cn = c.name.toLowerCase();
+    // Exact match
+    if (pc === cn || pc.includes(cn) || cn.includes(pc)) {
+      best = Math.max(best, 95);
+      continue;
+    }
+    // Word-level match
+    for (const word of cn.split(/[\s-]+/)) {
+      if (word.length > 2 && pc.includes(word)) best = Math.max(best, 80);
+    }
+    for (const word of pc.split(/[\s-]+/)) {
+      if (word.length > 2 && cn.includes(word)) best = Math.max(best, 75);
+    }
+  }
+  return best;
+}
 
-// ─── Gradient placeholder ─────────────────────────────────────────────────────
+// ─── Sub-Components ───────────────────────────────────────────────────────────
 
-function GradientBlock({
-  colors,
-  className,
-  style,
-}: {
-  colors: string[];
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  const from = colors[0] ?? "#ccc";
-  const to = colors[1] ?? from;
+function ProductGrid({ product, score, wishlisted, onToggle }: { product: Product; score?: number; wishlisted: boolean; onToggle: () => void }) {
+  const [imgErr, setImgErr] = useState(false);
+  if (!product.name) return null;
   return (
-    <div
-      className={className}
-      style={{ background: `linear-gradient(135deg, ${from}, ${to})`, ...style }}
-    />
+    <div className="group bg-white dark:bg-[#1b1c1b] rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+      <div className="relative aspect-[3/4] bg-[#f6f3f2] dark:bg-[#0f0f14] overflow-hidden">
+        {product.image && !imgErr ? (
+          <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width:768px) 50vw,(max-width:1200px) 33vw,25vw" onError={() => setImgErr(true)} unoptimized />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-stone-300" style={{ fontSize: 48 }}>checkroom</span></div>
+        )}
+        {score !== undefined && score > 0 && (
+          <div className="absolute top-3 left-3"><span className="bg-[#002b92] text-white text-[9px] font-bold px-2.5 py-1 rounded-full">{score}% Match</span></div>
+        )}
+        <button onClick={(e) => { e.preventDefault(); onToggle(); }} aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
+          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center shadow-sm hover:scale-110 active:scale-95 transition-transform">
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0", color: wishlisted ? "#e11d48" : "#6b7280" }}>favorite</span>
+        </button>
+      </div>
+      <div className="p-4 space-y-1.5">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#002b92] dark:text-[#b7c4ff]">{product.brand || "Brand"}</p>
+        <h4 className="text-sm font-semibold line-clamp-2 leading-tight">{product.name}</h4>
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-base font-bold">₹{product.price.toLocaleString("en-IN")}</span>
+          {product.storeUrl && <a href={product.storeUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold uppercase text-[#002b92] hover:underline">Buy →</a>}
+        </div>
+      </div>
+    </div>
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+function ClosetCard({ item, onRemove }: { item: ClosetItem; onRemove: () => void }) {
+  return (
+    <div className="group bg-white dark:bg-[#1b1c1b] rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 hover:shadow-xl transition-all duration-300">
+      <div className="relative aspect-square bg-[#f6f3f2] dark:bg-[#0f0f14] overflow-hidden">
+        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+        <button onClick={onRemove} aria-label="Remove" className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 dark:bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="material-symbols-outlined text-[16px] text-red-500">delete</span>
+        </button>
+        {item.category && <div className="absolute bottom-3 left-3"><span className="bg-black/60 text-white text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm">{item.category}</span></div>}
+      </div>
+      <div className="p-3">
+        <h4 className="text-sm font-semibold line-clamp-1">{item.name}</h4>
+        {item.color && <p className="text-[10px] text-[#747686] uppercase tracking-wider mt-1">{item.color}</p>}
+      </div>
+    </div>
+  );
+}
+
+function UploadModal({ onAdd, onClose }: { onAdd: (item: Omit<ClosetItem, "id" | "createdAt">) => void; onClose: () => void }) {
+  const [preview, setPreview] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("T-Shirt");
+  const [color, setColor] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4" onClick={onClose}>
+      <div className="bg-white dark:bg-[#1b1c1b] rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-xl font-bold" style={{ fontFamily: "Manrope, sans-serif" }}>Add to My Closet</h3>
+        <div className="relative aspect-square w-full max-w-[200px] mx-auto rounded-2xl overflow-hidden bg-[#f6f3f2] dark:bg-[#0f0f14] border-2 border-dashed border-[#c4c5d7] cursor-pointer" onClick={() => fileRef.current?.click()}>
+          {preview ? <img src={preview} alt="Preview" className="w-full h-full object-cover" /> : (
+            <div className="flex flex-col items-center justify-center h-full gap-2">
+              <span className="material-symbols-outlined text-[#747686]" style={{ fontSize: 40 }}>add_a_photo</span>
+              <span className="text-xs text-[#747686] font-semibold">Tap to upload</span>
+            </div>
+          )}
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+        </div>
+        <input type="text" placeholder="Item name" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#c4c5d7] dark:border-[#333] bg-transparent text-sm focus:outline-none focus:border-[#002b92]" />
+        <div className="flex gap-3">
+          <select value={category} onChange={(e) => setCategory(e.target.value)} className="flex-1 px-4 py-3 rounded-xl border border-[#c4c5d7] dark:border-[#333] bg-transparent text-sm">
+            {CLOSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <input type="text" placeholder="Color" value={color} onChange={(e) => setColor(e.target.value)} className="flex-1 px-4 py-3 rounded-xl border border-[#c4c5d7] dark:border-[#333] bg-transparent text-sm" />
+        </div>
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 py-3 rounded-xl border border-[#c4c5d7] text-sm font-bold">Cancel</button>
+          <button onClick={() => { if (preview && name.trim()) { onAdd({ imageUrl: preview, name: name.trim(), category, color: color.trim() }); onClose(); } }} disabled={!preview || !name.trim()} className="flex-1 py-3 rounded-xl text-white text-sm font-bold disabled:opacity-40" style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}>Add Item</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Outfit Builder Panel ─────────────────────────────────────────────────────
+
+function OutfitBuilderPanel({ onSave }: { onSave: (outfit: Omit<OutfitBuild, "id" | "createdAt">) => void }) {
+  const { items, closetItems } = useWardrobe();
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectedCloset, setSelectedCloset] = useState<Set<string>>(new Set());
+  const [outfitName, setOutfitName] = useState("");
+
+  const wishlistProducts = useMemo(() => {
+    const ids = items.map((i) => i.productId);
+    return PRODUCTS.filter((p) => ids.includes(p.id) && p.name);
+  }, [items]);
+
+  const toggleProduct = (id: string) => {
+    setSelected((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  };
+  const toggleCloset = (id: string) => {
+    setSelectedCloset((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  };
+
+  const canSave = (selected.size + selectedCloset.size) >= 2 && outfitName.trim();
+
+  return (
+    <div className="space-y-8">
+      <div className="bg-white dark:bg-[#1b1c1b] rounded-2xl p-6 border border-black/5 dark:border-white/5">
+        <h3 className="text-lg font-bold mb-4" style={{ fontFamily: "Manrope, sans-serif" }}>Build an Outfit</h3>
+        <p className="text-sm text-[#747686] mb-4">Select 2+ items from your wardrobe or closet to create a look.</p>
+        <input type="text" placeholder="Outfit name (e.g. Weekend Casual)" value={outfitName} onChange={(e) => setOutfitName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#c4c5d7] dark:border-[#333] bg-transparent text-sm mb-4 focus:outline-none focus:border-[#002b92]" />
+        <button onClick={() => { if (canSave) { onSave({ name: outfitName.trim(), productIds: [...selected], closetItemIds: [...selectedCloset] }); setSelected(new Set()); setSelectedCloset(new Set()); setOutfitName(""); } }} disabled={!canSave}
+          className="px-6 py-3 rounded-xl text-white text-sm font-bold disabled:opacity-40 transition-transform hover:scale-[1.02]" style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}>
+          Save Outfit ({selected.size + selectedCloset.size} items)
+        </button>
+      </div>
+
+      {/* Product selection */}
+      {wishlistProducts.length > 0 && (
+        <div>
+          <h4 className="text-sm font-bold uppercase tracking-wider text-[#747686] mb-3">From Wardrobe</h4>
+          <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
+            {wishlistProducts.slice(0, 18).map((p) => (
+              <button key={p.id} onClick={() => toggleProduct(p.id)} className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selected.has(p.id) ? "border-[#002b92] ring-2 ring-[#002b92]/30" : "border-transparent hover:border-[#c4c5d7]"}`}>
+                {p.image ? <Image src={p.image} alt={p.name} fill className="object-cover" unoptimized /> : <div className="w-full h-full bg-[#f0edec] flex items-center justify-center"><span className="material-symbols-outlined text-stone-400">checkroom</span></div>}
+                {selected.has(p.id) && <div className="absolute inset-0 bg-[#002b92]/20 flex items-center justify-center"><span className="material-symbols-outlined text-white text-2xl">check_circle</span></div>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Closet selection */}
+      {closetItems.length > 0 && (
+        <div>
+          <h4 className="text-sm font-bold uppercase tracking-wider text-[#747686] mb-3">From Closet</h4>
+          <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
+            {closetItems.map((item) => (
+              <button key={item.id} onClick={() => toggleCloset(item.id)} className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedCloset.has(item.id) ? "border-[#002b92] ring-2 ring-[#002b92]/30" : "border-transparent hover:border-[#c4c5d7]"}`}>
+                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                {selectedCloset.has(item.id) && <div className="absolute inset-0 bg-[#002b92]/20 flex items-center justify-center"><span className="material-symbols-outlined text-white text-2xl">check_circle</span></div>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {wishlistProducts.length === 0 && closetItems.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-[#747686]">Save products or upload closet items first to build outfits.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Empty State ──────────────────────────────────────────────────────────────
+
+function EmptyState({ icon, title, desc, cta, href, onClick }: { icon: string; title: string; desc: string; cta?: string; href?: string; onClick?: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <div className="w-20 h-20 rounded-full bg-[#dde1ff] flex items-center justify-center mb-6">
+        <span className="material-symbols-outlined text-[#002b92]" style={{ fontSize: 40 }}>{icon}</span>
+      </div>
+      <h2 className="text-2xl font-bold mb-3" style={{ fontFamily: "Manrope, sans-serif" }}>{title}</h2>
+      <p className="text-[#434654] dark:text-[#a0a0b8] mb-8 max-w-sm">{desc}</p>
+      {cta && href && <Link href={href} className="px-8 py-4 rounded-full text-white font-bold hover:scale-[1.02] transition-transform" style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}>{cta}</Link>}
+      {cta && onClick && <button onClick={onClick} className="px-8 py-4 rounded-full text-white font-bold hover:scale-[1.02] transition-transform" style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}>{cta}</button>}
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 function WardrobePageContent() {
+  const [activeTab, setActiveTab] = useState<Tab>("Recommended");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCollection, setSelectedCollection] = useState("Casual");
+  const [showUpload, setShowUpload] = useState(false);
+  const [newColName, setNewColName] = useState("");
+  const [showNewCol, setShowNewCol] = useState(false);
+
+  const {
+    items, addToWardrobe, removeFromWardrobe, isInWardrobe, getCollection, moveToCollection,
+    collections, createCollection, renameCollection, deleteCollection,
+    closetItems, addClosetItem, removeClosetItem,
+    outfits, saveOutfit, removeOutfit, ready,
+  } = useWardrobe();
+
+  const validProducts = useMemo(() => PRODUCTS.filter((p) => p.name && p.id), []);
+  const categories = useMemo(() => {
+    const m = new Map<string, Product[]>();
+    for (const p of validProducts) { const c = p.category || "other"; if (!m.has(c)) m.set(c, []); m.get(c)!.push(p); }
+    return m;
+  }, [validProducts]);
+
+  // AI Recommendations
+  const { recommended, hasAnalysis } = useMemo(() => {
+    const analysis = getLatestAnalysis();
+    if (!analysis?.best_colors?.length) return { recommended: [] as { product: Product; score: number }[], hasAnalysis: false };
+    const scored = validProducts.map((p) => ({ product: p, score: computeMatchScore(p, analysis.best_colors) })).filter((x) => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 16);
+    return { recommended: scored, hasAnalysis: true };
+  }, [validProducts]);
+
+  const wishlistProducts = useMemo(() => {
+    const ids = getCollection("Wishlist").map((i) => i.productId);
+    return validProducts.filter((p) => ids.includes(p.id));
+  }, [items, validProducts, getCollection]);
+
+  const collectionProducts = useMemo(() => {
+    const ids = getCollection(selectedCollection).map((i) => i.productId);
+    return validProducts.filter((p) => ids.includes(p.id));
+  }, [items, selectedCollection, validProducts, getCollection]);
+
+  const allDisplayed = useMemo(() => {
+    if (selectedCategory) return categories.get(selectedCategory) || [];
+    return validProducts;
+  }, [selectedCategory, categories, validProducts]);
+
+  const toggle = useCallback((id: string) => {
+    if (isInWardrobe(id)) removeFromWardrobe(id);
+    else addToWardrobe(id, "Wishlist");
+  }, [isInWardrobe, removeFromWardrobe, addToWardrobe]);
+
+  if (!ready) return null;
+
   return (
-    <div
-      className="bg-[#fcf9f8] text-[#1b1c1b] antialiased"
-      style={{ fontFamily: "Inter, sans-serif" }}
-    >
-      {/* Nav */}
+    <div className="bg-[#fcf9f8] dark:bg-[#0f0f14] text-[#1b1c1b] dark:text-[#fcf9f8] antialiased min-h-screen" style={{ fontFamily: "Inter, sans-serif" }}>
       <Navbar activePath="wardrobe" />
+      {showUpload && <UploadModal onAdd={addClosetItem} onClose={() => setShowUpload(false)} />}
 
-      <main className="pt-28 pb-32 px-6 md:px-12 max-w-[1440px] mx-auto space-y-24">
-        {/* 1. Hero Outfit */}
-        <section className="relative">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Hero image placeholder */}
-            <div className="lg:col-span-7">
-              <div className="rounded-xl overflow-hidden aspect-[4/5] md:aspect-[16/9] lg:aspect-[4/5] bg-[#f0edec] relative">
-                <GradientBlock
-                  colors={["#843b23", "#4d5d30"]}
-                  className="w-full h-full opacity-70"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white/60" style={{ fontSize: 80 }}>
-                    checkroom
-                  </span>
-                </div>
-                <div className="absolute top-6 left-6">
-                  <span className="bg-[#002b92] text-white text-[10px] font-bold px-4 py-2 rounded-full uppercase tracking-widest">
-                    {HERO.badge}
-                  </span>
-                </div>
-              </div>
+      <main className="pt-28 pb-32 px-4 md:px-8 max-w-[1440px] mx-auto">
+        <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#dde1ff] text-[#001452] text-[10px] uppercase tracking-widest font-bold">Personal Collection</div>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight" style={{ fontFamily: "Manrope, sans-serif" }}>My Wardrobe</h1>
+            <p className="text-[#434654] dark:text-[#a0a0b8] text-sm max-w-md">Save products, build outfits, and get AI-matched recommendations.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-semibold text-[#747686]">{items.length + closetItems.length} items</span>
+            <Link href="/discover" className="px-5 py-2.5 rounded-full text-white text-xs font-bold uppercase tracking-wider hover:scale-[1.02] transition-transform" style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}>+ Discover</Link>
+          </div>
+        </header>
+
+        {/* Tabs */}
+        <div className="flex gap-1 mb-8 overflow-x-auto pb-2 no-scrollbar">
+          {TABS.map((tab) => (
+            <button key={tab} onClick={() => { setActiveTab(tab); setSelectedCategory(null); }}
+              className={`px-4 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${activeTab === tab ? "bg-[#1b1c1b] dark:bg-white text-white dark:text-[#1b1c1b] shadow-md" : "bg-[#f0edec] dark:bg-[#202020] text-[#434654] dark:text-[#a0a0b8] hover:bg-[#e4e2e1]"}`}>
+              {tab}
+              {tab === "Wishlist" && wishlistProducts.length > 0 && <span className="ml-1 bg-[#e11d48] text-white text-[9px] px-1.5 py-0.5 rounded-full">{wishlistProducts.length}</span>}
+              {tab === "My Closet" && closetItems.length > 0 && <span className="ml-1 bg-[#002b92] text-white text-[9px] px-1.5 py-0.5 rounded-full">{closetItems.length}</span>}
+              {tab === "Outfit Builder" && outfits.length > 0 && <span className="ml-1 bg-[#002b92] text-white text-[9px] px-1.5 py-0.5 rounded-full">{outfits.length}</span>}
+            </button>
+          ))}
+        </div>
+
+        {/* ═══ RECOMMENDED ═══ */}
+        {activeTab === "Recommended" && (hasAnalysis ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {recommended.map(({ product, score }) => <ProductGrid key={product.id} product={product} score={score} wishlisted={isInWardrobe(product.id)} onToggle={() => toggle(product.id)} />)}
+          </div>
+        ) : <EmptyState icon="auto_awesome" title="Get Personalized Picks" desc="Complete a color analysis to unlock AI-matched product recommendations." cta="Start Analysis" href="/analysis" />)}
+
+        {/* ═══ WISHLIST ═══ */}
+        {activeTab === "Wishlist" && (wishlistProducts.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {wishlistProducts.map((p) => <ProductGrid key={p.id} product={p} wishlisted onToggle={() => toggle(p.id)} />)}
+          </div>
+        ) : <EmptyState icon="favorite" title="Your Wishlist is Empty" desc="Tap the heart icon on any product to save it here." cta="Explore Products" href="/discover" />)}
+
+        {/* ═══ MY CLOSET ═══ */}
+        {activeTab === "My Closet" && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <p className="text-sm text-[#747686]">{closetItems.length} items</p>
+              <button onClick={() => setShowUpload(true)} className="px-5 py-2.5 rounded-full text-white text-xs font-bold uppercase tracking-wider hover:scale-[1.02] transition-transform" style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}>
+                <span className="material-symbols-outlined text-sm mr-1 align-middle">add_a_photo</span>Upload
+              </button>
             </div>
+            {closetItems.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {closetItems.map((item) => <ClosetCard key={item.id} item={item} onRemove={() => removeClosetItem(item.id)} />)}
+              </div>
+            ) : <EmptyState icon="checkroom" title="Your Closet is Empty" desc="Upload photos of your own clothes to build your virtual wardrobe." cta="Upload First Item" onClick={() => setShowUpload(true)} />}
+          </div>
+        )}
 
-            {/* Hero text */}
-            <div className="lg:col-span-5 space-y-8">
-              <div className="space-y-4">
-                <span
-                  className="text-[#002b92] font-bold text-sm tracking-widest uppercase"
-                  style={{ fontFamily: "Manrope, sans-serif" }}
-                >
-                  {HERO.label}
-                </span>
-                <h1
-                  className="text-5xl md:text-7xl font-extrabold tracking-tighter text-[#1b1c1b]"
-                  style={{ fontFamily: "Manrope, sans-serif" }}
-                >
-                  {HERO.title}
-                </h1>
+        {/* ═══ COLLECTIONS ═══ */}
+        {activeTab === "Collections" && (
+          <>
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar items-center">
+              {collections.filter((c) => c.name !== "Wishlist").map((col) => (
+                <button key={col.id} onClick={() => setSelectedCollection(col.name)}
+                  className={`px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap border transition-all ${selectedCollection === col.name ? "border-[#002b92] bg-[#002b92]/5 text-[#002b92]" : "border-[#c4c5d7] dark:border-[#333] text-[#747686] hover:border-[#002b92]/50"}`}>
+                  {col.name} ({getCollection(col.name).length})
+                </button>
+              ))}
+              {!showNewCol ? (
+                <button onClick={() => setShowNewCol(true)} className="px-3 py-2 rounded-full border border-dashed border-[#c4c5d7] text-[#747686] text-[11px] font-bold hover:border-[#002b92]">+ New</button>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <input type="text" value={newColName} onChange={(e) => setNewColName(e.target.value)} placeholder="Name" className="px-3 py-1.5 rounded-full border border-[#002b92] text-xs w-24 focus:outline-none" autoFocus onKeyDown={(e) => { if (e.key === "Enter" && newColName.trim()) { createCollection(newColName.trim()); setNewColName(""); setShowNewCol(false); } }} />
+                  <button onClick={() => { if (newColName.trim()) { createCollection(newColName.trim()); setNewColName(""); setShowNewCol(false); } }} className="text-[#002b92] text-xs font-bold">Add</button>
+                  <button onClick={() => setShowNewCol(false)} className="text-[#747686] text-xs">✕</button>
+                </div>
+              )}
+            </div>
+            {collectionProducts.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {collectionProducts.map((p) => <ProductGrid key={p.id} product={p} wishlisted={isInWardrobe(p.id)} onToggle={() => toggle(p.id)} />)}
+              </div>
+            ) : <EmptyState icon="folder" title={`No items in "${selectedCollection}"`} desc="Save products to this collection from the Discover page." />}
+          </>
+        )}
 
-                {/* Palette chips */}
-                <div className="flex gap-2">
-                  {HERO.colors.map((c) => (
-                    <div
-                      key={c}
-                      className="w-8 h-8 rounded-full border-2 border-white shadow"
-                      style={{ background: c }}
-                    />
+        {/* ═══ OUTFIT BUILDER ═══ */}
+        {activeTab === "Outfit Builder" && (
+          <div className="space-y-8">
+            <OutfitBuilderPanel onSave={saveOutfit} />
+            {outfits.length > 0 && (
+              <div>
+                <h3 className="text-lg font-bold mb-4" style={{ fontFamily: "Manrope, sans-serif" }}>Saved Outfits</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {outfits.map((o) => (
+                    <div key={o.id} className="bg-white dark:bg-[#1b1c1b] rounded-2xl p-4 border border-black/5 dark:border-white/5">
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="font-bold text-sm">{o.name}</h4>
+                        <button onClick={() => removeOutfit(o.id)} className="text-[#747686] hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-[18px]">delete</span></button>
+                      </div>
+                      <p className="text-[10px] text-[#747686] uppercase tracking-wider">{o.productIds.length + o.closetItemIds.length} items</p>
+                      <div className="flex gap-1 mt-2 overflow-hidden">
+                        {o.productIds.slice(0, 4).map((pid) => {
+                          const p = PRODUCTS.find((x) => x.id === pid);
+                          return p?.image ? <div key={pid} className="w-10 h-10 rounded-lg overflow-hidden relative flex-shrink-0"><Image src={p.image} alt="" fill className="object-cover" unoptimized /></div> : null;
+                        })}
+                      </div>
+                    </div>
                   ))}
                 </div>
-
-                <div className="p-6 bg-[#f6f3f2] rounded-xl border-l-4 border-[#002b92]">
-                  <h3 className="font-bold text-lg mb-2" style={{ fontFamily: "Manrope, sans-serif" }}>
-                    Why this works
-                  </h3>
-                  <p className="text-[#434654] leading-relaxed">
-                    <span className="font-bold text-[#002b92] italic">AI Insights: </span>
-                    {HERO.insight}
-                  </p>
-                </div>
               </div>
+            )}
+          </div>
+        )}
 
-              <div className="flex flex-wrap gap-4">
-                <button
-                  className="px-10 py-4 text-white rounded-full font-bold text-sm tracking-tight transition-transform active:scale-95 shadow-lg"
-                  style={{
-                    background: "linear-gradient(135deg, #002b92, #003ec7)",
-                    boxShadow: "0 10px 25px rgba(0,43,146,0.2)",
-                    fontFamily: "Manrope, sans-serif",
-                  }}
-                  onClick={() => console.log("Mix & Match clicked")}
-                >
-                  Mix &amp; Match
-                </button>
-                <button
-                  className="px-10 py-4 border-2 border-[#002b92] text-[#002b92] rounded-full font-bold text-sm tracking-tight hover:bg-[#002b92]/5 transition-colors"
-                  style={{ fontFamily: "Manrope, sans-serif" }}
-                  onClick={() => {
-                    console.log("Add to Wardrobe clicked");
-                  }}
-                >
-                  Add to Wardrobe
-                </button>
-              </div>
+        {/* ═══ ALL PRODUCTS ═══ */}
+        {activeTab === "All Products" && (
+          <>
+            <div className="flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar">
+              <button onClick={() => setSelectedCategory(null)} className={`px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap border transition-all ${!selectedCategory ? "border-[#002b92] bg-[#002b92]/5 text-[#002b92]" : "border-[#c4c5d7] text-[#747686]"}`}>All ({validProducts.length})</button>
+              {Array.from(categories.entries()).map(([cat, prods]) => (
+                <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap border transition-all ${selectedCategory === cat ? "border-[#002b92] bg-[#002b92]/5 text-[#002b92]" : "border-[#c4c5d7] text-[#747686]"}`}>{CATEGORY_MAP[cat] || cat} ({prods.length})</button>
+              ))}
             </div>
-          </div>
-        </section>
-
-        {/* 2. Outfit Breakdown */}
-        <section className="space-y-12">
-          <div className="flex justify-between items-end">
-            <div className="space-y-2">
-              <span className="text-stone-500 font-bold text-xs tracking-widest uppercase" style={{ fontFamily: "Manrope, sans-serif" }}>
-                The Selection
-              </span>
-              <h2 className="text-4xl font-bold tracking-tight" style={{ fontFamily: "Manrope, sans-serif" }}>
-                Outfit Breakdown
-              </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {allDisplayed.map((p) => <ProductGrid key={p.id} product={p} wishlisted={isInWardrobe(p.id)} onToggle={() => toggle(p.id)} />)}
             </div>
-            <button
-              className="px-8 py-3 bg-[#1b1c1b] text-[#fcf9f8] rounded-full font-bold text-sm tracking-tight transition-colors hover:bg-[#002b92] flex items-center gap-2"
-              style={{ fontFamily: "Manrope, sans-serif" }}
-            >
-              <span className="material-symbols-outlined text-sm">shopping_cart</span>
-              Buy All ($1,095)
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {BREAKDOWN.map((item) => (
-              <div key={item.name} className="space-y-4">
-                <div className="relative rounded-xl overflow-hidden aspect-[3/4] bg-white" style={{ boxShadow: "0px 12px 32px rgba(27,28,27,0.06)" }}>
-                  <GradientBlock colors={item.colors} className="w-full h-full" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white/50" style={{ fontSize: 48 }}>
-                      checkroom
-                    </span>
-                  </div>
-                  {item.badge && (
-                    <div className="absolute top-4 left-4">
-                      <span className="bg-[#002b92] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-tighter shadow-md">
-                        {item.badge}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-bold">{item.name}</h4>
-                    <p className="text-sm text-[#434654]">{item.price}</p>
-                  </div>
-                  <button
-                    className="p-2 rounded-full border border-[#c4c5d7] hover:bg-[#f0edec] transition-colors"
-                    onClick={() => console.log(`Add to cart: ${item.name}`)}
-                  >
-                    <span className="material-symbols-outlined text-lg">add_shopping_cart</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* 3. Similar Looks */}
-        <section className="space-y-8">
-          <div className="space-y-2">
-            <span className="text-stone-500 font-bold text-xs tracking-widest uppercase" style={{ fontFamily: "Manrope, sans-serif" }}>
-              Couture Logic
-            </span>
-            <h2 className="text-4xl font-bold tracking-tight" style={{ fontFamily: "Manrope, sans-serif" }}>
-              Similar Inspirations
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {SIMILAR_LOOKS.map((look) => (
-              <div key={look.label} className="group cursor-pointer relative">
-                <div
-                  className="rounded-xl overflow-hidden aspect-[3/4] bg-[#f0edec] transition-all duration-500 group-hover:shadow-2xl relative"
-                >
-                  <GradientBlock colors={look.colors} className="w-full h-full opacity-80" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white/40" style={{ fontSize: 40 }}>
-                      style
-                    </span>
-                  </div>
-                  {/* Hover CTA */}
-                  <div className="absolute inset-0 bg-[#002b92]/0 group-hover:bg-[#002b92]/20 transition-all duration-300 flex items-center justify-center">
-                    <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white font-bold text-sm bg-[#002b92] px-4 py-2 rounded-full" style={{ fontFamily: "Manrope, sans-serif" }}>
-                      Try This Look
-                    </span>
-                  </div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <div className="bg-white/90 backdrop-blur-md rounded-lg p-3 flex justify-between items-center">
-                      <span className="text-[10px] font-bold uppercase tracking-wider">{look.label}</span>
-                      <span className="text-[#002b92] font-bold text-sm">{look.score}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* 4. Saved Collections */}
-        <section className="space-y-8 pb-12">
-          <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "Manrope, sans-serif" }}>
-              Saved Collections
-            </h3>
-            <button className="text-sm font-bold text-[#002b92] hover:underline underline-offset-4 transition-all uppercase tracking-widest">
-              View Archives
-            </button>
-          </div>
-
-          <div className="flex gap-6 overflow-x-auto pb-6" style={{ scrollbarWidth: "none" }}>
-            {SAVED.map((saved) => (
-              <div key={saved.name} className="min-w-[300px] group opacity-70 hover:opacity-100 transition-opacity">
-                <div className="bg-[#e4e2e1] rounded-xl p-4">
-                  <div className="grid grid-cols-2 gap-2 h-40">
-                    <GradientBlock colors={saved.swatches[0]!} className="rounded-lg" />
-                    <div className="grid grid-rows-2 gap-2">
-                      <GradientBlock colors={saved.swatches[1] ?? saved.swatches[0]!} className="rounded-lg opacity-80" />
-                      <GradientBlock colors={[saved.swatches[0]![1] ?? "#ccc", saved.swatches[0]![0] ?? "#ccc"]} className="rounded-lg opacity-60" />
-                    </div>
-                  </div>
-                  <div className="mt-4 flex justify-between items-center">
-                    <div>
-                      <h5 className="font-bold text-sm">{saved.name}</h5>
-                      <p className="text-[10px] text-[#434654] uppercase tracking-widest">{saved.ago}</p>
-                    </div>
-                    <span
-                      className="material-symbols-outlined text-[#003ec7] text-lg"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      bookmark
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {/* Add collection prompt */}
-            <div className="min-w-[300px] opacity-50 hover:opacity-70 transition-opacity cursor-pointer">
-              <div
-                className="bg-[#e4e2e1] rounded-xl p-4 h-full flex items-center justify-center border-2 border-dashed border-[#c4c5d7]"
-                onClick={() => console.log("Add to Wardrobe clicked")}
-              >
-                <div className="text-center">
-                  <span className="material-symbols-outlined text-[#747686] text-4xl mb-2 block">add_circle</span>
-                  <p className="text-sm font-semibold text-[#434654]">Add to Wardrobe</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+          </>
+        )}
       </main>
-
-      {/* Mobile nav */}
-      
+      <style>{`.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}`}</style>
     </div>
   );
 }
 
 export default function WardrobePage() {
-  return (
-    <RequireAuth>
-      <WardrobePageContent />
-    </RequireAuth>
-  );
+  return (<RequireAuth><WardrobePageContent /></RequireAuth>);
 }
-
