@@ -6,6 +6,9 @@ import rateLimit from 'express-rate-limit';
 import analysisRouter from './routes/analysis';
 import wardrobeRouter from './routes/wardrobe';
 import profileRouter from './routes/profile';
+import productsRouter from './routes/products';
+import adminProductsRouter from './routes/adminProducts';
+import recommendationsRouter from './routes/recommendations';
 import { logger } from './middleware/logger';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -52,6 +55,9 @@ app.get('/health', (req, res) => {
 app.use("/api/v1/analysis", analysisRouter);
 app.use("/api/v1/wardrobe", wardrobeRouter);
 app.use("/api/v1/profile", profileRouter);
+app.use("/api/v1/products", productsRouter);
+app.use("/api/v1/admin/products", adminProductsRouter);
+app.use("/api/v1/recommendations", recommendationsRouter);
 
 app.use(errorHandler);
 
