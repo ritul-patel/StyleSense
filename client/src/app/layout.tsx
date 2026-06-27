@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Providers from "./providers";
 import FeedbackWidget from "./components/FeedbackWidget";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 
 export const metadata: Metadata = {
@@ -99,7 +100,11 @@ export default function RootLayout({
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" as="style" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
       </head>
-      <body style={{ overflowX: "hidden" }}><Providers>{children}</Providers><FeedbackWidget /></body>
+      <body style={{ overflowX: "hidden" }}>
+        <Providers>{children}</Providers>
+        <FeedbackWidget />
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
