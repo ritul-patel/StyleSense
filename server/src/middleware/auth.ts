@@ -25,7 +25,13 @@ async function verifyToken(
   res: Response,
   next: NextFunction
 ): Promise<void> {
+  const authStart = Date.now();
   const { data, error } = await supabase.auth.getUser(token);
+  const authMs = Date.now() - authStart;
+
+  if (authMs > 500) {
+    console.warn(`[auth] Verification took ${authMs}ms`);
+  }
 
   if (error || !data.user) {
     console.error("[auth] Token verification failed:", error?.message ?? "no user returned");
@@ -33,6 +39,8 @@ async function verifyToken(
     return;
   }
 
+  // Attach timing for downstream routes to log
+  (req as any)._authMs = authMs;
   req.user = data.user;
   next();
 }

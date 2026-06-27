@@ -146,7 +146,6 @@ function HistoryPageContent() {
   const hasItems = useMemo(() => items.length > 0, [items]);
 
   const handleReanalyze = (id: string) => {
-    console.log("Re-analyze:", id);
     router.push("/analysis");
   };
 
@@ -215,6 +214,12 @@ function HistoryPageContent() {
               Something went wrong
             </h2>
             <p className="mt-2 text-sm text-[#ba1a1a]">{error}</p>
+            <button
+              onClick={() => { setError(""); setLoading(true); fetchAnalysisHistory().then(setItems).catch(() => setError("Could not load analysis history.")).finally(() => setLoading(false)); }}
+              className="mt-4 px-5 py-2.5 rounded-xl border border-[#002b92] text-[#002b92] text-xs font-bold uppercase tracking-wider hover:bg-[#002b92]/5 transition-all"
+            >
+              Try Again
+            </button>
           </div>
         )}
 

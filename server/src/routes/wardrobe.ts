@@ -14,10 +14,14 @@ router.use(authMiddleware);
 // GET /api/v1/wardrobe — all items for the authenticated user
 router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const dbStart = Date.now();
     const q = await db.query(
       "SELECT id, product_id, collection, created_at FROM wardrobe_items WHERE user_id = $1 ORDER BY created_at DESC",
       [req.user!.id]
     );
+    const dbMs = Date.now() - dbStart;
+    const authMs = (req as any)._authMs || 0;
+    console.log(`[wardrobe] GET / — auth: ${authMs}ms, db: ${dbMs}ms, rows: ${q.rows.length}`);
     return res.json(q.rows.map((r) => ({
       id: r.id,
       productId: r.product_id,

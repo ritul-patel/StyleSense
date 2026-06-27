@@ -11,7 +11,6 @@ const nextConfig: NextConfig = {
       "@supabase/supabase-js",
       "lucide-react",
       "posthog-js",
-      "@sentry/nextjs",
     ],
   },
   images: {
@@ -41,20 +40,22 @@ let exportedConfig: NextConfig = nextConfig;
 
 if (!isDev) {
   const { withSentryConfig } = require("@sentry/nextjs");
-  exportedConfig = withSentryConfig(
-    nextConfig,
-    {
-      silent: true,
-      org: "stylesense-42",
-      project: "javascript-nextjs",
-    },
-    {
-      widenClientFileUpload: true,
-      hideSourceMaps: true,
-      disableLogger: true,
-      automaticVercelMonitors: true,
-    }
-  );
+  exportedConfig = withSentryConfig(nextConfig, {
+    org: "stylesense-42",
+    project: "javascript-nextjs",
+    silent: true,
+
+    // Source maps
+    widenClientFileUpload: true,
+    hideSourceMaps: true,
+
+    // Tunnel to bypass ad blockers
+    tunnelRoute: "/monitoring",
+
+    // Performance
+    automaticVercelMonitors: true,
+    disableLogger: true,
+  });
 }
 
 export default exportedConfig;

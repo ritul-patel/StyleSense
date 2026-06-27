@@ -1,3 +1,5 @@
+// Sentry must be imported first — before any other modules
+import { Sentry, isSentryEnabled } from './utils/sentry';
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -14,6 +16,7 @@ import adminImagesRouter from './routes/adminImages';
 import adminMetadataRouter from './routes/adminMetadata';
 import adminRouter from './routes/admin';
 import recommendationsRouter from './routes/recommendations';
+import feedbackRouter from './routes/feedback';
 import { logger } from './middleware/logger';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -75,6 +78,12 @@ app.use("/api/v1/admin/images", adminImagesRouter);
 app.use("/api/v1/admin/metadata", adminMetadataRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/recommendations", recommendationsRouter);
+app.use("/api/v1/feedback", feedbackRouter);
+
+// Sentry error handler — must be before custom errorHandler
+if (isSentryEnabled) {
+  Sentry.setupExpressErrorHandler(app);
+}
 
 app.use(errorHandler);
 
@@ -90,8 +99,14 @@ server.on('error', (error) => {
 
 process.on('unhandledRejection', (reason) => {
   console.error('[UnhandledRejection]', reason);
+  if (isSentryEnabled && reason instanceof Error) {
+    Sentry.captureException(reason);
+  }
 });
 
 process.on('uncaughtException', (error) => {
   console.error('[UncaughtException]', error);
+  if (isSentryEnabled) {
+    Sentry.captureException(error);
+  }
 });

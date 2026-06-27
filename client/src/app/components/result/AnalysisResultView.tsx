@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useMemo } from "react";
+import Navbar from "@/app/components/Navbar";
 import type { AnalysisResultData, MaterialItem, AccessoryItem, OutfitItem, PaletteItem, AvoidColorItem } from "./types";
 import { getRecommendedOutfits, type RecommendedOutfit } from "@/lib/outfit-recommendation";
 import RequireAuth from "../RequireAuth";
@@ -85,7 +86,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
   const mainOutfit = outfits[0] ?? null;
 
   return (
-    <div style={{ background: "#fcf9f8", minHeight: "100vh", fontFamily: "'Inter', sans-serif", color: "#1b1c1b" }}>
+    <div style={{ background: "#fcf9f8", minHeight: "100vh", fontFamily: "'Inter', sans-serif", color: "#1b1c1b", overflowX: "hidden" }}>
       {/* Toast Notification */}
       <AnimatePresence>
         {toastMessage && (
@@ -111,28 +112,13 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
       <div style={{ position: "fixed", bottom: "-10%", left: "-5%", width: "30vw", height: "30vw", borderRadius: "50%", background: "rgba(254,219,202,0.15)", filter: "blur(90px)", pointerEvents: "none", zIndex: 0 }} />
 
       {/* Nav */}
-      <header className="bg-[#fcf9f8]/70 backdrop-blur-xl fixed top-0 left-0 right-0 z-50 border-b border-black/5">
-        <div className="flex justify-between items-center px-8 h-20 w-full max-w-screen-2xl mx-auto">
-          <Link href="/" className="text-2xl font-black tracking-tighter text-[#002b92]" style={{ fontFamily: "Manrope, sans-serif" }}>
-            StyleSense
-          </Link>
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/discover" className="text-stone-400 font-medium hover:text-[#002b92] transition-colors">Discover</Link>
-            <span className="text-[#002b92] font-bold border-b-2 border-[#002b92]">Analysis</span>
-            <Link href="/wardrobe" className="text-stone-400 font-medium hover:text-[#002b92] transition-colors">Wardrobe</Link>
-            <Link href="/history" className="text-stone-400 font-medium hover:text-[#002b92] transition-colors">History</Link>
-          </nav>
-          <div className="flex items-center gap-4">
-            <span className="material-symbols-outlined text-[#1b1c1b] hover:text-[#002b92] transition-colors cursor-pointer">account_circle</span>
-          </div>
-        </div>
-      </header>
+      <Navbar activePath="analysis" />
 
       <motion.main
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        style={{ position: "relative", zIndex: 1, paddingTop: 112, paddingBottom: 80 }}
+        style={{ position: "relative", zIndex: 1, paddingTop: 100, paddingBottom: 80 }}
       >
         <div style={{ maxWidth: 1180, margin: "0 auto", padding: "0 6%" }}>
 

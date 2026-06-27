@@ -399,6 +399,8 @@ router.get("/history", optionalAuthMiddleware, async (req: AuthenticatedRequest,
   const reqId = requestId();
   try {
     if (!req.user?.id) return res.json([]);
+    const authMs = (req as any)._authMs || 0;
+    const dbStart = Date.now();
 
     const caps = await analysesCaps(reqId);
 
@@ -408,6 +410,7 @@ router.get("/history", optionalAuthMiddleware, async (req: AuthenticatedRequest,
     const sql = `SELECT ${fields} FROM analyses ${where} ORDER BY created_at DESC LIMIT 10`;
     
     const q = await db.query(sql, params);
+    const dbMs = Date.now() - dbStart;
     const payload = q.rows.map((row) => {
       const parsed = resultFromUnknown(row.result);
       let createdAtStr: string | null = null;
@@ -426,6 +429,7 @@ router.get("/history", optionalAuthMiddleware, async (req: AuthenticatedRequest,
         created_at: createdAtStr,
       };
     });
+    console.log(`[history] GET / — auth: ${authMs}ms, db: ${dbMs}ms, rows: ${payload.length}`);
     return res.json(payload);
   } catch (error: any) {
     console.error(`[history][${reqId}] ${error.message || error}`);
@@ -496,7 +500,6 @@ router.get("/:id", optionalAuthMiddleware, async (req: AuthenticatedRequest, res
   const reqId = requestId();
   try {
     const analysisId = String(req.params.id || "").trim();
-    console.log(`[analysis/fetch][${reqId}] RESULT ID: ${analysisId} | user: ${req.user?.id || "unknown"}`);
     if (!isUuid(analysisId)) throw new AppError("Invalid analysis ID parameter.", 400);
     const caps = await analysesCaps(reqId);
     const params: unknown[] = [analysisId];
@@ -507,9 +510,7 @@ router.get("/:id", optionalAuthMiddleware, async (req: AuthenticatedRequest, res
     if (!q.rows[0]) throw new AppError("Analysis not found.", 404);
     const row = q.rows[0];
     const resultRaw = row.result;
-    console.log(`[analysis/fetch][${reqId}] DB ROW — result type: ${typeof resultRaw} | result keys: [${Object.keys(resultRaw || {}).join(", ")}] | skin_tone: ${row.skin_tone} | undertone: ${row.undertone}`);
     const parsed = resultFromUnknown(resultRaw);
-    console.log(`[analysis/fetch][${reqId}] PARSED — season: ${parsed.season} | confidence: ${parsed.confidence} | best_colors: ${parsed.best_colors?.length ?? 0} | outfits: ${parsed.outfits?.length ?? 0}`);
     const data: AnalysisPayload = {
       skin_tone: row.skin_tone || parsed.skin_tone || "Unknown",
       undertone: row.undertone || parsed.undertone || "Unknown",

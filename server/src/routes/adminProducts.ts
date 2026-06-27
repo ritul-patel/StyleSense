@@ -3,6 +3,7 @@ import * as db from "../utils/db";
 import { adminMiddleware } from "../middleware/adminAuth";
 import type { AuthenticatedRequest } from "../middleware/auth";
 import { generateProductMetadata } from "../services/metadataProvider";
+import { invalidateProductsCache } from "./products";
 
 const router = Router();
 router.use(adminMiddleware);
@@ -104,6 +105,7 @@ router.post("/", async (req: AuthenticatedRequest, res: Response) => {
       ]
     );
 
+    invalidateProductsCache();
     return res.status(201).json(q.rows[0]);
   } catch (err: any) {
     if (err.code === "23505") {
@@ -153,6 +155,7 @@ router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
     );
 
     if (q.rows.length === 0) return res.status(404).json({ success: false, message: "Product not found." });
+    invalidateProductsCache();
     return res.json(q.rows[0]);
   } catch (err: any) {
     console.error("[admin/products] PATCH /:id error:", err.message);
@@ -165,6 +168,7 @@ router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const q = await db.query("DELETE FROM products WHERE id = $1 RETURNING id", [req.params.id]);
     if (q.rows.length === 0) return res.status(404).json({ success: false, message: "Product not found." });
+    invalidateProductsCache();
     return res.json({ success: true });
   } catch (err: any) {
     console.error("[admin/products] DELETE /:id error:", err.message);

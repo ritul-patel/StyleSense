@@ -20,6 +20,17 @@ type Product = {
   created_at: string;
 };
 
+function getProductStatus(p: Product): { label: string; color: string } {
+  if (p.is_published) return { label: "Published", color: "bg-green-100 text-green-700" };
+  if (!p.image_url) return { label: "Needs Image", color: "bg-orange-100 text-orange-700" };
+  if (!p.primary_color) return { label: "Needs Metadata", color: "bg-amber-100 text-amber-700" };
+  return { label: "Ready", color: "bg-blue-100 text-blue-700" };
+}
+
+function canPublish(p: Product): boolean {
+  return !!p.image_url && !!p.name && !!p.primary_color && !!p.category;
+}
+
 type EditorProduct = {
   name: string;
   brand: string;
@@ -47,6 +58,8 @@ function ProductsContent() {
   const [showEditor, setShowEditor] = useState(false);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkProcessing, setBulkProcessing] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -63,7 +76,7 @@ function ProductsContent() {
     finally { setLoading(false); }
   }, [page, search]);
 
-  useEffect(() => { fetchProducts(); }, [fetchProducts]);
+  useEffect(() => { fetchProducts(); setSelected(new Set()); }, [fetchProducts]);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
@@ -91,14 +104,112 @@ function ProductsContent() {
   };
 
   const togglePublish = async (id: string, current: boolean) => {
-    await apiFetch(`/api/v1/admin/products/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ is_published: !current }) });
-    fetchProducts();
+    if (!current) {
+      // Publishing — validate first
+      const product = products.find((p) => p.id === id);
+      if (product && !canPublish(product)) {
+        showToast("Cannot publish: image and metadata required");
+        return;
+      }
+    }
+    const res = await apiFetch(`/api/v1/admin/products/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ is_published: !current }) });
+    if (res.ok) {
+      // Update only the affected row (no full refetch)
+      setProducts((prev) => prev.map((p) => p.id === id ? { ...p, is_published: !current } : p));
+      showToast(current ? "Unpublished" : "Published");
+    } else {
+      showToast("Failed to update");
+    }
   };
 
   const deleteProduct = async (id: string) => {
     if (!confirm("Delete this product permanently?")) return;
     await apiFetch(`/api/v1/admin/products/${id}`, { method: "DELETE" });
     showToast("Product deleted");
+    setSelected((prev) => { const n = new Set(prev); n.delete(id); return n; });
+    fetchProducts();
+  };
+
+  // ─── Bulk Actions ───────────────────────────────────────────────────────
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  };
+
+  const toggleSelectAll = () => {
+    if (selected.size === products.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(products.map((p) => p.id)));
+    }
+  };
+
+  const bulkPublish = async () => {
+    const ids = [...selected];
+    const toPublish = products.filter((p) => ids.includes(p.id) && !p.is_published);
+    if (toPublish.length === 0) { showToast("No unpublished products selected"); return; }
+
+    const valid = toPublish.filter(canPublish);
+    const skipped = toPublish.filter((p) => !canPublish(p));
+
+    if (valid.length === 0) {
+      showToast(`Cannot publish: all ${skipped.length} products need image/metadata`);
+      return;
+    }
+
+    const skipMsg = skipped.length > 0 ? `\n\nSkipping ${skipped.length} products (missing image or metadata):\n${skipped.slice(0, 5).map((p) => `• ${p.name}`).join("\n")}${skipped.length > 5 ? `\n...and ${skipped.length - 5} more` : ""}` : "";
+    if (!confirm(`Publish ${valid.length} products?${skipMsg}`)) return;
+
+    setBulkProcessing(true);
+    let published = 0;
+    for (const p of valid) {
+      try {
+        const res = await apiFetch(`/api/v1/admin/products/${p.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ is_published: true }) });
+        if (res.ok) published++;
+      } catch {}
+    }
+    setProducts((prev) => prev.map((p) => valid.some((v) => v.id === p.id) ? { ...p, is_published: true } : p));
+    setSelected(new Set());
+    setBulkProcessing(false);
+    showToast(`Published: ${published}${skipped.length > 0 ? ` • Skipped: ${skipped.length}` : ""}`);
+  };
+
+  const bulkUnpublish = async () => {
+    const ids = [...selected];
+    const toUnpublish = products.filter((p) => ids.includes(p.id) && p.is_published);
+    if (toUnpublish.length === 0) { showToast("No published products selected"); return; }
+    if (!confirm(`Unpublish ${toUnpublish.length} products?`)) return;
+
+    setBulkProcessing(true);
+    let unpublished = 0;
+    for (const p of toUnpublish) {
+      try {
+        const res = await apiFetch(`/api/v1/admin/products/${p.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ is_published: false }) });
+        if (res.ok) unpublished++;
+      } catch {}
+    }
+    setProducts((prev) => prev.map((p) => toUnpublish.some((u) => u.id === p.id) ? { ...p, is_published: false } : p));
+    setSelected(new Set());
+    setBulkProcessing(false);
+    showToast(`Unpublished: ${unpublished}`);
+  };
+
+  const bulkDelete = async () => {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    if (!confirm(`Permanently delete ${ids.length} products? This cannot be undone.`)) return;
+
+    setBulkProcessing(true);
+    let deleted = 0;
+    for (const id of ids) {
+      try {
+        const res = await apiFetch(`/api/v1/admin/products/${id}`, { method: "DELETE" });
+        if (res.ok) deleted++;
+      } catch {}
+    }
+    setSelected(new Set());
+    setBulkProcessing(false);
+    showToast(`Deleted: ${deleted}`);
     fetchProducts();
   };
 
@@ -256,6 +367,49 @@ function ProductsContent() {
             className="flex-1 max-w-md border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#002b92]/20" />
         </div>
 
+        {/* Bulk Actions Toolbar */}
+        {selected.size > 0 && (
+          <div className="flex items-center gap-3 bg-[#002b92]/5 border border-[#002b92]/20 rounded-xl px-5 py-3">
+            <span className="text-sm font-semibold text-[#002b92]">
+              {selected.size} selected
+            </span>
+            <div className="h-4 w-px bg-[#002b92]/20" />
+            <button
+              onClick={bulkPublish}
+              disabled={bulkProcessing}
+              className="px-4 py-1.5 rounded-lg bg-green-600 text-white text-xs font-bold hover:bg-green-700 disabled:opacity-40 flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-sm">publish</span>
+              Publish Selected
+            </button>
+            <button
+              onClick={bulkUnpublish}
+              disabled={bulkProcessing}
+              className="px-4 py-1.5 rounded-lg bg-amber-500 text-white text-xs font-bold hover:bg-amber-600 disabled:opacity-40 flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-sm">unpublished</span>
+              Unpublish
+            </button>
+            <button
+              onClick={bulkDelete}
+              disabled={bulkProcessing}
+              className="px-4 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 disabled:opacity-40 flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-sm">delete</span>
+              Delete
+            </button>
+            {bulkProcessing && (
+              <span className="material-symbols-outlined text-[#002b92] text-sm animate-spin ml-2">progress_activity</span>
+            )}
+            <button
+              onClick={() => setSelected(new Set())}
+              className="ml-auto text-xs text-gray-500 hover:text-gray-700 font-medium"
+            >
+              Clear selection
+            </button>
+          </div>
+        )}
+
         {/* Table */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           {loading ? (
@@ -266,6 +420,14 @@ function ProductsContent() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
+                  <th className="px-5 py-3 w-10">
+                    <input
+                      type="checkbox"
+                      checked={products.length > 0 && selected.size === products.length}
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 rounded border-gray-300"
+                    />
+                  </th>
                   <th className="text-left px-5 py-3 font-semibold text-gray-600 w-12"></th>
                   <th className="text-left px-5 py-3 font-semibold text-gray-600">Product</th>
                   <th className="text-left px-5 py-3 font-semibold text-gray-600">Brand</th>
@@ -277,21 +439,42 @@ function ProductsContent() {
               </thead>
               <tbody>
                 {products.map((p) => (
-                  <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                  <tr key={p.id} className={`border-b border-gray-50 hover:bg-gray-50/50 ${selected.has(p.id) ? "bg-[#002b92]/[0.02]" : ""}`}>
                     <td className="px-5 py-3">
-                      {p.image_url ? <img src={p.image_url} alt="" className="w-10 h-10 rounded-lg object-cover" /> : <div className="w-10 h-10 rounded-lg bg-gray-100" />}
+                      <input
+                        type="checkbox"
+                        checked={selected.has(p.id)}
+                        onChange={() => toggleSelect(p.id)}
+                        className="w-4 h-4 rounded border-gray-300"
+                      />
+                    </td>
+                    <td className="px-5 py-3">
+                      {p.image_url ? <img src={p.image_url} alt={p.name} className="w-10 h-10 rounded-lg object-cover" /> : <div className="w-10 h-10 rounded-lg bg-gray-100" />}
                     </td>
                     <td className="px-5 py-3 font-medium text-[#1b1c1b] max-w-[200px] truncate">{p.name}</td>
                     <td className="px-5 py-3 text-gray-600">{p.brand || "—"}</td>
                     <td className="px-5 py-3 text-gray-600">{p.category}</td>
                     <td className="px-5 py-3 font-semibold">₹{Number(p.price).toLocaleString("en-IN")}</td>
                     <td className="px-5 py-3">
-                      <button onClick={() => togglePublish(p.id, p.is_published)} className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${p.is_published ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                        {p.is_published ? "Published" : "Draft"}
-                      </button>
+                      {(() => {
+                        const status = getProductStatus(p);
+                        return (
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${status.color}`}>
+                            {status.label}
+                          </span>
+                        );
+                      })()}
                     </td>
-                    <td className="px-5 py-3 text-right">
-                      <button onClick={() => openEdit(p.id)} className="text-[#002b92] hover:underline text-xs font-bold mr-3">Edit</button>
+                    <td className="px-5 py-3 text-right space-x-2">
+                      <button onClick={() => openEdit(p.id)} className="text-[#002b92] hover:underline text-xs font-bold">Edit</button>
+                      <button
+                        onClick={() => togglePublish(p.id, p.is_published)}
+                        disabled={!p.is_published && !canPublish(p)}
+                        className={`text-xs font-bold ${p.is_published ? "text-amber-600 hover:underline" : canPublish(p) ? "text-green-600 hover:underline" : "text-gray-300 cursor-not-allowed"}`}
+                        title={!p.is_published && !canPublish(p) ? "Add image and metadata to publish" : ""}
+                      >
+                        {p.is_published ? "Unpublish" : "Publish"}
+                      </button>
                       <button onClick={() => deleteProduct(p.id)} className="text-red-500 hover:underline text-xs font-bold">Delete</button>
                     </td>
                   </tr>

@@ -1408,13 +1408,55 @@ interface AnalysisStats {
 |---|--------|-------|------|--------|
 | 1 | GET | `/health` | None | Production |
 | 2 | POST | `/api/v1/analysis/upload` | Required | Production |
-| 3 | POST | `/api/v1/analysis/manual` | Required | Production (unused by FE) |
+| 3 | POST | `/api/v1/analysis/manual` | Required | Production |
 | 4 | GET | `/api/v1/analysis/history` | Optional | Production |
-| 5 | GET | `/api/v1/analysis/stats` | Optional | Production (unused by FE) |
-| 6 | GET | `/api/v1/analysis/result/:id` | Optional | Production (unused by FE) |
-| 7 | GET | `/api/v1/analysis/:id` | Optional | Production (FE dead code) |
-| 8 | GET | `/api/sentry-example-api` | None | Test only (Next.js) |
+| 5 | GET | `/api/v1/analysis/stats` | Optional | Production |
+| 6 | GET | `/api/v1/analysis/result/:id` | Optional | Production |
+| 7 | GET | `/api/v1/analysis/:id` | Optional | Production |
+| 8 | GET | `/api/v1/products` | None | Production |
+| 9 | GET | `/api/v1/profile` | Required | Production |
+| 10 | PATCH | `/api/v1/profile` | Required | Production |
+| 11 | POST | `/api/v1/profile/delete` | Required | Production |
+| 12 | DELETE | `/api/v1/profile/history` | Required | Production |
+| 13 | GET | `/api/v1/wardrobe` | Required | Production |
+| 14 | POST | `/api/v1/wardrobe` | Required | Production |
+| 15 | PATCH | `/api/v1/wardrobe/:id` | Required | Production |
+| 16 | DELETE | `/api/v1/wardrobe/:id` | Required | Production |
+| 17 | GET | `/api/v1/wardrobe/closet` | Required | Production |
+| 18 | POST | `/api/v1/wardrobe/closet` | Required | Production |
+| 19 | DELETE | `/api/v1/wardrobe/closet/:id` | Required | Production |
+| 20 | GET | `/api/v1/wardrobe/outfits` | Required | Production |
+| 21 | POST | `/api/v1/wardrobe/outfits` | Required | Production |
+| 22 | DELETE | `/api/v1/wardrobe/outfits/:id` | Required | Production |
+| 23 | GET | `/api/v1/wardrobe/collections` | Required | Production |
+| 24 | POST | `/api/v1/wardrobe/collections` | Required | Production |
+| 25 | PATCH | `/api/v1/wardrobe/collections/:id` | Required | Production |
+| 26 | DELETE | `/api/v1/wardrobe/collections/:id` | Required | Production |
+| 27 | POST | `/api/v1/recommendations/products` | Optional | Production |
+| 28 | POST | `/api/v1/recommendations/outfits` | Optional | Production |
+| 29 | GET | `/api/v1/admin/stats` | Admin | Production |
+| 30 | GET | `/api/v1/admin/users` | Admin | Production |
+| 31 | PATCH | `/api/v1/admin/users/:id/role` | Admin | Production |
+| 32 | GET | `/api/v1/admin/products` | Admin | Production |
+| 33 | GET | `/api/v1/admin/products/:id` | Admin | Production |
+| 34 | POST | `/api/v1/admin/products` | Admin | Production |
+| 35 | PATCH | `/api/v1/admin/products/:id` | Admin | Production |
+| 36 | DELETE | `/api/v1/admin/products/:id` | Admin | Production |
+| 37 | POST | `/api/v1/admin/products/:id/generate-metadata` | Admin | Production |
+| 38 | GET | `/api/v1/admin/outfits` | Admin | Production |
+| 39 | POST | `/api/v1/admin/outfits` | Admin | Production |
+| 40 | PATCH | `/api/v1/admin/outfits/:id` | Admin | Production |
+| 41 | DELETE | `/api/v1/admin/outfits/:id` | Admin | Production |
+| 42 | GET | `/api/v1/admin/import/products/template` | None | Production |
+| 43 | GET | `/api/v1/admin/import/outfits/template` | None | Production |
+| 44 | POST | `/api/v1/admin/import/products` | Admin | Production |
+| 45 | POST | `/api/v1/admin/import/outfits` | Admin | Production |
+| 46 | POST | `/api/v1/admin/images/upload` | Admin | Production |
+| 47 | POST | `/api/v1/admin/images/upload-batch` | Admin | Production |
+| 48 | POST | `/api/v1/admin/images/match` | Admin | Production |
+| 49 | POST | `/api/v1/admin/metadata/generate-batch` | Admin | Production |
+| 50 | GET | `/api/v1/admin/metadata/status` | Admin | Production |
 
 ---
 
-*End of document. Accuracy over completeness.*
+*End of document. Last updated: 2026-06-26.*

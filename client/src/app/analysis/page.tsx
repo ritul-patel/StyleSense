@@ -7,8 +7,54 @@ import Navbar from "@/app/components/Navbar";
 import posthog from "posthog-js";
 import RequireAuth from "../components/RequireAuth";
 const PENDING_IMAGE_KEY = "pending_image";
+const MAX_DIMENSION = 1200; // Max px on longest side for sessionStorage
+const JPEG_QUALITY = 0.85;
+const MAX_FILE_SIZE_MB = 25; // Reject files over 25MB before any processing
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
-type ErrorState = { kind: "no_face" | "generic"; message: string } | null;
+type ErrorState = { kind: "no_face" | "too_large" | "generic"; message: string } | null;
+
+/**
+ * Compress an image data URL to fit within sessionStorage quota.
+ * Resizes to MAX_DIMENSION on the longest side and encodes as JPEG.
+ */
+function compressImageDataUrl(dataUrl: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      // Scale down if needed
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        if (width > height) {
+          height = Math.round(height * (MAX_DIMENSION / width));
+          width = MAX_DIMENSION;
+        } else {
+          width = Math.round(width * (MAX_DIMENSION / height));
+          height = MAX_DIMENSION;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { reject(new Error("Canvas context unavailable")); return; }
+      ctx.drawImage(img, 0, 0, width, height);
+      const compressed = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
+      resolve(compressed);
+    };
+    img.onerror = () => reject(new Error("Failed to load image for compression"));
+    img.src = dataUrl;
+  });
+}
+
+const NO_FACE_TIPS = [
+  { icon: "face", text: "Face looking directly at the camera" },
+  { icon: "light_mode", text: "Good, even lighting on your face" },
+  { icon: "person", text: "Only one person in the photo" },
+  { icon: "crop_free", text: "Face fills most of the frame" },
+  { icon: "visibility_off", text: "Remove sunglasses or hats" },
+  { icon: "contrast", text: "Avoid heavy shadows on your face" },
+];
 
 export default function AnalysisPage() {
   const router = useRouter();
@@ -18,6 +64,7 @@ export default function AnalysisPage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const [uploadError, setUploadError] = useState<ErrorState>(null);
 
   // Read face-gate error from sessionStorage (set by /loading on 422)
@@ -31,10 +78,36 @@ export default function AnalysisPage() {
   });
 
   function handleFileSelect(selected: File) {
+    // Validate file size before processing
+    if (selected.size > MAX_FILE_SIZE_BYTES) {
+      setUploadError({ kind: "too_large", message: `Image is ${Math.round(selected.size / 1024 / 1024)}MB — please use a photo under ${MAX_FILE_SIZE_MB}MB.` });
+      return;
+    }
+
+    // Validate file type
+    if (!selected.type.startsWith("image/")) {
+      setUploadError({ kind: "generic", message: "Please select an image file (JPEG, PNG, or WebP)." });
+      return;
+    }
+
     setFile(selected);
     setUploadError(null);
+    setCompressing(true);
+
     const reader = new FileReader();
-    reader.onload = (e) => setPreview(e.target?.result as string);
+    reader.onload = async (e) => {
+      const rawDataUrl = e.target?.result as string;
+      try {
+        // Pre-compress for preview and storage
+        const compressed = await compressImageDataUrl(rawDataUrl);
+        setPreview(compressed);
+      } catch {
+        // Fallback to raw if compression fails (small images)
+        setPreview(rawDataUrl);
+      } finally {
+        setCompressing(false);
+      }
+    };
     reader.readAsDataURL(selected);
   }
 
@@ -64,17 +137,20 @@ export default function AnalysisPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Store image in sessionStorage then navigate to /loading (500ms delay for smooth UX)
-  const handleAnalyze = () => {
+  // Store pre-compressed image in sessionStorage, then navigate to /loading
+  const handleAnalyze = async () => {
     if (!preview || submitting) return;
     setSubmitting(true);
     try {
       posthog.capture("analysis_started");
       sessionStorage.setItem(PENDING_IMAGE_KEY, preview);
-      setTimeout(() => router.push("/loading"), 500);
-    } catch {
+      router.push("/loading");
+    } catch (err) {
       setSubmitting(false);
-      alert("Could not store image. Please try again.");
+      const message = err instanceof DOMException && err.name === "QuotaExceededError"
+        ? "Image is too large even after compression. Please use a smaller photo."
+        : err instanceof Error ? err.message : "Could not store image. Please try again.";
+      setUploadError({ kind: "too_large", message });
     }
   };
 
@@ -112,38 +188,56 @@ export default function AnalysisPage() {
               </p>
             </div>
 
-            {/* Error banner — face gate (422) or generic */}
+            {/* Error banner — face gate, size limit, or generic */}
             {uploadError && (
               <div
                 role="alert"
-                className="w-full max-w-[680px] flex gap-3 items-start rounded-2xl px-5 py-4 mb-5"
+                className="w-full max-w-[680px] rounded-2xl px-5 py-5 mb-5"
                 style={{
-                  background: uploadError.kind === "no_face" ? "#fff7ed" : "#fef2f2",
-                  border: `1px solid ${uploadError.kind === "no_face" ? "#fdba74" : "#fecaca"}`,
+                  background: uploadError.kind === "no_face" ? "#fff7ed" : uploadError.kind === "too_large" ? "#fef3c7" : "#fef2f2",
+                  border: `1px solid ${uploadError.kind === "no_face" ? "#fdba74" : uploadError.kind === "too_large" ? "#fcd34d" : "#fecaca"}`,
                 }}
               >
-                <span
-                  className="material-symbols-outlined flex-shrink-0 mt-0.5"
-                  style={{ fontSize: 22, color: uploadError.kind === "no_face" ? "#c2410c" : "#b91c1c" }}
-                >
-                  {uploadError.kind === "no_face" ? "face_retouching_off" : "error"}
-                </span>
-                <div className="flex-1">
-                  <p
-                    className="text-xs font-bold uppercase tracking-widest mb-1"
-                    style={{ color: uploadError.kind === "no_face" ? "#9a3412" : "#991b1b", fontFamily: "Space Grotesk, sans-serif", letterSpacing: "0.12em" }}
+                <div className="flex gap-3 items-start">
+                  <span
+                    className="material-symbols-outlined flex-shrink-0 mt-0.5"
+                    style={{ fontSize: 22, color: uploadError.kind === "no_face" ? "#c2410c" : uploadError.kind === "too_large" ? "#a16207" : "#b91c1c" }}
                   >
-                    {uploadError.kind === "no_face" ? "No face detected" : "Analysis failed"}
-                  </p>
-                  <p className="text-sm leading-snug text-[#1b1c1b]">{uploadError.message}</p>
+                    {uploadError.kind === "no_face" ? "face_retouching_off" : uploadError.kind === "too_large" ? "photo_size_select_large" : "error"}
+                  </span>
+                  <div className="flex-1">
+                    <p
+                      className="text-xs font-bold uppercase tracking-widest mb-1"
+                      style={{ color: uploadError.kind === "no_face" ? "#9a3412" : uploadError.kind === "too_large" ? "#854d0e" : "#991b1b", fontFamily: "Space Grotesk, sans-serif", letterSpacing: "0.12em" }}
+                    >
+                      {uploadError.kind === "no_face" ? "We couldn't find a face" : uploadError.kind === "too_large" ? "Image too large" : "Analysis failed"}
+                    </p>
+                    <p className="text-sm leading-snug text-[#1b1c1b]">
+                      {uploadError.kind === "no_face"
+                        ? "Our AI needs a clear view of your face to analyze your skin tone. Try again with a photo that follows these guidelines:"
+                        : uploadError.message}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setUploadError(null)}
+                    className="text-stone-400 hover:text-[#1b1c1b] transition-colors flex-shrink-0"
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setUploadError(null)}
-                  className="text-stone-400 hover:text-[#1b1c1b] transition-colors flex-shrink-0"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
-                </button>
+
+                {/* Tips for no_face error */}
+                {uploadError.kind === "no_face" && (
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 pl-9">
+                    {NO_FACE_TIPS.map((tip) => (
+                      <div key={tip.text} className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-sm text-[#c2410c]/70">{tip.icon}</span>
+                        <span className="text-xs text-[#78350f] font-medium">{tip.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -206,15 +300,17 @@ export default function AnalysisPage() {
                       </button>
                     </div>
                     <p className="mt-4 text-sm font-medium text-[#5a6060]">{file?.name}</p>
-                    <p className="mt-2 text-green-600 font-medium text-sm flex items-center justify-center gap-1">
-                      Looks good{" "}
-                      <span
-                        className="material-symbols-outlined text-sm"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        check
-                      </span>
-                    </p>
+                    {compressing ? (
+                      <p className="mt-2 text-[#002b92] font-medium text-sm flex items-center justify-center gap-1">
+                        Optimizing image...
+                        <span className="material-symbols-outlined text-sm" style={{ animation: "spin 1s linear infinite" }}>progress_activity</span>
+                      </p>
+                    ) : (
+                      <p className="mt-2 text-green-600 font-medium text-sm flex items-center justify-center gap-1">
+                        Looks good{" "}
+                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -239,11 +335,11 @@ export default function AnalysisPage() {
             <div className="flex flex-col items-center gap-4 w-full">
               <button
                 type="button"
-                disabled={!hasFile || submitting}
+                disabled={!hasFile || submitting || compressing}
                 onClick={handleAnalyze}
                 className="w-full md:w-auto min-w-[240px] px-12 py-4 rounded-full font-bold text-lg flex items-center justify-center gap-2 transition-all duration-200"
                 style={
-                  hasFile && !submitting
+                  hasFile && !submitting && !compressing
                     ? {
                       background: "linear-gradient(135deg, #002b92 0%, #003ec7 100%)",
                       color: "white",

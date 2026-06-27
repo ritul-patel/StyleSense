@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express";
 import * as db from "../utils/db";
 import { adminMiddleware } from "../middleware/adminAuth";
 import type { AuthenticatedRequest } from "../middleware/auth";
+import { invalidateProductsCache } from "./products";
 
 const router = Router();
 
@@ -162,6 +163,7 @@ router.post("/products", adminMiddleware, async (req: AuthenticatedRequest, res:
       }
     }
 
+    invalidateProductsCache();
     return res.json({ success: true, ...result });
   } catch (err: any) {
     console.error("[admin/import] products error:", err.message);

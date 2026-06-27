@@ -93,7 +93,7 @@ function UsersContent() {
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
                         {u.avatar_url ? (
-                          <img src={u.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                          <img src={u.avatar_url} alt={`${u.email} avatar`} className="w-8 h-8 rounded-full object-cover" />
                         ) : (
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#002b92] to-[#003ec7] flex items-center justify-center text-white text-xs font-bold">
                             {(u.full_name || u.email)?.[0]?.toUpperCase() || "?"}

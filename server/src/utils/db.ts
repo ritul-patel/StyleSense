@@ -8,6 +8,10 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
+  // Connection pool tuning
+  max: 10,                    // Max connections in pool
+  idleTimeoutMillis: 30_000,  // Close idle connections after 30s
+  connectionTimeoutMillis: 10_000, // Fail fast if connection takes > 10s (catches DNS hangs)
 });
 
 pool.on('error', (err) => {

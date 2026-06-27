@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import Navbar from "@/app/components/Navbar";
+import posthog from "posthog-js";
 import { OUTFITS } from "@/data/outfits";
 import { getProductsForOutfit } from "@/data/outfitProducts";
 import { useSavedOutfits } from "@/app/context/SavedOutfitsContext";
@@ -59,23 +60,24 @@ const LOOKS = OUTFITS.map((outfit, index) => {
   const products = [...top, ...bottom, ...shoes];
   
   const price = products.reduce((sum, p) => sum + p.price, 0);
-  const brands = products.map(p => p.brand);
-  const productNames = products.map(p => p.name).join(" ");
+  const brands = products.map(p => p.brand).filter(Boolean);
+  const productNames = products.map(p => p.name).filter(Boolean).join(" ");
   
   const categories = new Set<string>();
   products.forEach(p => {
-    const pCat = p.category.toLowerCase();
-    const pName = p.name.toLowerCase();
+    if (!p.category && !p.name) return;
+    const pCat = (p.category || "").toLowerCase();
+    const pName = (p.name || "").toLowerCase();
     if (pCat.includes("tshirt") || pName.includes("tee") || pName.includes("t-shirt")) categories.add("T-Shirts");
     if (pCat.includes("polo") || pName.includes("polo")) categories.add("Polo");
-    if (pCat.includes("shirt") && !pCat.includes("tshirt") && !pCat.includes("polo")) categories.add("Shirts");
+    if ((pCat.includes("shirt") && !pCat.includes("tshirt") && !pCat.includes("polo")) || (pName.includes("shirt") && !pName.includes("tshirt") && !pName.includes("polo") && !pName.includes("t-shirt"))) categories.add("Shirts");
     if (pCat.includes("jeans") || pName.includes("jeans")) categories.add("Jeans");
-    if (pCat.includes("sneakers") || pName.includes("sneaker")) categories.add("Sneakers");
+    if (pCat.includes("sneakers") || pCat.includes("shoes") || pName.includes("sneaker") || pName.includes("shoes")) categories.add("Sneakers");
   });
 
   return {
     id: outfit.outfit_id,
-    image: outfit.imageUrl,
+    image: outfit.imageUrl || "",
     title: `Look ${String(index + 1).padStart(2, "0")}`,
     subtitle: "Urban everyday outfit.",
     items: ITEM_COMBOS[index % ITEM_COMBOS.length],
@@ -84,7 +86,7 @@ const LOOKS = OUTFITS.map((outfit, index) => {
     categories: Array.from(categories),
     searchTerms: productNames.toLowerCase(),
   };
-});
+}).filter(look => look.image); // Only show looks with a valid image
 
 export default function DiscoverPage() {
   const { isSaved, saveOutfit, removeOutfit } = useSavedOutfits();
@@ -92,6 +94,41 @@ export default function DiscoverPage() {
   const [activeBudget, setActiveBudget] = useState("All");
   const [activeBrands, setActiveBrands] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Track filter changes (debounced for search)
+  const handleCategoryChange = useCallback((cat: string) => {
+    setActiveCategory(cat);
+    if (cat !== "All") posthog.capture("discover_filter_changed", { filter: "category", value: cat });
+  }, []);
+
+  const handleBudgetChange = useCallback((budget: string) => {
+    setActiveBudget(budget);
+    if (budget !== "All") posthog.capture("discover_filter_changed", { filter: "budget", value: budget });
+  }, []);
+
+  const handleBrandToggle = useCallback((brand: string) => {
+    if (brand === "All") {
+      setActiveBrands([]);
+    } else {
+      setActiveBrands(prev => {
+        const next = prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand];
+        if (next.length > 0) posthog.capture("discover_filter_changed", { filter: "brand", value: next.join(",") });
+        return next;
+      });
+    }
+  }, []);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
+    // Debounce search tracking — only fire after 800ms of inactivity
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (value.trim().length >= 2) {
+      searchTimerRef.current = setTimeout(() => {
+        posthog.capture("discover_search_used", { query: value.trim() });
+      }, 800);
+    }
+  }, []);
 
   const filteredLooks = useMemo(() => {
     return LOOKS.filter(look => {
@@ -150,7 +187,7 @@ export default function DiscoverPage() {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Search products, colors, or brands..."
             className="w-full bg-gray-100/70 text-sm font-medium rounded-full py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-gray-200"
           />
@@ -165,7 +202,7 @@ export default function DiscoverPage() {
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
-                  onClick={() => setActiveCategory(cat)}
+                  onClick={() => handleCategoryChange(cat)}
                   className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                     activeCategory === cat
                       ? "bg-[#1a1a1a] text-white"
@@ -185,7 +222,7 @@ export default function DiscoverPage() {
               {BUDGETS.map((bg) => (
                 <button
                   key={bg}
-                  onClick={() => setActiveBudget(bg)}
+                  onClick={() => handleBudgetChange(bg)}
                   className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                     activeBudget === bg
                       ? "bg-[#1a1a1a] text-white"
@@ -207,15 +244,7 @@ export default function DiscoverPage() {
                 return (
                   <button
                     key={br}
-                    onClick={() => {
-                      if (br === "All") {
-                        setActiveBrands([]);
-                      } else {
-                        setActiveBrands(prev => 
-                          prev.includes(br) ? prev.filter(b => b !== br) : [...prev, br]
-                        );
-                      }
-                    }}
+                    onClick={() => handleBrandToggle(br)}
                     className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                       isActive
                         ? "bg-[#1a1a1a] text-white"
@@ -233,19 +262,38 @@ export default function DiscoverPage() {
         {/* Outfit Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
           {filteredLooks.length === 0 ? (
-            <div className="col-span-full py-20 text-center text-gray-500 font-medium">
-              No outfits found
+            <div className="col-span-full py-20 text-center">
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <span className="material-symbols-outlined text-gray-400 text-2xl">search_off</span>
+              </div>
+              <p className="text-gray-500 font-medium mb-2">No outfits found</p>
+              <p className="text-gray-400 text-sm">Try changing your filters or search term.</p>
+              {(activeCategory !== "All" || activeBudget !== "All" || activeBrands.length > 0 || searchQuery) && (
+                <button
+                  onClick={() => { setActiveCategory("All"); setActiveBudget("All"); setActiveBrands([]); setSearchQuery(""); }}
+                  className="mt-4 px-5 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                >
+                  Clear all filters
+                </button>
+              )}
             </div>
           ) : (
             filteredLooks.map((look) => (
-              <Link href={`/outfit/${look.id}`} key={look.id} className="flex flex-col group cursor-pointer block">
-                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[2rem] mb-5 bg-gray-100">
+              <Link href={`/outfit/${look.id}`} key={look.id} className="flex flex-col group cursor-pointer"
+                onClick={() => posthog.capture("discover_product_viewed", { outfit_id: look.id, title: look.title })}
+              >
+                <div className="relative aspect-[3/4] md:aspect-[3/4] w-full overflow-hidden rounded-[2rem] mb-5 bg-gray-100">
                   <img
                     src={look.image}
                     alt={look.title}
                     loading="lazy"
-                    className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                   />
+                  {/* Fallback icon when image fails */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <span className="material-symbols-outlined text-gray-300" style={{ fontSize: 48 }}>checkroom</span>
+                  </div>
                 </div>
                 <div className="flex flex-col px-1">
                   <h3 className="text-lg font-bold text-[#1a1a1a] mb-1">{look.title}</h3>

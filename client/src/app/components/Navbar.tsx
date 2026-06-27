@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import ProfileDropdown from "./ProfileDropdown";
 
 type ActivePath = "discover" | "analysis" | "wardrobe" | "history" | "outfit" | "none";
@@ -11,7 +10,6 @@ type Props = {
 };
 
 export default function Navbar({ activePath }: Props) {
-  const router = useRouter();
 
   const navLinks = [
     { href: "/discover", label: "Discover", id: "discover" },
@@ -56,27 +54,27 @@ export default function Navbar({ activePath }: Props) {
 
       {/* Mobile Bottom Nav */}
       <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-8 pt-4 bg-white/90 backdrop-blur-2xl border-t border-gray-100 md:hidden z-50">
-        <button 
-          onClick={() => router.push('/discover')} 
+        <Link 
+          href="/discover"
           className={`flex flex-col items-center gap-1 transition-colors ${activePath === 'discover' ? 'text-blue-700' : 'text-gray-400 hover:text-gray-900'}`}
         >
           <span className="material-symbols-outlined" style={{ fontVariationSettings: activePath === 'discover' ? "'FILL' 1" : "'FILL' 0" }}>search</span>
           <span className="text-[10px] font-bold uppercase tracking-wider">Discover</span>
-        </button>
-        <button 
-          onClick={() => router.push('/wardrobe')} 
+        </Link>
+        <Link 
+          href="/wardrobe"
           className={`flex flex-col items-center gap-1 transition-colors ${activePath === 'wardrobe' ? 'text-blue-700' : 'text-gray-400 hover:text-gray-900'}`}
         >
           <span className="material-symbols-outlined" style={{ fontVariationSettings: activePath === 'wardrobe' ? "'FILL' 1" : "'FILL' 0" }}>checkroom</span>
           <span className="text-[10px] font-bold uppercase tracking-wider">Wardrobe</span>
-        </button>
-        <button 
-          onClick={() => router.push('/analysis')} 
+        </Link>
+        <Link 
+          href="/analysis"
           className={`flex flex-col items-center gap-1 transition-colors ${activePath === 'analysis' ? 'text-blue-700' : 'text-gray-400 hover:text-gray-900'}`}
         >
           <span className="material-symbols-outlined" style={{ fontVariationSettings: activePath === 'analysis' ? "'FILL' 1" : "'FILL' 0" }}>auto_awesome</span>
           <span className="text-[10px] font-bold uppercase tracking-wider">Analysis</span>
-        </button>
+        </Link>
       </nav>
     </>
   );

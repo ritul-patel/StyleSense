@@ -309,7 +309,35 @@ function WardrobePageContent() {
     else addToWardrobe(id, "Wishlist");
   }, [isInWardrobe, removeFromWardrobe, addToWardrobe]);
 
-  if (!ready) return null;
+  if (!ready) {
+    return (
+      <div className="bg-[#fcf9f8] dark:bg-[#0f0f14] text-[#1b1c1b] dark:text-[#fcf9f8] antialiased min-h-screen" style={{ fontFamily: "Inter, sans-serif" }}>
+        <Navbar activePath="wardrobe" />
+        <main className="pt-28 pb-32 px-4 md:px-8 max-w-[1440px] mx-auto">
+          <div className="mb-10 space-y-2">
+            <div className="h-6 w-32 bg-[#e4e2e1] dark:bg-[#2a2a2a] rounded-full animate-pulse" />
+            <div className="h-10 w-64 bg-[#e4e2e1] dark:bg-[#2a2a2a] rounded-xl animate-pulse" />
+            <div className="h-4 w-48 bg-[#e4e2e1] dark:bg-[#2a2a2a] rounded animate-pulse" />
+          </div>
+          <div className="flex gap-2 mb-8">
+            {[1, 2, 3, 4].map((i) => <div key={i} className="h-10 w-24 bg-[#e4e2e1] dark:bg-[#2a2a2a] rounded-full animate-pulse" />)}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="bg-white dark:bg-[#1b1c1b] rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 animate-pulse">
+                <div className="aspect-[3/4] bg-[#e4e2e1] dark:bg-[#2a2a2a]" />
+                <div className="p-4 space-y-2">
+                  <div className="h-3 w-16 bg-[#e4e2e1] dark:bg-[#2a2a2a] rounded" />
+                  <div className="h-4 w-32 bg-[#e4e2e1] dark:bg-[#2a2a2a] rounded" />
+                  <div className="h-5 w-20 bg-[#e4e2e1] dark:bg-[#2a2a2a] rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#fcf9f8] dark:bg-[#0f0f14] text-[#1b1c1b] dark:text-[#fcf9f8] antialiased min-h-screen" style={{ fontFamily: "Inter, sans-serif" }}>

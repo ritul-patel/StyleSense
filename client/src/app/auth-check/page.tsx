@@ -10,13 +10,9 @@ export default function AuthCheckPage() {
 
   useEffect(() => {
     if (loading) return;
-    const hasPending = !!localStorage.getItem("pending_result");
-    console.log("[auth-check] Checking auth. user:", !!user, "hasPending:", hasPending);
     if (user) {
-      console.log("[auth-check] User logged in → /result");
       router.replace("/result");
     } else {
-      console.log("[auth-check] Not logged in → /login");
       router.replace("/login");
     }
   }, [user, loading, router]);

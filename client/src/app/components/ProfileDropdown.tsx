@@ -4,10 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
-import { apiFetch } from "@/lib/api";
-
-type ProfileCache = { userId: string; name: string; email: string; avatarUrl: string };
-let _cache: ProfileCache | null = null;
+import { fetchProfile, getCachedProfile } from "@/lib/profile-cache";
 
 function getInitials(name: string, email: string): string {
   if (name.trim()) {
@@ -31,23 +28,18 @@ export default function ProfileDropdown() {
 
   // Load profile (cached across navigations)
   useEffect(() => {
-    if (!user) { _cache = null; return; }
-    if (_cache && _cache.userId === user.id) {
-      setName(_cache.name);
-      setAvatarUrl(_cache.avatarUrl);
+    if (!user) return;
+    const cached = getCachedProfile(user.id);
+    if (cached) {
+      setName(cached.full_name || "");
+      setAvatarUrl(cached.avatar_url || "");
       return;
     }
-    apiFetch("/api/v1/profile")
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => {
-        if (!data) return;
-        const n = data.full_name || "";
-        const a = data.avatar_url || "";
-        setName(n);
-        setAvatarUrl(a);
-        _cache = { userId: user.id, name: n, email: user.email || "", avatarUrl: a };
-      })
-      .catch(() => {});
+    fetchProfile(user.id).then((data) => {
+      if (!data) return;
+      setName(data.full_name || "");
+      setAvatarUrl(data.avatar_url || "");
+    });
   }, [user?.id]);
 
   // Close on outside click
@@ -107,7 +99,7 @@ export default function ProfileDropdown() {
           {/* User info */}
           <div className="px-5 py-4 flex items-center gap-3 border-b border-[#f0edec]">
             {avatarUrl ? (
-              <img src={avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+              <img src={avatarUrl} alt="User avatar" className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
             ) : (
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#843b23] to-[#c27c3e] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
                 {initials}

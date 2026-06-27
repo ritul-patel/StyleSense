@@ -10,11 +10,13 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user!.id;
     const authMeta = req.user!.user_metadata || {};
+    const authMs = (req as any)._authMs || 0;
 
     // Derive name from auth metadata (Google OAuth provides full_name or name)
     const authName = authMeta.full_name || authMeta.name || "";
     const authAvatar = authMeta.avatar_url || authMeta.picture || "";
 
+    const dbStart = Date.now();
     // Ensure profile exists — auto-populate from OAuth on first creation
     await db.query(
       `INSERT INTO profiles (id, full_name, avatar_url)
@@ -28,6 +30,8 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
        FROM profiles WHERE id = $1`,
       [userId]
     );
+    const dbMs = Date.now() - dbStart;
+    console.log(`[profile] GET / — auth: ${authMs}ms, db: ${dbMs}ms`);
 
     if (q.rows.length === 0) {
       return res.json({ full_name: authName, avatar_url: authAvatar, email_notifs: true, marketing_notifs: false, analysis_reminders: true });

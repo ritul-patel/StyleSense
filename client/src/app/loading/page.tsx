@@ -404,7 +404,7 @@ export default function LoadingPage() {
       {/* Nav */}
       <nav className="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 backdrop-blur-xl flex justify-between items-center px-8 py-4">
         <Link href="/" className="text-2xl font-black text-[#1b1c1b] tracking-tighter">
-          StitchAI
+          StyleSense
         </Link>
         <div className="hidden md:flex items-center gap-8">
           <Link href="/discover" className="text-[#1b1c1b]/60 font-medium hover:text-[#002b92] transition-colors">Discover</Link>
@@ -604,9 +604,9 @@ export default function LoadingPage() {
       </main>
 
       <footer className="bg-[#f6f3f2] w-full py-12 flex flex-col md:flex-row justify-between items-center px-12 gap-6 border-t border-[#c3c5d9]/10">
-        <div className="text-xs font-bold text-[#002b92]">Fashion AI Analysis</div>
+        <div className="text-xs font-bold text-[#002b92]">StyleSense</div>
         <div className="text-[10px] uppercase tracking-widest text-[#1b1c1b]/40">
-          © 2024 Fashion AI Atelier. All rights reserved.
+          © 2026 StyleSense. All rights reserved.
         </div>
         <div className="flex gap-8">
           {["Terms", "Privacy", "Support"].map((l) => (

@@ -4,7 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { apiFetch } from "@/lib/api";
+import { fetchProfile, invalidateProfileCache } from "@/lib/profile-cache";
 import { useAuth } from "@/lib/auth-context";
+import posthog from "posthog-js";
 import Navbar from "@/app/components/Navbar";
 import RequireAuth from "../components/RequireAuth";
 
@@ -64,16 +66,14 @@ function SettingsPageContent() {
 
   useEffect(() => {
     if (!user) return;
-    apiFetch("/api/v1/profile")
-      .then((r) => r.json())
-      .then((data: ProfileData) => {
-        setName(data.full_name || "");
-        setAvatarUrl(data.avatar_url || "");
-        setEmailNotifs(data.email_notifs ?? true);
-        setAnalysisReminders(data.analysis_reminders ?? true);
-        setMarketingNotifs(data.marketing_notifs ?? false);
-      })
-      .catch(() => {})
+    fetchProfile(user.id).then((data) => {
+      if (!data) return;
+      setName(data.full_name || "");
+      setAvatarUrl(data.avatar_url || "");
+      setEmailNotifs(data.email_notifs ?? true);
+      setAnalysisReminders(data.analysis_reminders ?? true);
+      setMarketingNotifs(data.marketing_notifs ?? false);
+    })
       .finally(() => setLoading(false));
   }, [user?.id]);
 
@@ -85,7 +85,7 @@ function SettingsPageContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ full_name: name }),
       });
-      if (res.ok) showToast("Profile saved");
+      if (res.ok) { invalidateProfileCache(); posthog.capture("profile_updated"); showToast("Profile saved"); }
       else showToast("Failed to save");
     } catch { showToast("Network error"); }
     finally { setSaving(false); }

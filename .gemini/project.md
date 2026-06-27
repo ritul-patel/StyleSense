@@ -10,10 +10,11 @@ https://www.stylesens.in
 
 ## Project Status
 
-**Stage:** Launch Ready MVP
+**Stage:** Beta Launch Ready
 
 - User interface is complete — do not redesign unless explicitly requested.
-- Current focus: backend reliability, AI accuracy, performance, security, bug fixes, testing.
+- Backend is production-ready with full CRUD, admin portal, and API-backed features.
+- Current focus: user acquisition, real product publishing, AI metadata quality, monitoring.
 
 ---
 
@@ -28,12 +29,18 @@ Users upload a face image and receive:
 - Style Rules
 - Recommended Materials
 - Recommended Accessories
-- Outfit Recommendations
+- Outfit Recommendations (matched from Discover catalog)
+- Confidence Score with breakdown
+- Signature Colors
+- Skin Description + Next Steps
 
 Additional features:
 - Analysis History (last 10 results)
+- Personal Wardrobe (wishlist, collections, closet, outfit builder)
 - Static Outfit Discovery / Catalog
 - Saved Outfits (browser localStorage)
+- Settings (profile, notifications, account management)
+- Admin Portal (dashboard, products, outfits, users, analytics, bulk import, AI metadata)
 
 ---
 
@@ -53,10 +60,11 @@ Authentication → Home → Upload Image → Loading Screen → Backend Analysis
 | Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS 4, Framer Motion |
 | Backend | Node.js, Express 5, TypeScript |
 | AI Service | Python, OpenCV, NumPy (skin detection) |
-| Recommendation | TypeScript engine (offline, deterministic palette lookup) |
+| Recommendation | TypeScript engine (palette lookup + modular scoring engine) |
+| AI Metadata | Anthropic Claude (via MetadataProvider interface) |
 | Database | PostgreSQL via Supabase |
 | Authentication | Supabase Auth (email/password, Google OAuth) |
-| Image Storage | Cloudinary |
+| Image Storage | Cloudinary (analysis) + Supabase Storage (products) |
 | Frontend Hosting | Vercel |
 | Backend Hosting | Render |
 | Error Tracking | Sentry |

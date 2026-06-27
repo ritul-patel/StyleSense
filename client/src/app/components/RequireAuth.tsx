@@ -9,11 +9,8 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
   const router = useRouter();
 
   useEffect(() => {
-    console.log("[RequireAuth] Triggered on route:", window.location.pathname);
-    if (loading) return; // wait — do not redirect while session is resolving
-    console.log("[RequireAuth] Auth resolved. user:", !!user, "| route:", window.location.pathname);
+    if (loading) return;
     if (!user) {
-      console.log("[RequireAuth] No user — redirecting to /login");
       router.replace("/login");
     }
   }, [user, loading, router]);
