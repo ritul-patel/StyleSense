@@ -25,14 +25,19 @@ Thumbs.db
 # temp
 tmp/
 temp/
+plan/
 # python
 python3.10/
 # agent / editor files
+.claude/
 .codex/
 .cursor/
 .vexp/
 .agents/
+.kiro/
+.gemini/
 graphify-out/
+claude-docs/
 # misc
 coverage/
 
