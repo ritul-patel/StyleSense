@@ -21,7 +21,7 @@ export type AnalysisByIdResponse = {
 // ─── URL ──────────────────────────────────────────────────────────────────────
 
 function normalizeBaseUrl(value?: string): string {
-  const fallback = "http://localhost:4000";
+  const fallback = "https://api.stylesens.in";
   const raw = (value || fallback).trim().replace(/\/api(?:\/v\d+)?\/?$/i, "");
   try {
     return new URL(raw).toString().replace(/\/$/, "");
