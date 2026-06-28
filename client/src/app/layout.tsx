@@ -102,6 +102,7 @@ export default function RootLayout({
           <body style={{ overflowX: "hidden" }}>
         <Providers>{children}</Providers>
         <FeedbackWidget />
+        <Analytics />
         <SpeedInsights />
       </body>
     </html>
