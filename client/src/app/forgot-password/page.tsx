@@ -1,7 +1,10 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -17,6 +20,10 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
+      // redirectTo resolves to https://stylesense.co.in/reset-password in production.
+      // IMPORTANT: This URL must also be added to the Supabase Dashboard:
+      //   Authentication → URL Configuration → Redirect URLs
+      //   Add: https://stylesense.co.in/reset-password
       const redirectTo =
         typeof window !== "undefined"
           ? `${window.location.origin}/reset-password`
@@ -41,85 +48,81 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-10 dark:bg-neutral-900">
-      <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-2xs dark:border-neutral-700 dark:bg-neutral-800">
-        <div className="p-4 sm:p-7">
-          <div className="text-center">
-            <h3
-              id="hs-modal-signin-label"
-              className="block text-2xl font-bold text-gray-800 dark:text-neutral-200"
-            >
-              Forgot password?
-            </h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-neutral-300">
-              Remember your password?{" "}
-              <a
-                className="font-medium text-blue-600 decoration-2 hover:underline focus:outline-hidden focus:underline dark:text-blue-500"
-                href="/login"
-              >
-                Sign in here
-              </a>
+    <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-10">
+      {/* Background decoration */}
+      <div className="fixed top-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-primary-fixed/20 blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-[-20%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-tertiary-fixed/10 blur-[100px] pointer-events-none" />
+
+      <div className="relative w-full max-w-[420px] flex flex-col items-center">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5 mb-10">
+          <img src="/logo.png" alt="StyleSense" className="w-9 h-9 object-contain" />
+          <span className="text-2xl font-extrabold tracking-tight text-on-surface font-[family-name:var(--font-headline)]">
+            StyleSense
+          </span>
+        </Link>
+
+        {/* Card */}
+        <div className="w-full bg-surface-container-lowest rounded-3xl border border-black/5 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.08)] p-7 sm:p-9">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-extrabold tracking-tight text-on-surface font-[family-name:var(--font-headline)]">
+              Reset your password
+            </h1>
+            <p className="mt-2 text-sm text-on-surface-variant">
+              Enter your email and we&apos;ll send you a reset link
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-5">
-            <div className="grid gap-y-4">
-              <div>
-                <label htmlFor="email" className="mb-2 block text-sm text-gray-800 dark:text-neutral-200">
-                  Email address
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    className="block w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-800 placeholder:text-gray-500 focus:border-blue-700 focus:ring-blue-700 disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:placeholder:text-neutral-400 dark:focus:border-blue-600 dark:focus:ring-blue-600"
-                    required
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    aria-invalid={!!error}
-                    aria-describedby={error ? "forgot-password-error" : undefined}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center">
-                <div className="flex">
-                  <input
-                    id="checkbox"
-                    name="checkbox"
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="size-4 shrink-0 rounded-sm border-gray-300 bg-transparent text-blue-600 shadow-2xs focus:ring-0 focus:ring-offset-0 checked:border-blue-600 checked:bg-blue-600 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-600 dark:text-blue-500 dark:checked:border-blue-500 dark:checked:bg-blue-500"
-                  />
-                </div>
-                <div className="ms-3">
-                  <label htmlFor="checkbox" className="text-sm text-gray-800 dark:text-neutral-200">
-                    Remember me
-                  </label>
-                </div>
-              </div>
-
-              {error ? (
-                <p id="forgot-password-error" className="text-xs text-red-600">
-                  {error}
-                </p>
-              ) : null}
-
-              {message ? <p className="text-xs text-green-600 dark:text-green-400">{message}</p> : null}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-transparent bg-blue-600 px-4 py-3 text-sm font-medium text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:pointer-events-none disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:bg-blue-600"
-              >
-                {loading ? "Sending..." : "Reset password"}
-              </button>
+          {/* Success message */}
+          {message && (
+            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-green-50 border border-green-200 mb-5" role="status">
+              <span className="material-symbols-outlined text-green-600 text-lg shrink-0 mt-0.5">check_circle</span>
+              <p className="text-sm text-green-800">{message}</p>
             </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Email address"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={error || undefined}
+            />
+
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/20"
+              />
+              <span className="text-sm text-on-surface-variant">Remember me</span>
+            </label>
+
+            <Button
+              type="submit"
+              size="lg"
+              isLoading={loading}
+              className="w-full mt-2"
+            >
+              {loading ? "Sending..." : "Send reset link"}
+            </Button>
           </form>
         </div>
+
+        {/* Footer link */}
+        <p className="mt-6 text-sm text-on-surface-variant text-center">
+          Remember your password?{" "}
+          <Link href="/login" className="font-semibold text-primary hover:underline">
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );

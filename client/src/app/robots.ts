@@ -22,9 +22,11 @@ export default function robots(): MetadataRoute.Robots {
           "/auth-check/*",
           "/api/*",
           "/monitoring",
+          "/reset-password",
+          "/forgot-password",
         ],
       },
     ],
-    sitemap: "https://stylesens.in/sitemap.xml",
+    sitemap: "https://stylesense.co.in/sitemap.xml",
   };
 }

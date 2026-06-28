@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 import { fetchProfile, getCachedProfile } from "@/lib/profile-cache";
+import { AnimatePresence, motion } from "framer-motion";
+import { dropdownVariants } from "@/lib/motion";
 
 function getInitials(name: string, email: string): string {
   if (name.trim()) {
@@ -90,12 +92,17 @@ export default function ProfileDropdown() {
       </button>
 
       {/* Dropdown menu */}
-      {isOpen && (
-        <div
-          className="absolute right-0 top-12 w-64 bg-white rounded-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] border border-black/5 overflow-hidden z-[100]"
-          role="menu"
-          aria-label="User menu"
-        >
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            variants={dropdownVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="absolute right-0 top-12 w-64 bg-white rounded-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] border border-black/5 overflow-hidden z-[100]"
+            role="menu"
+            aria-label="User menu"
+          >
           {/* User info */}
           <div className="px-5 py-4 flex items-center gap-3 border-b border-[#f0edec]">
             {avatarUrl ? (
@@ -134,8 +141,9 @@ export default function ProfileDropdown() {
               Sign Out
             </button>
           </div>
-        </div>
-      )}
+        </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
 import posthog from "posthog-js";
 import { OUTFITS } from "@/data/outfits";
 import { getProductsForOutfit } from "@/data/outfitProducts";
 import { useSavedOutfits } from "@/app/context/SavedOutfitsContext";
+import { ScrollStagger, ScrollStaggerItem } from "@/components/motion";
 
 const CATEGORIES = ["All", "T-Shirts", "Polo", "Shirts", "Jeans", "Sneakers"];
 const BUDGETS = ["All", "₹0-999", "₹1000-1999", "₹2000+"];
@@ -88,6 +90,16 @@ const LOOKS = OUTFITS.map((outfit, index) => {
   };
 }).filter(look => look.image); // Only show looks with a valid image
 
+// Shuffle array using Fisher-Yates (creates a new array, never mutates source)
+function shuffle<T>(arr: readonly T[]): T[] {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
 export default function DiscoverPage() {
   const { isSaved, saveOutfit, removeOutfit } = useSavedOutfits();
   const [activeCategory, setActiveCategory] = useState("All");
@@ -95,6 +107,19 @@ export default function DiscoverPage() {
   const [activeBrands, setActiveBrands] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Shuffle outfits once AFTER hydration to avoid server/client mismatch.
+  // Initial render uses deterministic LOOKS order (identical on server + client).
+  // After mount, we shuffle once and store the result in state.
+  const [shuffledLooks, setShuffledLooks] = useState(LOOKS);
+  const hasShuffled = useRef(false);
+
+  useEffect(() => {
+    if (!hasShuffled.current) {
+      hasShuffled.current = true;
+      setShuffledLooks(shuffle(LOOKS));
+    }
+  }, []);
 
   // Track filter changes (debounced for search)
   const handleCategoryChange = useCallback((cat: string) => {
@@ -131,7 +156,7 @@ export default function DiscoverPage() {
   }, []);
 
   const filteredLooks = useMemo(() => {
-    return LOOKS.filter(look => {
+    return shuffledLooks.filter(look => {
       // Search
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
@@ -165,7 +190,7 @@ export default function DiscoverPage() {
 
       return true;
     });
-  }, [searchQuery, activeCategory, activeBudget, activeBrands]);
+  }, [searchQuery, activeCategory, activeBudget, activeBrands, shuffledLooks]);
 
   return (
     <div className="bg-white text-[#1b1c1b] antialiased min-h-screen font-sans">
@@ -173,7 +198,7 @@ export default function DiscoverPage() {
       <Navbar activePath="discover" />
 
       {/* Main Content */}
-      <main className="pt-28 pb-32 px-6 md:px-12 max-w-[1440px] mx-auto">
+      <main className="pt-28 pb-32 px-4 sm:px-6 md:px-12 max-w-[1440px] mx-auto">
         <header className="mb-6">
           <h1 className="text-3xl md:text-4xl font-extrabold text-black mb-2 tracking-tight">Discover</h1>
           <p className="text-gray-500 text-sm md:text-base font-medium">Find outfit ideas that suit your style.</p>
@@ -189,7 +214,7 @@ export default function DiscoverPage() {
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Search products, colors, or brands..."
-            className="w-full bg-gray-100/70 text-sm font-medium rounded-full py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            className="w-full bg-gray-100/70 text-sm font-medium rounded-full py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
           />
         </div>
 
@@ -260,7 +285,7 @@ export default function DiscoverPage() {
         </div>
 
         {/* Outfit Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
+        <ScrollStagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
           {filteredLooks.length === 0 ? (
             <div className="col-span-full py-20 text-center">
               <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
@@ -279,26 +304,21 @@ export default function DiscoverPage() {
             </div>
           ) : (
             filteredLooks.map((look) => (
-              <Link href={`/outfit/${look.id}`} key={look.id} className="flex flex-col group cursor-pointer"
+              <ScrollStaggerItem key={look.id}>
+              <Link href={`/outfit/${look.id}`} className="flex flex-col group cursor-pointer"
                 onClick={() => posthog.capture("discover_product_viewed", { outfit_id: look.id, title: look.title })}
               >
                 <div className="relative aspect-[3/4] md:aspect-[3/4] w-full overflow-hidden rounded-[2rem] mb-5 bg-gray-100">
-                  <img
+                  <Image
                     src={look.image}
-                    alt={look.title}
-                    loading="lazy"
-                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    alt={`Outfit ${look.id}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                    unoptimized
                   />
-                  {/* Fallback icon when image fails */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="material-symbols-outlined text-gray-300" style={{ fontSize: 48 }}>checkroom</span>
-                  </div>
                 </div>
                 <div className="flex flex-col px-1">
-                  <h3 className="text-lg font-bold text-[#1a1a1a] mb-1">{look.title}</h3>
-                  <p className="text-xs font-medium text-gray-500 mb-5">{look.subtitle}</p>
-                  
                   <div className="flex flex-col gap-2.5 mb-6">
                     {look.items.map((item, i) => (
                       <div key={i} className="flex items-center gap-3">
@@ -327,9 +347,10 @@ export default function DiscoverPage() {
                   </div>
                 </div>
               </Link>
+              </ScrollStaggerItem>
             ))
           )}
-        </div>
+        </ScrollStagger>
       </main>
 
       {/* Mobile nav */}

@@ -8,6 +8,7 @@ import RequireAuth from "../components/RequireAuth";
 import { useWardrobe } from "../context/WardrobeContext";
 import { fetchProductsLegacy, type LegacyProduct } from "@/lib/products-api";
 import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
+import { ScrollStagger, ScrollStaggerItem } from "@/components/motion";
 import type { ColorEntry } from "@/types/analysis";
 import type { ClosetItem, OutfitBuild } from "@/lib/wardrobe-repository";
 
@@ -77,7 +78,7 @@ function ProductGrid({ product, score, wishlisted, onToggle }: { product: Produc
           <div className="absolute top-3 left-3"><span className="bg-[#002b92] text-white text-[9px] font-bold px-2.5 py-1 rounded-full">{score}% Match</span></div>
         )}
         <button onClick={(e) => { e.preventDefault(); onToggle(); }} aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
-          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center shadow-sm hover:scale-110 active:scale-95 transition-transform">
+          className="absolute top-2 right-2 w-10 h-10 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center shadow-sm hover:scale-110 active:scale-95 transition-transform">
           <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0", color: wishlisted ? "#e11d48" : "#6b7280" }}>favorite</span>
         </button>
       </div>
@@ -128,7 +129,7 @@ function UploadModal({ onAdd, onClose }: { onAdd: (item: Omit<ClosetItem, "id" |
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4" onClick={onClose}>
-      <div className="bg-white dark:bg-[#1b1c1b] rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white dark:bg-[#1b1c1b] rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl" data-lenis-prevent onClick={(e) => e.stopPropagation()}>
         <h3 className="text-xl font-bold" style={{ fontFamily: "Manrope, sans-serif" }}>Add to My Closet</h3>
         <div className="relative aspect-square w-full max-w-[200px] mx-auto rounded-2xl overflow-hidden bg-[#f6f3f2] dark:bg-[#0f0f14] border-2 border-dashed border-[#c4c5d7] cursor-pointer" onClick={() => fileRef.current?.click()}>
           {preview ? <img src={preview} alt="Preview" className="w-full h-full object-cover" /> : (
@@ -372,9 +373,9 @@ function WardrobePageContent() {
 
         {/* ═══ RECOMMENDED ═══ */}
         {activeTab === "Recommended" && (hasAnalysis ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {recommended.map(({ product, score }) => <ProductGrid key={product.id} product={product} score={score} wishlisted={isInWardrobe(product.id)} onToggle={() => toggle(product.id)} />)}
-          </div>
+          <ScrollStagger className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {recommended.map(({ product, score }) => <ScrollStaggerItem key={product.id}><ProductGrid product={product} score={score} wishlisted={isInWardrobe(product.id)} onToggle={() => toggle(product.id)} /></ScrollStaggerItem>)}
+          </ScrollStagger>
         ) : <EmptyState icon="auto_awesome" title="Get Personalized Picks" desc="Complete a color analysis to unlock AI-matched product recommendations." cta="Start Analysis" href="/analysis" />)}
 
         {/* ═══ WISHLIST ═══ */}
@@ -467,9 +468,9 @@ function WardrobePageContent() {
                 <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap border transition-all ${selectedCategory === cat ? "border-[#002b92] bg-[#002b92]/5 text-[#002b92]" : "border-[#c4c5d7] text-[#747686]"}`}>{CATEGORY_MAP[cat] || cat} ({prods.length})</button>
               ))}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {allDisplayed.map((p) => <ProductGrid key={p.id} product={p} wishlisted={isInWardrobe(p.id)} onToggle={() => toggle(p.id)} />)}
-            </div>
+            <ScrollStagger className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {allDisplayed.map((p) => <ScrollStaggerItem key={p.id}><ProductGrid product={p} wishlisted={isInWardrobe(p.id)} onToggle={() => toggle(p.id)} /></ScrollStaggerItem>)}
+            </ScrollStagger>
           </>
         )}
       </main>

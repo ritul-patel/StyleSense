@@ -42,6 +42,8 @@ const analysisLimiter = rateLimit({
 
 app.use(helmet());
 const allowedOrigins = [
+  "https://www.stylesense.co.in",
+  "https://stylesense.co.in",
   "https://www.stylesens.in",
   "https://stylesens.in",
   ...(process.env.NODE_ENV !== "production" ? ["http://localhost:3000", "http://localhost:3001"] : []),

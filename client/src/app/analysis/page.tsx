@@ -170,20 +170,20 @@ export default function AnalysisPage() {
         <Navbar activePath="analysis" />
 
         {/* Main */}
-        <main className="flex-grow flex items-center justify-center pt-32 pb-20 px-6 w-full max-w-[1440px]">
+        <main className="flex-grow flex items-center justify-center pt-24 md:pt-32 pb-28 md:pb-20 px-4 sm:px-6 w-full max-w-[1440px]">
           <div className="w-full flex flex-col items-center">
             {/* Header text */}
-            <div className="text-center mb-10">
-              <span className="inline-block text-xs font-bold tracking-[0.2em] text-[#5a6060] uppercase mb-3">
+            <div className="text-center mb-6 md:mb-10">
+              <span className="inline-block text-[10px] md:text-xs font-bold tracking-[0.2em] text-[#5a6060] uppercase mb-2 md:mb-3">
                 AI ANALYSIS
               </span>
               <h1
-                className="text-5xl font-extrabold tracking-tighter text-[#1b1c1b] mb-4"
+                className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tighter text-[#1b1c1b] mb-3 md:mb-4"
                 style={{ fontFamily: "Manrope, sans-serif" }}
               >
                 Start Your Analysis
               </h1>
-              <p className="text-lg text-[#5a6060] max-w-md mx-auto leading-relaxed">
+              <p className="text-base md:text-lg text-[#5a6060] max-w-md mx-auto leading-relaxed">
                 Upload a clear portrait to get your personalized color analysis.
               </p>
             </div>
@@ -243,12 +243,12 @@ export default function AnalysisPage() {
 
             {/* Upload card */}
             <div
-              className="w-full max-w-[680px] bg-white rounded-2xl p-6 mb-8"
+              className="w-full max-w-[680px] bg-white rounded-2xl p-4 sm:p-6 mb-6 md:mb-8"
               style={{ boxShadow: "0px 12px 32px rgba(27,28,27,0.04)" }}
             >
               {/* Drop zone */}
               <div
-                className="group relative flex flex-col items-center justify-center w-full min-h-[340px] border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300"
+                className="group relative flex flex-col items-center justify-center w-full min-h-[260px] sm:min-h-[340px] border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300"
                 style={{
                   borderColor: dragActive ? "#003ec7" : "#c4c5d7",
                   backgroundColor: dragActive ? "#f0f7ff" : "#fafafa",
@@ -258,6 +258,10 @@ export default function AnalysisPage() {
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
                 onClick={() => !hasFile && fileInputRef.current?.click()}
+                role="button"
+                aria-label="Upload image area. Click or drag and drop a portrait photo."
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); !hasFile && fileInputRef.current?.click(); }}}
               >
                 <input
                   ref={fileInputRef}
@@ -265,6 +269,7 @@ export default function AnalysisPage() {
                   accept="image/*"
                   className="hidden"
                   onChange={handleFileChange}
+                  aria-label="Select image file"
                 />
 
                 {/* Empty state */}

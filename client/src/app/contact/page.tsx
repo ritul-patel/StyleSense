@@ -4,8 +4,8 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Contact StyleSense",
   description: "Get in touch with StyleSense for support, feedback, or partnership inquiries.",
-  alternates: { canonical: "https://stylesens.in/contact" },
-  openGraph: { title: "Contact StyleSense", description: "Get in touch with the StyleSense team.", url: "https://stylesens.in/contact" },
+  alternates: { canonical: "https://stylesense.co.in/contact" },
+  openGraph: { title: "Contact StyleSense", description: "Get in touch with the StyleSense team.", url: "https://stylesense.co.in/contact" },
 };
 
 export default function ContactPage() {

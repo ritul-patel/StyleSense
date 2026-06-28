@@ -18,6 +18,16 @@ const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
+/**
+ * Generate a public URL from a storage path.
+ * This is the canonical way to resolve paths → URLs across the application.
+ */
+export function resolveStorageUrl(storagePath: string): string {
+  if (!storagePath) return "";
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(storagePath);
+  return data.publicUrl;
+}
+
 export interface UploadResult {
   success: boolean;
   publicUrl?: string;

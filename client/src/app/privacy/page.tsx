@@ -4,8 +4,8 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description: "How StyleSense collects, uses, and protects your personal data.",
-  alternates: { canonical: "https://stylesens.in/privacy" },
-  openGraph: { title: "Privacy Policy | StyleSense", description: "How StyleSense collects, uses, and protects your personal data.", url: "https://stylesens.in/privacy" },
+  alternates: { canonical: "https://stylesense.co.in/privacy" },
+  openGraph: { title: "Privacy Policy | StyleSense", description: "How StyleSense collects, uses, and protects your personal data.", url: "https://stylesense.co.in/privacy" },
 };
 
 export default function PrivacyPage() {

@@ -4,8 +4,8 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Terms & Conditions",
   description: "Terms of use for the StyleSense AI personal styling platform.",
-  alternates: { canonical: "https://stylesens.in/terms" },
-  openGraph: { title: "Terms & Conditions | StyleSense", description: "Terms of use for the StyleSense platform.", url: "https://stylesens.in/terms" },
+  alternates: { canonical: "https://stylesense.co.in/terms" },
+  openGraph: { title: "Terms & Conditions | StyleSense", description: "Terms of use for the StyleSense platform.", url: "https://stylesense.co.in/terms" },
 };
 
 export default function TermsPage() {

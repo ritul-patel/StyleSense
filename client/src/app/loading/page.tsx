@@ -402,7 +402,7 @@ export default function LoadingPage() {
       style={{ fontFamily: "Manrope, sans-serif" }}
     >
       {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 backdrop-blur-xl flex justify-between items-center px-8 py-4">
+      <nav className="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 backdrop-blur-xl flex justify-between items-center px-4 sm:px-8 py-4">
         <Link href="/" className="text-2xl font-black text-[#1b1c1b] tracking-tighter">
           StyleSense
         </Link>
@@ -420,7 +420,7 @@ export default function LoadingPage() {
         </div>
       </nav>
 
-      <main className="pt-32 pb-24 min-h-screen px-6 max-w-7xl mx-auto flex flex-col items-center">
+      <main className="pt-24 sm:pt-32 pb-24 min-h-screen px-4 sm:px-6 max-w-7xl mx-auto flex flex-col items-center">
         {/* Progress stepper */}
         <div className="w-full max-w-2xl mb-16 px-4">
           <div className="flex justify-between items-center relative">
@@ -470,7 +470,7 @@ export default function LoadingPage() {
             <div className="inline-flex px-3 py-1 bg-[#dde1ff] rounded-full mb-6 w-fit">
               <span className="text-[10px] uppercase tracking-widest text-[#001452] font-bold">AI Processing</span>
             </div>
-            <h1 className="text-5xl font-extrabold tracking-tighter text-[#1b1c1b] leading-[1.1] mb-2">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tighter text-[#1b1c1b] leading-[1.1] mb-2">
               Perfecting Your <br />
               <span className="text-[#002b92]">Color Story</span>
             </h1>
@@ -500,7 +500,7 @@ export default function LoadingPage() {
           {/* Center: Processing card */}
           <div className="lg:col-span-7 xl:col-span-8 flex items-center justify-center order-1 lg:order-2">
             <div
-              className="w-full max-w-2xl rounded-[2.5rem] bg-white p-12 flex flex-col items-center justify-center relative overflow-hidden border border-[#c3c5d9]/20"
+              className="w-full max-w-2xl rounded-[2rem] md:rounded-[2.5rem] bg-white p-6 sm:p-8 md:p-12 flex flex-col items-center justify-center relative overflow-hidden border border-[#c3c5d9]/20"
               style={{ boxShadow: "0 40px 60px -20px rgba(28,27,27,0.05)" }}
             >
               {/* Decorative blobs */}
@@ -517,7 +517,7 @@ export default function LoadingPage() {
 
               <div className="relative flex flex-col items-center w-full max-w-md">
                 {/* Pulsing circle placeholder (no user photo available) */}
-                <div className="relative w-56 h-56 mb-12 flex items-center justify-center">
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 mb-8 md:mb-12 flex items-center justify-center">
                   <div
                     className="absolute -inset-4 rounded-full border border-[#002b92]/20"
                     style={{ animation: "avatar-pulse 3s cubic-bezier(0.4,0,0.6,1) infinite" }}
@@ -603,7 +603,7 @@ export default function LoadingPage() {
         </div>
       </main>
 
-      <footer className="bg-[#f6f3f2] w-full py-12 flex flex-col md:flex-row justify-between items-center px-12 gap-6 border-t border-[#c3c5d9]/10">
+      <footer className="bg-[#f6f3f2] w-full py-12 flex flex-col md:flex-row justify-between items-center px-4 sm:px-8 md:px-12 gap-6 border-t border-[#c3c5d9]/10">
         <div className="text-xs font-bold text-[#002b92]">StyleSense</div>
         <div className="text-[10px] uppercase tracking-widest text-[#1b1c1b]/40">
           © 2026 StyleSense. All rights reserved.

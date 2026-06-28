@@ -37,10 +37,10 @@ Ensure these redirect URLs are configured in **Authentication** → **URL Config
 
 | Setting | Value |
 |---------|-------|
-| Site URL | `https://stylesens.in` |
-| Redirect URLs | `https://stylesens.in/auth-check/callback` |
-| Redirect URLs | `https://stylesens.in/settings` |
-| Redirect URLs | `https://stylesens.in/reset-password` |
+| Site URL | `https://stylesense.co.in` |
+| Redirect URLs | `https://stylesense.co.in/auth-check/callback` |
+| Redirect URLs | `https://stylesense.co.in/settings` |
+| Redirect URLs | `https://stylesense.co.in/reset-password` |
 
 For local development, also add:
 - `http://localhost:3000/auth-check/callback`

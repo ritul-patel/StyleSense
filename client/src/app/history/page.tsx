@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchAnalysisHistory, type AnalysisHistoryItem } from "@/lib/api";
 import RequireAuth from "../components/RequireAuth";
+import { ScrollStagger, ScrollStaggerItem } from "@/components/motion";
 
 function formatDate(value: string | null): string {
   if (!value) return "Unknown date";
@@ -37,17 +38,17 @@ function HistoryCard({ item, onReanalyze }: { item: AnalysisHistoryItem; onReana
 
   return (
     <div
-      className="group bg-white rounded-[2rem] p-8 flex flex-col justify-between transition-all duration-500 cursor-pointer hover:shadow-2xl"
+      className="group bg-white rounded-2xl md:rounded-[2rem] p-5 md:p-8 flex flex-col justify-between transition-all duration-500 cursor-pointer hover:shadow-2xl"
       style={{ boxShadow: "0 20px 40px -10px rgba(28,27,27,0.06)" }}
     >
       <div>
         {/* Top row: palette + ID */}
-        <div className="flex justify-between items-start mb-8">
-          <div className="flex -space-x-3">
+        <div className="flex justify-between items-start mb-5 md:mb-8">
+          <div className="flex -space-x-2 md:-space-x-3">
             {chips.map((c, i) => (
               <div
                 key={i}
-                className="w-12 h-12 rounded-full border-4 border-white shrink-0"
+                className="w-9 h-9 md:w-12 md:h-12 rounded-full border-[3px] md:border-4 border-white shrink-0"
                 style={{ background: c, zIndex: chips.length - i }}
               />
             ))}
@@ -61,10 +62,10 @@ function HistoryCard({ item, onReanalyze }: { item: AnalysisHistoryItem; onReana
         </div>
 
         {/* Content */}
-        <div className="space-y-4 mb-8">
+        <div className="space-y-3 md:space-y-4 mb-5 md:mb-8">
           <div className="space-y-1">
             <h3
-              className="text-2xl font-extrabold text-[#1b1c1b]"
+              className="text-xl md:text-2xl font-extrabold text-[#1b1c1b]"
               style={{ fontFamily: "Manrope, sans-serif" }}
             >
               {item.skin_tone || "Unknown"}
@@ -91,20 +92,20 @@ function HistoryCard({ item, onReanalyze }: { item: AnalysisHistoryItem; onReana
       </div>
 
       {/* Action buttons */}
-      <div className="flex gap-3 w-full">
+      <div className="flex gap-2 md:gap-3 w-full">
         <Link
           href={`/result?id=${encodeURIComponent(item.analysisId)}`}
-          className="flex-1 py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90"
+          className="flex-1 py-2.5 md:py-3 rounded-xl text-white font-bold text-xs md:text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90"
           style={{
             background: "linear-gradient(135deg, #003ec7, #002b92)",
             fontFamily: "Manrope, sans-serif",
           }}
         >
           <span className="material-symbols-outlined text-sm">visibility</span>
-          View Analysis
+          View
         </Link>
         <button
-          className="flex-1 py-3 rounded-xl border border-[#002b92] text-[#002b92] font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#002b92]/5 transition-all"
+          className="flex-1 py-2.5 md:py-3 rounded-xl border border-[#002b92] text-[#002b92] font-bold text-xs md:text-sm flex items-center justify-center gap-2 hover:bg-[#002b92]/5 transition-all"
           style={{ fontFamily: "Manrope, sans-serif" }}
           onClick={() => onReanalyze(item.analysisId)}
         >
@@ -157,31 +158,27 @@ function HistoryPageContent() {
       {/* Nav */}
       <Navbar activePath="history" />
 
-      <main className="pt-32 pb-20 px-8 max-w-[1400px] mx-auto min-h-screen">
+      <main className="pt-24 md:pt-32 pb-28 md:pb-20 px-4 sm:px-6 md:px-8 max-w-[1400px] mx-auto min-h-screen">
         {/* Header */}
-        <header className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <header className="mb-8 md:mb-16 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#dde1ff] text-[#001452] text-[10px] uppercase tracking-widest mb-4 font-bold">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#dde1ff] text-[#001452] text-[10px] uppercase tracking-widest mb-2 md:mb-4 font-bold">
               Personalized Archives
             </div>
             <h1
-              className="text-5xl md:text-6xl font-bold tracking-tight text-[#1b1c1b]"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#1b1c1b]"
               style={{ fontFamily: "Manrope, sans-serif" }}
             >
               Analysis History
             </h1>
-            <p className="text-[#434654] text-lg max-w-lg font-light">
-              View your previous style insights and track your color evolution through our proprietary AI engine.
+            <p className="text-[#434654] text-sm md:text-lg max-w-lg font-light">
+              View your previous style insights and track your color evolution.
             </p>
           </div>
           <div className="flex gap-2">
-            <button className="flex items-center gap-2 px-6 py-3 rounded-xl border border-[#c3c5d9] hover:bg-[#f6f3f2] transition-colors text-xs uppercase tracking-widest font-bold">
-              <span className="material-symbols-outlined text-sm">filter_list</span>
-              Filter
-            </button>
             <Link
               href="/analysis"
-              className="flex items-center gap-2 px-6 py-3 rounded-xl text-white hover:opacity-90 transition-all text-xs uppercase tracking-widest font-bold"
+              className="flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-white hover:opacity-90 transition-all text-[10px] md:text-xs uppercase tracking-widest font-bold"
               style={{ background: "linear-gradient(135deg, #003ec7, #002b92)", boxShadow: "0 4px 16px rgba(0,62,199,0.3)" }}
             >
               <span className="material-symbols-outlined text-sm">add</span>
@@ -192,12 +189,12 @@ function HistoryPageContent() {
 
         {/* Loading */}
         {loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-[2rem] p-8 h-64 animate-pulse" style={{ boxShadow: "0 20px 40px -10px rgba(28,27,27,0.06)" }}>
+              <div key={i} className="bg-white rounded-2xl md:rounded-[2rem] p-5 md:p-8 h-56 md:h-64 animate-pulse" style={{ boxShadow: "0 20px 40px -10px rgba(28,27,27,0.06)" }}>
                 <div className="flex gap-3 mb-6">
                   {[1, 2, 3, 4].map((j) => (
-                    <div key={j} className="w-12 h-12 rounded-full bg-[#e4e2e1]" />
+                    <div key={j} className="w-9 h-9 md:w-12 md:h-12 rounded-full bg-[#e4e2e1]" />
                   ))}
                 </div>
                 <div className="h-6 bg-[#e4e2e1] rounded mb-3 w-2/3" />
@@ -247,11 +244,13 @@ function HistoryPageContent() {
 
         {/* Items grid */}
         {!loading && !error && hasItems && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <ScrollStagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             {items.map((item) => (
-              <HistoryCard key={item.analysisId} item={item} onReanalyze={handleReanalyze} />
+              <ScrollStaggerItem key={item.analysisId}>
+                <HistoryCard item={item} onReanalyze={handleReanalyze} />
+              </ScrollStaggerItem>
             ))}
-          </div>
+          </ScrollStagger>
         )}
       </main>
     </div>

@@ -3,10 +3,10 @@ import "./globals.css";
 import Providers from "./providers";
 import FeedbackWidget from "./components/FeedbackWidget";
 import { Analytics } from '@vercel/analytics/next';
-
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://stylesens.in"),
+  metadataBase: new URL("https://stylesense.co.in"),
   title: {
     default: "StyleSense | AI Personal Stylist & Color Analysis",
     template: "%s | StyleSense",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "StyleSense | AI Personal Stylist & Color Analysis",
     description: "AI personal stylist that analyzes your skin tone, recommends colors, outfits, and clothing that suit you.",
-    url: "https://stylesens.in",
+    url: "https://stylesense.co.in",
     siteName: "StyleSense",
     type: "website",
     locale: "en_IN",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: "https://stylesens.in",
+    canonical: "https://stylesense.co.in",
   },
   icons: {
     icon: [
@@ -52,7 +52,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   themeColor: "#002b92",
 };
 
@@ -74,8 +73,8 @@ export default function RootLayout({
                 {
                   "@type": "Organization",
                   name: "StyleSense",
-                  url: "https://stylesens.in",
-                  logo: "https://stylesens.in/logo.png",
+                  url: "https://stylesense.co.in",
+                  logo: "https://stylesense.co.in/logo.png",
                   founder: { "@type": "Person", name: "Ritul Patel" },
                   foundingLocation: { "@type": "Country", name: "India" },
                   description: "AI personal stylist that analyzes your skin tone, recommends colors, outfits, and clothing that suit you.",
@@ -83,7 +82,7 @@ export default function RootLayout({
                 {
                   "@type": "WebSite",
                   name: "StyleSense",
-                  url: "https://stylesens.in",
+                  url: "https://stylesense.co.in",
                   description: "AI personal stylist that analyzes your skin tone, recommends colors, outfits, and clothing that suit you.",
                   publisher: { "@type": "Organization", name: "StyleSense" },
                 },
@@ -100,7 +99,11 @@ export default function RootLayout({
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" as="style" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
       </head>
-      <body style={{ overflowX: "hidden" }}><Providers>{children}</Providers><FeedbackWidget /><Analytics /></body>
+          <body style={{ overflowX: "hidden" }}>
+        <Providers>{children}</Providers>
+        <FeedbackWidget />
+        <SpeedInsights />
+      </body>
     </html>
   );
 }

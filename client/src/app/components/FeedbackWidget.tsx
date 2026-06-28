@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import posthog from "posthog-js";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 
 const FEEDBACK_TYPES = [
-  { value: "bug", label: "Bug Report", icon: "bug_report" },
-  { value: "feature", label: "Feature Request", icon: "lightbulb" },
-  { value: "general", label: "General Feedback", icon: "chat" },
+  { value: "bug", label: "Bug", icon: "bug_report" },
+  { value: "feature", label: "Feature", icon: "lightbulb" },
+  { value: "general", label: "General", icon: "chat" },
 ] as const;
 
 const APP_VERSION = "1.0.0-beta";
@@ -48,7 +49,6 @@ export default function FeedbackWidget() {
     setSubmitting(true);
 
     const { browser, device } = getDeviceInfo();
-    // Get Sentry event ID if available (last captured error)
     let sentryEventId = "";
     try {
       const Sentry = await import("@sentry/nextjs");
@@ -89,36 +89,56 @@ export default function FeedbackWidget() {
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button — positioned above mobile nav on small screens */}
       <button
         onClick={() => { setOpen(true); reset(); }}
         aria-label="Send feedback"
-        className="fixed bottom-6 right-6 z-[90] w-12 h-12 rounded-full bg-[#002b92] text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center md:w-auto md:h-auto md:px-4 md:py-2.5 md:rounded-xl md:gap-2"
+        className="feedback-fab fixed z-[90] shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center bg-[#002b92] text-white bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] right-4 w-11 h-11 rounded-full md:bottom-6 md:right-6 md:w-auto md:h-auto md:px-4 md:py-2.5 md:rounded-xl md:gap-2"
       >
-        <span className="material-symbols-outlined text-xl">feedback</span>
+        <span className="material-symbols-outlined text-[20px] leading-none">feedback</span>
         <span className="hidden md:inline text-sm font-semibold">Feedback</span>
       </button>
 
       {/* Modal */}
-      {open && (
-        <div className="fixed inset-0 z-[200] flex items-end md:items-center justify-center" onClick={() => setOpen(false)}>
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-          <div
-            className="relative bg-white dark:bg-[#1b1c1b] w-full max-w-md rounded-t-3xl md:rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center"
+            onClick={() => setOpen(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="feedback-title"
           >
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 10 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              className="relative bg-white dark:bg-[#1b1c1b] w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 sm:p-6 shadow-2xl max-h-[80vh] sm:max-h-[85vh] overflow-y-auto overscroll-contain"
+              data-lenis-prevent
+              onClick={(e) => e.stopPropagation()}
+            >
             {/* Close button */}
-            <button onClick={() => setOpen(false)} className="absolute top-4 right-4 text-[#747686] hover:text-[#1b1c1b] dark:hover:text-white transition-colors">
-              <span className="material-symbols-outlined">close</span>
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close feedback"
+              className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-lg text-[#747686] hover:text-[#1b1c1b] hover:bg-[#f6f3f2] dark:hover:text-white dark:hover:bg-[#333] transition-colors"
+            >
+              <span className="material-symbols-outlined text-[20px] leading-none">close</span>
             </button>
 
             {submitted ? (
               /* Success state */
-              <div className="flex flex-col items-center py-8 text-center">
-                <div className="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined text-green-600 text-3xl">check_circle</span>
+              <div className="flex flex-col items-center py-6 sm:py-8 text-center">
+                <div className="w-14 h-14 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center mb-4">
+                  <span className="material-symbols-outlined text-green-600 text-[28px] leading-none">check_circle</span>
                 </div>
-                <h3 className="text-xl font-bold mb-2" style={{ fontFamily: "Manrope, sans-serif" }}>Thank you!</h3>
+                <h3 id="feedback-title" className="text-xl font-bold mb-2 font-[family-name:var(--font-headline)]">Thank you!</h3>
                 <p className="text-sm text-[#747686] mb-6">Your feedback helps us improve StyleSense.</p>
                 <button
                   onClick={() => setOpen(false)}
@@ -129,42 +149,43 @@ export default function FeedbackWidget() {
               </div>
             ) : (
               /* Form */
-              <div className="space-y-5">
-                <div>
-                  <h3 className="text-xl font-bold" style={{ fontFamily: "Manrope, sans-serif" }}>Send Feedback</h3>
+              <div className="space-y-4 sm:space-y-5">
+                <div className="pr-8">
+                  <h3 id="feedback-title" className="text-lg sm:text-xl font-bold font-[family-name:var(--font-headline)]">Send Feedback</h3>
                   <p className="text-sm text-[#747686] mt-1">Help us improve your experience</p>
                 </div>
 
-                {/* Type selector */}
-                <div className="flex gap-2">
+                {/* Type selector — fixed sizing to prevent icon overflow */}
+                <div className="grid grid-cols-3 gap-2">
                   {FEEDBACK_TYPES.map((ft) => (
                     <button
                       key={ft.value}
                       onClick={() => setType(ft.value)}
-                      className={`flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border-2 transition-all text-center ${
+                      className={`flex flex-col items-center justify-center gap-1 py-3 px-1 rounded-xl border-2 transition-all min-h-[68px] ${
                         type === ft.value
                           ? "border-[#002b92] bg-[#002b92]/5 text-[#002b92]"
                           : "border-[#e4e2e1] dark:border-[#333] text-[#747686] hover:border-[#002b92]/30"
                       }`}
                     >
-                      <span className="material-symbols-outlined text-lg">{ft.icon}</span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider">{ft.label}</span>
+                      <span className="material-symbols-outlined text-[20px] leading-none shrink-0">{ft.icon}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider leading-tight text-center">{ft.label}</span>
                     </button>
                   ))}
                 </div>
 
-                {/* Rating */}
+                {/* Rating — minimum 44px touch targets */}
                 <div>
                   <label className="text-[10px] uppercase tracking-wider text-[#747686] font-bold block mb-2">Rating (optional)</label>
-                  <div className="flex gap-1">
+                  <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         onClick={() => setRating(star === rating ? 0 : star)}
-                        className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-[#f6f3f2] dark:hover:bg-[#2a2a2a] transition-colors"
+                        aria-label={`${star} star${star > 1 ? "s" : ""}`}
+                        className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-[#f6f3f2] dark:hover:bg-[#2a2a2a] transition-colors"
                       >
                         <span
-                          className="material-symbols-outlined text-2xl transition-colors"
+                          className="material-symbols-outlined text-[22px] leading-none transition-colors"
                           style={{
                             fontVariationSettings: star <= rating ? "'FILL' 1" : "'FILL' 0",
                             color: star <= rating ? "#f59e0b" : "#c4c5d7",
@@ -190,9 +211,9 @@ export default function FeedbackWidget() {
                         : type === "feature" ? "Describe the feature you'd like to see..."
                         : "Tell us what you think..."
                     }
-                    rows={4}
+                    rows={3}
                     maxLength={5000}
-                    className="w-full px-4 py-3 rounded-xl border border-[#e4e2e1] dark:border-[#333] bg-transparent text-sm resize-none focus:outline-none focus:border-[#002b92] transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border border-[#e4e2e1] dark:border-[#333] bg-transparent text-sm resize-none focus:outline-none focus:border-[#002b92] focus:ring-2 focus:ring-[#002b92]/10 transition-colors"
                   />
                   <p className="text-[10px] text-[#747686] mt-1 text-right">{message.length}/5000</p>
                 </div>
@@ -201,16 +222,17 @@ export default function FeedbackWidget() {
                 <button
                   onClick={handleSubmit}
                   disabled={!message.trim() || submitting}
-                  className="w-full py-3.5 rounded-xl text-white font-bold text-sm disabled:opacity-40 transition-all hover:opacity-90"
+                  className="w-full h-12 rounded-xl text-white font-bold text-sm disabled:opacity-40 transition-all hover:opacity-90"
                   style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}
                 >
                   {submitting ? "Sending..." : "Submit Feedback"}
                 </button>
               </div>
             )}
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -60,6 +60,7 @@ function ProductsContent() {
   const [toast, setToast] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkProcessing, setBulkProcessing] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -280,7 +281,43 @@ function ProductsContent() {
               </div>
               <div className="md:col-span-2">
                 <label className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block mb-1">Image URL</label>
-                <input type="text" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#002b92]/20" />
+                <div className="flex gap-2">
+                  <input type="text" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#002b92]/20" placeholder="Paste external image URL..." />
+                  {editId && form.image_url && form.image_url.startsWith("http") && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setImporting(true);
+                        try {
+                          const res = await apiFetch("/api/v1/admin/images/import", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ product_id: editId, source_url: form.image_url }),
+                          });
+                          const data = await res.json();
+                          if (data.success) {
+                            setForm({ ...form, image_url: data.data.public_url });
+                            showToast(data.data.was_duplicate ? "Image already imported (reused)" : `Image imported (${Math.round((data.data.size_bytes || 0) / 1024)}KB WebP)`);
+                          } else {
+                            showToast(data.message || "Import failed");
+                          }
+                        } catch { showToast("Import failed — network error"); }
+                        finally { setImporting(false); }
+                      }}
+                      disabled={importing}
+                      className="px-4 py-2.5 rounded-xl border-2 border-[#002b92]/20 text-[#002b92] text-xs font-bold hover:bg-[#002b92]/5 disabled:opacity-40 whitespace-nowrap flex items-center gap-1.5"
+                    >
+                      <span className="material-symbols-outlined text-sm">cloud_download</span>
+                      {importing ? "Importing..." : "Import"}
+                    </button>
+                  )}
+                </div>
+                {form.image_url && (
+                  <div className="mt-2 flex items-center gap-3">
+                    <img src={form.image_url} alt="Preview" className="w-12 h-12 rounded-lg object-cover border border-gray-100" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    <span className="text-[10px] text-gray-400 truncate max-w-[300px]">{form.image_url}</span>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block mb-1">Store URL</label>

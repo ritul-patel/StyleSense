@@ -154,27 +154,27 @@ function SettingsPageContent() {
       {/* Shared Navbar */}
       <Navbar activePath="none" />
 
-      <main className="pt-32 pb-20 px-6 md:px-12 max-w-[1400px] mx-auto min-h-screen">
+      <main className="pt-24 md:pt-32 pb-28 md:pb-20 px-4 sm:px-6 md:px-12 max-w-[1400px] mx-auto min-h-screen">
         {/* Page Header */}
-        <header className="mb-12">
-          <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#dde1ff] text-[#001452] text-[10px] uppercase tracking-widest mb-4 font-bold">
+        <header className="mb-8 md:mb-12">
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#dde1ff] text-[#001452] text-[10px] uppercase tracking-widest mb-3 md:mb-4 font-bold">
             Account
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-[#1b1c1b]" style={{ fontFamily: "Manrope, sans-serif" }}>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#1b1c1b]" style={{ fontFamily: "Manrope, sans-serif" }}>
             Settings
           </h1>
         </header>
 
         {/* Profile Card */}
-        <section className="bg-white rounded-[2rem] p-8 md:p-10 mb-8" style={{ boxShadow: "0 20px 40px -10px rgba(28,27,27,0.06)" }}>
-          <div className="flex flex-col md:flex-row items-start gap-8">
+        <section className="bg-white rounded-2xl md:rounded-[2rem] p-5 md:p-8 lg:p-10 mb-6 md:mb-8" style={{ boxShadow: "0 20px 40px -10px rgba(28,27,27,0.06)" }}>
+          <div className="flex flex-col md:flex-row items-start gap-5 md:gap-8">
             {/* Avatar */}
             <div className="flex-shrink-0">
               {avatarUrl ? (
-                <img src={avatarUrl} alt={name} className="w-24 h-24 md:w-28 md:h-28 rounded-2xl object-cover ring-2 ring-black/5" />
+                <img src={avatarUrl} alt={name} className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-2xl object-cover ring-2 ring-black/5" />
               ) : (
-                <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-gradient-to-br from-[#843b23] to-[#c27c3e] ring-2 ring-black/5 flex items-center justify-center">
-                  <span className="text-white text-3xl font-bold" style={{ fontFamily: "Manrope, sans-serif" }}>{initials}</span>
+                <div className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-2xl bg-gradient-to-br from-[#843b23] to-[#c27c3e] ring-2 ring-black/5 flex items-center justify-center">
+                  <span className="text-white text-2xl md:text-3xl font-bold" style={{ fontFamily: "Manrope, sans-serif" }}>{initials}</span>
                 </div>
               )}
             </div>
@@ -209,8 +209,8 @@ function SettingsPageContent() {
         </section>
 
         {/* Preferences Card */}
-        <section className="bg-white rounded-[2rem] p-8 md:p-10 mb-8" style={{ boxShadow: "0 20px 40px -10px rgba(28,27,27,0.06)" }}>
-          <h3 className="text-xl font-bold tracking-tight mb-6" style={{ fontFamily: "Manrope, sans-serif" }}>Notifications & AI</h3>
+        <section className="bg-white rounded-2xl md:rounded-[2rem] p-5 md:p-8 lg:p-10 mb-6 md:mb-8" style={{ boxShadow: "0 20px 40px -10px rgba(28,27,27,0.06)" }}>
+          <h3 className="text-lg md:text-xl font-bold tracking-tight mb-4 md:mb-6" style={{ fontFamily: "Manrope, sans-serif" }}>Notifications & AI</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Toggles */}
             <div className="space-y-6">
@@ -251,7 +251,7 @@ function SettingsPageContent() {
         </section>
 
         {/* Password Card */}
-        <section className="bg-[#3f414e] rounded-[2rem] p-8 md:p-10 mb-8 flex flex-col md:flex-row items-center justify-between gap-6" style={{ boxShadow: "0 20px 40px -10px rgba(28,27,27,0.1)" }}>
+        <section className="bg-[#3f414e] rounded-2xl md:rounded-[2rem] p-5 md:p-8 lg:p-10 mb-6 md:mb-8 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6" style={{ boxShadow: "0 20px 40px -10px rgba(28,27,27,0.1)" }}>
           <div className="flex items-center gap-6">
             <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
               <span className="material-symbols-outlined text-white text-2xl">lock_reset</span>
@@ -269,7 +269,7 @@ function SettingsPageContent() {
         </section>
 
         {/* Danger Zone Card */}
-        <section className="bg-white border border-red-100 rounded-[2rem] p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6" style={{ boxShadow: "0 20px 40px -10px rgba(28,27,27,0.04)" }}>
+        <section className="bg-white border border-red-100 rounded-2xl md:rounded-[2rem] p-5 md:p-8 lg:p-10 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6" style={{ boxShadow: "0 20px 40px -10px rgba(28,27,27,0.04)" }}>
           <div>
             <h4 className="font-bold text-sm text-[#ba1a1a]">Delete Account</h4>
             <p className="text-xs text-slate-500 mt-1">Permanently removes your profile, wardrobe, closet, and analysis history.</p>

@@ -4,8 +4,8 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "About StyleSense",
   description: "StyleSense is an AI-powered personal styling platform helping people discover colors, outfits, and clothing that suit them.",
-  alternates: { canonical: "https://stylesens.in/about" },
-  openGraph: { title: "About StyleSense", description: "An AI-powered personal styling platform.", url: "https://stylesens.in/about" },
+  alternates: { canonical: "https://stylesense.co.in/about" },
+  openGraph: { title: "About StyleSense", description: "An AI-powered personal styling platform.", url: "https://stylesense.co.in/about" },
 };
 
 export default function AboutPage() {

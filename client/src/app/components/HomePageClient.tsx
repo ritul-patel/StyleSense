@@ -4,6 +4,7 @@ import { Link as ScrollLink, Element, Events, scrollSpy } from "react-scroll";
 import NextLink from "next/link";
 import { useEffect, useState } from "react";
 import HeroScannerCard from "./HeroScannerCard";
+import { ScrollReveal, ScrollStagger, ScrollStaggerItem } from "@/components/motion";
 
 const NAV_OFFSET = -80; // offset for fixed navbar height
 const SCROLL_DURATION = 800;
@@ -138,7 +139,7 @@ export default function HomePageClient() {
                   Everything you need to dress better
                 </h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <ScrollStagger className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[
                   { icon: "face", title: "Skin Tone & Undertone Analysis", desc: "Upload one photo and get a breakdown of your skin tone, undertone, and Fitzpatrick type.", accent: "bg-[#dde1ff]" },
                   { icon: "palette", title: "Seasonal Color Palette", desc: "Find your color season and receive a palette of colors that complement your complexion.", accent: "bg-[#fef3c7]" },
@@ -147,15 +148,17 @@ export default function HomePageClient() {
                   { icon: "favorite", title: "Save Favorites & Build Collections", desc: "Wishlist products, organize them into collections, and build outfit combinations.", accent: "bg-[#fff7ed]" },
                   { icon: "history", title: "Track Your Style Over Time", desc: "Keep a history of your analyses and see how your wardrobe grows.", accent: "bg-[#f0f9ff]" },
                 ].map((f) => (
-                  <div key={f.title} className="bg-[#fcf9f8] p-8 rounded-2xl border border-black/5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <ScrollStaggerItem key={f.title}>
+                  <div className="h-full bg-[#fcf9f8] p-8 rounded-2xl border border-black/5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                     <div className={`w-12 h-12 rounded-xl ${f.accent} flex items-center justify-center mb-5`}>
                       <span className="material-symbols-outlined text-[#002b92] text-2xl">{f.icon}</span>
                     </div>
                     <h3 className="text-lg font-bold mb-3" style={{ fontFamily: "Manrope, sans-serif" }}>{f.title}</h3>
                     <p className="text-sm text-[#5a6060] leading-relaxed">{f.desc}</p>
                   </div>
+                  </ScrollStaggerItem>
                 ))}
-              </div>
+              </ScrollStagger>
             </div>
           </section>
         </Element>
@@ -170,13 +173,14 @@ export default function HomePageClient() {
                   Photo to personalized style in three steps
                 </h2>
               </div>
-              <div className="grid md:grid-cols-3 gap-8">
+              <ScrollStagger className="grid md:grid-cols-3 gap-8">
                 {[
                   { step: "01", icon: "cloud_upload", title: "Upload a Photo", desc: "Take a selfie or upload a clear portrait. Natural lighting works best, no filters needed." },
                   { step: "02", icon: "auto_awesome", title: "Get Your Results", desc: "StyleSense identifies your skin tone, undertone, and color season. Results show up in about 10 seconds." },
                   { step: "03", icon: "style", title: "Shop & Build Your Wardrobe", desc: "Browse outfit recommendations and product picks. Save what you like and build your collections." },
                 ].map((s) => (
-                  <div key={s.step} className="relative bg-white p-8 rounded-2xl border border-black/5 shadow-sm">
+                  <ScrollStaggerItem key={s.step}>
+                  <div className="relative h-full bg-white p-8 rounded-2xl border border-black/5 shadow-sm">
                     <span className="text-[64px] font-black text-[#002b92]/5 absolute top-4 right-6" style={{ fontFamily: "Manrope, sans-serif" }}>{s.step}</span>
                     <div className="w-12 h-12 rounded-xl bg-[#002b92] flex items-center justify-center mb-5">
                       <span className="material-symbols-outlined text-white text-2xl">{s.icon}</span>
@@ -184,8 +188,9 @@ export default function HomePageClient() {
                     <h3 className="text-lg font-bold mb-3" style={{ fontFamily: "Manrope, sans-serif" }}>{s.title}</h3>
                     <p className="text-sm text-[#5a6060] leading-relaxed">{s.desc}</p>
                   </div>
+                  </ScrollStaggerItem>
                 ))}
-              </div>
+              </ScrollStagger>
             </div>
           </section>
         </Element>
@@ -200,20 +205,22 @@ export default function HomePageClient() {
                   What you get
                 </h2>
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <ScrollStagger className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
                   { icon: "gradient", label: "Your color palette", desc: "A set of colors that complement your skin. Use it as a reference when shopping online or in-store." },
                   { icon: "checkroom", label: "Outfit ideas", desc: "Complete looks built around your palette, with real products you can purchase." },
                   { icon: "diamond", label: "Material & accessory guidance", desc: "Which fabrics, metals, and textures pair well with your complexion." },
                   { icon: "bookmark", label: "A personal wardrobe", desc: "Save products, organize collections, and build outfits at your own pace." },
                 ].map((item) => (
-                  <div key={item.label} className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                  <ScrollStaggerItem key={item.label}>
+                  <div className="h-full bg-white/5 border border-white/10 rounded-2xl p-6">
                     <span className="material-symbols-outlined text-[#dde1ff] text-2xl mb-4 block">{item.icon}</span>
                     <h3 className="text-white font-bold mb-2">{item.label}</h3>
                     <p className="text-white/60 text-sm leading-relaxed">{item.desc}</p>
                   </div>
+                  </ScrollStaggerItem>
                 ))}
-              </div>
+              </ScrollStagger>
             </div>
           </section>
         </Element>
@@ -252,7 +259,7 @@ export default function HomePageClient() {
 
         {/* ── Final CTA ── */}
         <section className="px-6 md:px-[6%] py-24">
-          <div className="max-w-[1440px] mx-auto">
+          <ScrollReveal className="max-w-[1440px] mx-auto">
             <div className="rounded-[2rem] p-12 md:p-20 text-center text-white relative overflow-hidden" style={{ background: "linear-gradient(135deg, #002b92, #003ec7)" }}>
               <div className="relative z-10">
                 <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter mb-6" style={{ fontFamily: "Manrope, sans-serif" }}>
@@ -270,7 +277,7 @@ export default function HomePageClient() {
                 </NextLink>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
         </section>
 
       </main>

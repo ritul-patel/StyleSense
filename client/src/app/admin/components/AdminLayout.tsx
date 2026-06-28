@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/admin/products/import", label: "Import CSV", icon: "upload_file", indent: true },
   { href: "/admin/products/images", label: "Upload Images", icon: "add_photo_alternate", indent: true },
   { href: "/admin/products/metadata", label: "AI Queue", icon: "auto_awesome", indent: true },
+  { href: "/admin/images/migration", label: "Image Migration", icon: "cloud_sync", indent: true },
   { href: "/admin/outfits", label: "Outfits", icon: "checkroom" },
   { href: "/admin/users", label: "Users", icon: "group" },
   { href: "/admin/analytics", label: "Analytics", icon: "analytics" },

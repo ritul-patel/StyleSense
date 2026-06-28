@@ -73,6 +73,23 @@
     width: 100%;
   }
 
+  /* Lenis smooth scroll integration */
+  html.lenis, html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto; /* Lenis handles smooth scroll — prevent conflicts */
+  }
+
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
   body {
     width: 100%;
     min-height: 100%;
@@ -100,6 +117,26 @@
   }
 }
 
+/* ── Skip to content ── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 12px 24px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 0 0 12px 12px;
+  font-weight: 700;
+  font-size: 14px;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
 /* ── Custom utility classes ── */
 .glass-nav {
   background-color: rgba(252, 249, 248, 0.7);
@@ -115,4 +152,27 @@
 
 .signature-gradient {
   background: linear-gradient(135deg, #002b92 0%, #003ec7 100%);
+}
+
+/* ── Consistent scrollbar hide ── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ── Hide floating elements when virtual keyboard is likely open ── */
+/* Uses :has() to detect when any input/textarea is focused */
+@supports selector(:has(*)) {
+  body:has(input:focus),
+  body:has(textarea:focus),
+  body:has(select:focus) {
+    .feedback-fab {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+  }
 }
