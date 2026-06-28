@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
       "@supabase/supabase-js",
       "lucide-react",
       "posthog-js",
+      "react-scroll",
+      "lenis",
     ],
   },
   images: {
@@ -25,6 +27,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "imagescdn.allensolly.com" },
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "http", hostname: "offduty.in" },
+      { protocol: "https", hostname: "uizrytwhgvvwhrdwwyyh.supabase.co" },
     ],
   },
   // TypeScript errors must be fixed — do not suppress in production builds

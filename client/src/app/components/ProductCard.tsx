@@ -4,7 +4,7 @@ import { useState, memo } from "react";
 import Image from "next/image";
 import posthog from "posthog-js";
 import { type LegacyProduct as Product } from "@/lib/products-api";
-import { ArrowRight, Check, Copy } from "lucide-react";
+import { ArrowRight, Check, Copy, Heart } from "lucide-react";
 import { useWardrobe } from "@/app/context/WardrobeContext";
 
 interface ProductCardProps {
@@ -79,15 +79,13 @@ function ProductCard({ product }: ProductCardProps) {
           aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
           className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/90 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center shadow-sm transition-transform hover:scale-110 active:scale-95"
         >
-          <span
-            className="material-symbols-outlined text-[20px] transition-colors"
-            style={{
-              fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0",
-              color: wishlisted ? "#e11d48" : "#6b7280",
-            }}
-          >
-            favorite
-          </span>
+          <Heart
+            size={20}
+            className="transition-colors"
+            fill={wishlisted ? "#e11d48" : "none"}
+            color={wishlisted ? "#e11d48" : "#6b7280"}
+            strokeWidth={wishlisted ? 0 : 2}
+          />
         </button>
 
         {/* Loading Skeleton */}
@@ -105,7 +103,6 @@ function ProductCard({ product }: ProductCardProps) {
             className={`object-cover transition-all duration-700 ${imgLoaded ? "opacity-100 group-hover:scale-105" : "opacity-0 scale-95"
               }`}
             loading="lazy"
-            unoptimized
             fill
             sizes="(max-width:768px) 180px, 240px"
             quality={60}

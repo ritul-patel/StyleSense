@@ -35,7 +35,6 @@ function RelatedLookCard({ related }: RelatedLookCardProps) {
             onError={() => setImgError(true)}
             sizes="(max-width: 768px) 160px, 200px"
             loading="lazy"
-            unoptimized
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200 dark:from-[#1a1a1a] dark:to-[#121212]">

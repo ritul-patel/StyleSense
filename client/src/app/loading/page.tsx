@@ -403,8 +403,9 @@ export default function LoadingPage() {
     >
       {/* Nav */}
       <nav className="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 backdrop-blur-xl flex justify-between items-center px-4 sm:px-8 py-4">
-        <Link href="/" className="text-2xl font-black text-[#1b1c1b] tracking-tighter">
-          StyleSense
+        <Link href="/" className="flex items-center gap-2.5">
+          <img src="/logo.png" alt="StyleSense" className="w-8 h-8 object-contain" />
+          <span className="text-xl font-bold tracking-tight text-[#1b1c1b]" style={{ fontFamily: "Manrope, sans-serif" }}>StyleSense</span>
         </Link>
         <div className="hidden md:flex items-center gap-8">
           <Link href="/discover" className="text-[#1b1c1b]/60 font-medium hover:text-[#002b92] transition-colors">Discover</Link>
@@ -604,7 +605,10 @@ export default function LoadingPage() {
       </main>
 
       <footer className="bg-[#f6f3f2] w-full py-12 flex flex-col md:flex-row justify-between items-center px-4 sm:px-8 md:px-12 gap-6 border-t border-[#c3c5d9]/10">
-        <div className="text-xs font-bold text-[#002b92]">StyleSense</div>
+        <div className="flex items-center gap-2 text-xs font-bold text-[#002b92]">
+          <img src="/logo.png" alt="StyleSense" className="w-5 h-5 object-contain" />
+          StyleSense
+        </div>
         <div className="text-[10px] uppercase tracking-widest text-[#1b1c1b]/40">
           © 2026 StyleSense. All rights reserved.
         </div>

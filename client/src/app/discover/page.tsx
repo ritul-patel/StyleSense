@@ -303,7 +303,7 @@ export default function DiscoverPage() {
               )}
             </div>
           ) : (
-            filteredLooks.map((look) => (
+            filteredLooks.map((look, lookIndex) => (
               <ScrollStaggerItem key={look.id}>
               <Link href={`/outfit/${look.id}`} className="flex flex-col group cursor-pointer"
                 onClick={() => posthog.capture("discover_product_viewed", { outfit_id: look.id, title: look.title })}
@@ -315,7 +315,8 @@ export default function DiscoverPage() {
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                    unoptimized
+                    priority={lookIndex < 4}
+                    loading={lookIndex < 4 ? "eager" : "lazy"}
                   />
                 </div>
                 <div className="flex flex-col px-1">

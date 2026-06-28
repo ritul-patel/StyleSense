@@ -57,7 +57,7 @@ export default function LoginPage() {
   if (authLoading) return null;
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-10 overflow-y-auto" data-lenis-prevent>
       {/* Background decoration */}
       <div className="fixed top-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-primary-fixed/20 blur-[120px] pointer-events-none" />
       <div className="fixed bottom-[-20%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-tertiary-fixed/10 blur-[100px] pointer-events-none" />

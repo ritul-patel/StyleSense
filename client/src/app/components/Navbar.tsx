@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { Search, Sparkles, Shirt, History } from "lucide-react";
 import ProfileDropdown from "./ProfileDropdown";
+
+const MOBILE_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string; fill?: string; strokeWidth?: number }>> = {
+  search: Search,
+  auto_awesome: Sparkles,
+  checkroom: Shirt,
+  history: History,
+};
 
 type ActivePath = "discover" | "analysis" | "wardrobe" | "history" | "outfit" | "none";
 
@@ -30,7 +38,7 @@ export default function Navbar({ activePath }: Props) {
       <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-black/[0.04]" aria-label="Main navigation">
         <div className="flex justify-between items-center w-full px-4 sm:px-6 md:px-12 h-16 md:h-20 max-w-[1440px] mx-auto">
           <Link href="/" className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="StyleSense" className="w-7 h-7 md:w-8 md:h-8 object-contain" />
+            <img src="/logo.png" alt="StyleSense" className="w-7 h-7 md:w-8 md:h-8 object-contain" fetchPriority="high" />
             <span className="text-lg md:text-xl font-bold tracking-tight text-on-surface font-[family-name:var(--font-headline)]">
               StyleSense
             </span>
@@ -66,6 +74,7 @@ export default function Navbar({ activePath }: Props) {
       >
         {mobileLinks.map(({ href, label, icon, id }) => {
           const isActive = activePath === id;
+          const IconComp = MOBILE_ICONS[icon];
           return (
             <Link
               key={href}
@@ -74,12 +83,7 @@ export default function Navbar({ activePath }: Props) {
                 isActive ? "text-primary" : "text-outline hover:text-on-surface"
               }`}
             >
-              <span
-                className="material-symbols-outlined text-[22px]"
-                style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
-              >
-                {icon}
-              </span>
+              {IconComp && <IconComp size={22} fill={isActive ? "currentColor" : "none"} strokeWidth={isActive ? 0 : 1.5} />}
               <span className="text-[9px] font-bold uppercase tracking-wider">{label}</span>
             </Link>
           );

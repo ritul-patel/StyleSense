@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import html2canvas from "html2canvas";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import posthog from "posthog-js";
@@ -126,6 +125,7 @@ export default function OutfitDetailsPage() {
     setDownloading(true);
     try {
       const isDark = document.documentElement.classList.contains("dark");
+      const { default: html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(heroRef.current, {
         useCORS: true,
         backgroundColor: isDark ? "#0f0f14" : "#fcf9f8",
@@ -307,8 +307,7 @@ export default function OutfitDetailsPage() {
                   setIsHeroPortrait(img.naturalHeight >= img.naturalWidth);
                 }}
                 onError={() => setHeroImgError(true)}
-                loading="lazy"
-                unoptimized
+                loading="eager"
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200 dark:from-[#1a1a1a] dark:to-[#121212]">

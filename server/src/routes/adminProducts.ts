@@ -43,7 +43,7 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
 
     params.push(limit, offset);
     const q = await db.query(
-      `SELECT id, name, slug, brand, category, price, currency, image_url, primary_color, is_published, created_at, updated_at
+      `SELECT id, name, slug, brand, category, price, currency, image_url, primary_color, is_published, ai_metadata, created_at, updated_at
        FROM products ${where} ORDER BY created_at DESC LIMIT $${idx} OFFSET $${idx + 1}`,
       params
     );
@@ -119,7 +119,10 @@ router.post("/", async (req: AuthenticatedRequest, res: Response) => {
 // PATCH /api/v1/admin/products/:id — update
 router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const allowedFields = ["name", "brand", "category", "description", "price", "currency", "image_url", "affiliate_url", "store_url", "primary_color", "secondary_colors", "seasons", "occasions", "styles", "materials", "fit", "formality", "is_published", "ai_metadata"];
+    // ai_metadata is intentionally EXCLUDED — it must only be modified via
+    // dedicated metadata endpoints (PATCH /admin/metadata/update/:id or generate-batch)
+    // to prevent accidental overwrites of generated AI data.
+    const allowedFields = ["name", "brand", "category", "description", "price", "currency", "image_url", "affiliate_url", "store_url", "primary_color", "secondary_colors", "seasons", "occasions", "styles", "materials", "fit", "formality", "is_published"];
 
     const sets: string[] = [];
     const vals: any[] = [];
@@ -127,7 +130,7 @@ router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
 
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) {
-        const val = ["secondary_colors", "seasons", "occasions", "styles", "materials", "ai_metadata"].includes(field)
+        const val = ["secondary_colors", "seasons", "occasions", "styles", "materials"].includes(field)
           ? JSON.stringify(req.body[field])
           : typeof req.body[field] === "string" ? req.body[field].trim() : req.body[field];
         sets.push(`${field} = $${idx}`);
@@ -166,6 +169,9 @@ router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
 // DELETE /api/v1/admin/products/:id
 router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
+    // Clean up wardrobe references to prevent orphan records
+    await db.query("DELETE FROM wardrobe_items WHERE product_id = $1", [req.params.id]);
+
     const q = await db.query("DELETE FROM products WHERE id = $1 RETURNING id", [req.params.id]);
     if (q.rows.length === 0) return res.status(404).json({ success: false, message: "Product not found." });
     invalidateProductsCache();

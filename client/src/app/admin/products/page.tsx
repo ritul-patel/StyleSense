@@ -163,16 +163,18 @@ function ProductsContent() {
 
     setBulkProcessing(true);
     let published = 0;
+    let failed = 0;
     for (const p of valid) {
       try {
         const res = await apiFetch(`/api/v1/admin/products/${p.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ is_published: true }) });
         if (res.ok) published++;
-      } catch {}
+        else failed++;
+      } catch { failed++; }
     }
     setProducts((prev) => prev.map((p) => valid.some((v) => v.id === p.id) ? { ...p, is_published: true } : p));
     setSelected(new Set());
     setBulkProcessing(false);
-    showToast(`Published: ${published}${skipped.length > 0 ? ` • Skipped: ${skipped.length}` : ""}`);
+    showToast(`Published: ${published}${failed > 0 ? ` • Failed: ${failed}` : ""}${skipped.length > 0 ? ` • Skipped: ${skipped.length}` : ""}`);
   };
 
   const bulkUnpublish = async () => {
@@ -183,16 +185,18 @@ function ProductsContent() {
 
     setBulkProcessing(true);
     let unpublished = 0;
+    let failed = 0;
     for (const p of toUnpublish) {
       try {
         const res = await apiFetch(`/api/v1/admin/products/${p.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ is_published: false }) });
         if (res.ok) unpublished++;
-      } catch {}
+        else failed++;
+      } catch { failed++; }
     }
     setProducts((prev) => prev.map((p) => toUnpublish.some((u) => u.id === p.id) ? { ...p, is_published: false } : p));
     setSelected(new Set());
     setBulkProcessing(false);
-    showToast(`Unpublished: ${unpublished}`);
+    showToast(`Unpublished: ${unpublished}${failed > 0 ? ` • Failed: ${failed}` : ""}`);
   };
 
   const bulkDelete = async () => {
@@ -202,15 +206,17 @@ function ProductsContent() {
 
     setBulkProcessing(true);
     let deleted = 0;
+    let failed = 0;
     for (const id of ids) {
       try {
         const res = await apiFetch(`/api/v1/admin/products/${id}`, { method: "DELETE" });
         if (res.ok) deleted++;
-      } catch {}
+        else failed++;
+      } catch { failed++; }
     }
     setSelected(new Set());
     setBulkProcessing(false);
-    showToast(`Deleted: ${deleted}`);
+    showToast(`Deleted: ${deleted}${failed > 0 ? ` • Failed: ${failed}` : ""}`);
     fetchProducts();
   };
 

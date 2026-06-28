@@ -14,14 +14,11 @@ server/dist/
 # logs
 *.log
 debug-*.log
-debug-*.log.claude/
 # vscode
 .vscode/
 # OS files
 .DS_Store
 Thumbs.db
-# database
-*.sql
 # temp
 tmp/
 temp/
@@ -40,6 +37,10 @@ graphify-out/
 claude-docs/
 # misc
 coverage/
+# audit reports (dev only)
+PERSISTENCE_AUDIT.md
+DATABASE_INTEGRITY_AUDIT.md
+PERFORMANCE_AUDIT.md
 
 # Sentry Config File
 .env.sentry-build-plugin

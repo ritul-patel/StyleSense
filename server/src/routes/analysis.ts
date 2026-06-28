@@ -378,14 +378,16 @@ router.post("/upload", authMiddleware, upload.single("image"), async (req: Authe
     }
 
     let analysisId: string | null = null;
+    let saveWarning: string | undefined;
     try {
       analysisId = (await saveAnalysis(data, imageUrl, req.user?.id, reqId)) || null;
     } catch (error) {
-      console.error(`[analysis/upload][${reqId}] DB save failed`, error);
+      console.error(`[analysis/upload][${reqId}] DB save failed:`, describeError(error));
+      saveWarning = "Your analysis was completed but could not be saved to history. Results are shown below.";
     }
 
     console.log(`[analysis/upload][${reqId}] success in ${Date.now() - requestStartedAt}ms | saved=${Boolean(analysisId)} | imageUploaded=${Boolean(imageUrl)}`);
-    return res.json({ success: true, analysisId, data, requestId: reqId });
+    return res.json({ success: true, analysisId, data, requestId: reqId, ...(saveWarning ? { warning: saveWarning } : {}) });
   } catch (error) {
     console.error(`[analysis/upload][${reqId}] fatal: ${describeError(error)}`);
     const appError = error instanceof AppError ? error : new AppError("Analysis failed. Please try again.", 500);

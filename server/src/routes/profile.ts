@@ -79,10 +79,22 @@ router.patch("/", async (req: AuthenticatedRequest, res: Response) => {
     }
 
     vals.push(userId);
-    await db.query(
-      `UPDATE profiles SET ${sets.join(", ")} WHERE id = $${idx}`,
+    const result = await db.query(
+      `UPDATE profiles SET ${sets.join(", ")} WHERE id = $${idx} RETURNING id`,
       vals
     );
+
+    if (result.rows.length === 0) {
+      // Profile row doesn't exist — create it first, then update
+      await db.query(
+        `INSERT INTO profiles (id) VALUES ($1) ON CONFLICT (id) DO NOTHING`,
+        [userId]
+      );
+      await db.query(
+        `UPDATE profiles SET ${sets.join(", ")} WHERE id = $${idx}`,
+        vals
+      );
+    }
 
     return res.json({ success: true });
   } catch (err: any) {
@@ -93,25 +105,32 @@ router.patch("/", async (req: AuthenticatedRequest, res: Response) => {
 
 // POST /api/v1/profile/delete — soft delete account
 router.post("/delete", async (req: AuthenticatedRequest, res: Response) => {
+  const client = await db.connect();
   try {
     const userId = req.user!.id;
 
+    await client.query("BEGIN");
+
     // Soft delete: mark profile as deleted
-    await db.query(
+    await client.query(
       `UPDATE profiles SET is_deleted = true, deleted_at = now() WHERE id = $1`,
       [userId]
     );
 
-    // Delete wardrobe data
-    await db.query(`DELETE FROM wardrobe_items WHERE user_id = $1`, [userId]);
-    await db.query(`DELETE FROM closet_items WHERE user_id = $1`, [userId]);
-    await db.query(`DELETE FROM outfit_builds WHERE user_id = $1`, [userId]);
-    await db.query(`DELETE FROM wardrobe_collections WHERE user_id = $1`, [userId]);
+    // Delete wardrobe data (all within the same transaction)
+    await client.query(`DELETE FROM wardrobe_items WHERE user_id = $1`, [userId]);
+    await client.query(`DELETE FROM closet_items WHERE user_id = $1`, [userId]);
+    await client.query(`DELETE FROM outfit_builds WHERE user_id = $1`, [userId]);
+    await client.query(`DELETE FROM wardrobe_collections WHERE user_id = $1`, [userId]);
 
+    await client.query("COMMIT");
     return res.json({ success: true });
   } catch (err: any) {
+    await client.query("ROLLBACK").catch(() => {});
     console.error("[profile] DELETE error:", err.message);
     return res.status(500).json({ success: false, message: "Failed to delete account." });
+  } finally {
+    client.release();
   }
 });
 

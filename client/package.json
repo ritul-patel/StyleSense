@@ -9,10 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@opentelemetry/api-logs": "^0.219.0",
-    "@opentelemetry/exporter-logs-otlp-http": "^0.219.0",
-    "@opentelemetry/resources": "^2.8.0",
-    "@opentelemetry/sdk-logs": "^0.219.0",
     "@sentry/nextjs": "^10.60.0",
     "@supabase/supabase-js": "^2.102.1",
     "@vercel/analytics": "^2.0.1",

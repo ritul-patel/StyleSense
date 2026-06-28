@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import RequireAdmin from "../components/RequireAdmin";
 import AdminLayout from "../components/AdminLayout";
 
 type FeedbackItem = {
@@ -36,6 +37,10 @@ const TYPE_ICONS: Record<string, string> = {
 };
 
 export default function AdminFeedbackPage() {
+  return (<RequireAdmin><FeedbackContent /></RequireAdmin>);
+}
+
+function FeedbackContent() {
   const [items, setItems] = useState<FeedbackItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);

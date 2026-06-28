@@ -401,9 +401,11 @@ router.get("/migration/status", async (req: AuthenticatedRequest, res: Response)
     const totalQ = await db.query("SELECT COUNT(*)::int as total FROM products WHERE image_url != '' AND image_url IS NOT NULL", []);
     const total = totalQ.rows[0]?.total || 0;
 
-    // Count products with storage paths (migrated)
-    let migrated = 0;
-    let pending = 0;
+    // Count products still pointing to external URLs (not yet migrated)
+    const pendingQ = await db.query("SELECT COUNT(*)::int as count FROM products WHERE image_url != '' AND image_url IS NOT NULL AND image_url LIKE 'http%' AND image_url NOT LIKE '%supabase.co/storage%'", []);
+    const externalPending = pendingQ.rows[0]?.count || 0;
+
+    // Check product_images for failed/processing counts
     let failed = 0;
     let processing = 0;
 
@@ -411,28 +413,26 @@ router.get("/migration/status", async (req: AuthenticatedRequest, res: Response)
       const statusQ = await db.query(`
         SELECT processing_status, COUNT(*)::int as count
         FROM product_images
+        WHERE processing_status IN ('failed', 'processing')
         GROUP BY processing_status
       `, []);
       for (const row of statusQ.rows) {
-        if (row.processing_status === "completed") migrated = row.count;
-        else if (row.processing_status === "pending") pending = row.count;
-        else if (row.processing_status === "failed") failed = row.count;
+        if (row.processing_status === "failed") failed = row.count;
         else if (row.processing_status === "processing") processing = row.count;
       }
     } catch {
-      // Table doesn't exist yet — all products are "pending"
-      pending = total;
+      // Table doesn't exist yet — ignore
     }
 
     return res.json({
       success: true,
       data: {
         total_products_with_images: total,
-        migrated,
-        pending: Math.max(0, total - migrated - failed - processing),
+        migrated: total - externalPending,
+        pending: externalPending,
         processing,
         failed,
-        percent: total > 0 ? Math.round((migrated / total) * 100) : 0,
+        percent: total > 0 ? Math.round(((total - externalPending) / total) * 100) : 0,
       },
     });
   } catch (err: any) {
@@ -444,11 +444,14 @@ router.get("/migration/status", async (req: AuthenticatedRequest, res: Response)
 // POST /api/v1/admin/images/migration/start — begin migrating all unmigrated products
 router.post("/migration/start", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    // Find all products with external image URLs that haven't been processed
+    // Find all products with EXTERNAL image URLs that haven't been migrated.
+    // Exclude products already pointing to Supabase Storage.
     const productsQ = await db.query(`
       SELECT id, slug, category, image_url
       FROM products
-      WHERE image_url != '' AND image_url IS NOT NULL AND image_url LIKE 'http%'
+      WHERE image_url != '' AND image_url IS NOT NULL
+        AND image_url LIKE 'http%'
+        AND image_url NOT LIKE '%supabase.co/storage%'
       ORDER BY created_at ASC
       LIMIT 100
     `, []);
@@ -525,6 +528,77 @@ router.post("/migration/start", async (req: AuthenticatedRequest, res: Response)
   } catch (err: any) {
     console.error("[admin/images] migration start error:", err.message);
     return res.status(500).json({ success: false, message: "Migration failed." });
+  }
+});
+
+// POST /api/v1/admin/images/import-outfits — import outfit images from URL array
+// Returns the new Storage URLs to update the static outfits.ts file
+router.post("/import-outfits", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { outfits } = req.body;
+
+    if (!Array.isArray(outfits) || outfits.length === 0) {
+      return res.status(400).json({ success: false, message: "outfits array is required. Each item needs: { outfit_id, imageUrl }" });
+    }
+
+    const results: Array<{
+      outfit_id: string;
+      status: "completed" | "failed";
+      original_url: string;
+      storage_url?: string;
+      storage_path?: string;
+      error?: string;
+    }> = [];
+
+    for (const outfit of outfits) {
+      const { outfit_id, imageUrl } = outfit;
+      if (!outfit_id || !imageUrl) {
+        results.push({ outfit_id: outfit_id || "unknown", status: "failed", original_url: imageUrl || "", error: "Missing outfit_id or imageUrl" });
+        continue;
+      }
+
+      try {
+        const result = await importImage({
+          sourceUrl: imageUrl,
+          category: "outfits",
+          slug: outfit_id.toLowerCase(),
+        });
+
+        if (result.success) {
+          const publicUrl = resolvePublicUrl(result.storagePath!);
+          results.push({
+            outfit_id,
+            status: "completed",
+            original_url: imageUrl,
+            storage_url: publicUrl,
+            storage_path: result.storagePath,
+          });
+        } else {
+          results.push({ outfit_id, status: "failed", original_url: imageUrl, error: result.error });
+        }
+      } catch (err: any) {
+        results.push({ outfit_id, status: "failed", original_url: imageUrl, error: err.message });
+      }
+
+      // Throttle
+      await new Promise((r) => setTimeout(r, 500));
+    }
+
+    const completed = results.filter((r) => r.status === "completed").length;
+    const failed = results.filter((r) => r.status === "failed").length;
+
+    return res.json({
+      success: true,
+      data: {
+        total: outfits.length,
+        completed,
+        failed,
+        results,
+      },
+    });
+  } catch (err: any) {
+    console.error("[admin/images] import-outfits error:", err.message);
+    return res.status(500).json({ success: false, message: "Outfit import failed." });
   }
 });
 

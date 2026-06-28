@@ -32,6 +32,7 @@ router.get("/", async (req: Request, res: Response) => {
     const cached = getCached(cacheKey);
     if (cached) {
       console.log(`[products] cache hit (${cacheKey})`);
+      res.setHeader("Cache-Control", "public, max-age=60, s-maxage=30, stale-while-revalidate=120");
       return res.json(cached);
     }
 
@@ -60,6 +61,8 @@ router.get("/", async (req: Request, res: Response) => {
     // Cache the result
     _cache.set(cacheKey, { data: q.rows, timestamp: Date.now() });
 
+    // Browser can cache for 60s, CDN for 30s (revalidate after)
+    res.setHeader("Cache-Control", "public, max-age=60, s-maxage=30, stale-while-revalidate=120");
     return res.json(q.rows);
   } catch (err: any) {
     console.error("[products] GET / error:", err.message);

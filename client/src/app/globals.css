@@ -56,9 +56,9 @@
   --color-outline: #747686;
   --color-outline-variant: #c4c5d7;
 
-  --font-headline: "Manrope", sans-serif;
-  --font-body: "Inter", sans-serif;
-  --font-label: "Space Grotesk", sans-serif;
+  --font-headline: var(--font-manrope), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+  --font-label: var(--font-space-grotesk), sans-serif;
 }
 
 @layer base {
@@ -114,6 +114,13 @@
 
   .material-symbols-outlined {
     font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    /* Reserve space before font loads — prevents CLS */
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    line-height: 1;
+    vertical-align: middle;
+    overflow: hidden;
   }
 }
 

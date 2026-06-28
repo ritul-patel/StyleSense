@@ -1,29 +1,26 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Navbar from "@/app/components/Navbar";
+import AuthGateModal from "@/app/components/AuthGateModal";
+import { useAuth } from "@/lib/auth-context";
 import posthog from "posthog-js";
-import RequireAuth from "../components/RequireAuth";
+
 const PENDING_IMAGE_KEY = "pending_image";
-const MAX_DIMENSION = 1200; // Max px on longest side for sessionStorage
+const PENDING_INTENT_KEY = "analysis_pending_intent";
+const MAX_DIMENSION = 1200;
 const JPEG_QUALITY = 0.85;
-const MAX_FILE_SIZE_MB = 25; // Reject files over 25MB before any processing
+const MAX_FILE_SIZE_MB = 25;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 type ErrorState = { kind: "no_face" | "too_large" | "generic"; message: string } | null;
 
-/**
- * Compress an image data URL to fit within sessionStorage quota.
- * Resizes to MAX_DIMENSION on the longest side and encodes as JPEG.
- */
 function compressImageDataUrl(dataUrl: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       let { width, height } = img;
-      // Scale down if needed
       if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
         if (width > height) {
           height = Math.round(height * (MAX_DIMENSION / width));
@@ -39,8 +36,7 @@ function compressImageDataUrl(dataUrl: string): Promise<string> {
       const ctx = canvas.getContext("2d");
       if (!ctx) { reject(new Error("Canvas context unavailable")); return; }
       ctx.drawImage(img, 0, 0, width, height);
-      const compressed = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
-      resolve(compressed);
+      resolve(canvas.toDataURL("image/jpeg", JPEG_QUALITY));
     };
     img.onerror = () => reject(new Error("Failed to load image for compression"));
     img.src = dataUrl;
@@ -58,7 +54,9 @@ const NO_FACE_TIPS = [
 
 export default function AnalysisPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const autoContinueRef = useRef(false);
 
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -66,25 +64,54 @@ export default function AnalysisPage() {
   const [submitting, setSubmitting] = useState(false);
   const [compressing, setCompressing] = useState(false);
   const [uploadError, setUploadError] = useState<ErrorState>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // Read face-gate error from sessionStorage (set by /loading on 422)
-  useState(() => {
+  // Read face-gate error from sessionStorage
+  useEffect(() => {
     if (typeof window === "undefined") return;
     const raw = sessionStorage.getItem("analysis_error");
     if (raw) {
       try { setUploadError(JSON.parse(raw)); } catch { /* ignore */ }
       sessionStorage.removeItem("analysis_error");
     }
-  });
+  }, []);
+
+  // Restore pending image after OAuth redirect
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const pendingIntent = sessionStorage.getItem(PENDING_INTENT_KEY);
+    const pendingImage = sessionStorage.getItem(PENDING_IMAGE_KEY);
+
+    if (pendingIntent && pendingImage && !preview) {
+      // Restore the preview from the pending image
+      setPreview(pendingImage);
+      setFile(new File([], "restored-photo.jpg")); // Placeholder file object for UI state
+    }
+  }, []);
+
+  // Auto-continue analysis when user authenticates with pending intent
+  useEffect(() => {
+    if (authLoading || !user || autoContinueRef.current) return;
+
+    const pendingIntent = sessionStorage.getItem(PENDING_INTENT_KEY);
+    const pendingImage = sessionStorage.getItem(PENDING_IMAGE_KEY);
+
+    if (pendingIntent && pendingImage) {
+      autoContinueRef.current = true;
+      sessionStorage.removeItem(PENDING_INTENT_KEY);
+      // Close modal if open
+      setShowAuthModal(false);
+      // Auto-navigate to loading page (image is already in sessionStorage)
+      posthog.capture("analysis_started", { source: "auto_continue_after_auth" });
+      router.push("/loading");
+    }
+  }, [user, authLoading, router]);
 
   function handleFileSelect(selected: File) {
-    // Validate file size before processing
     if (selected.size > MAX_FILE_SIZE_BYTES) {
       setUploadError({ kind: "too_large", message: `Image is ${Math.round(selected.size / 1024 / 1024)}MB — please use a photo under ${MAX_FILE_SIZE_MB}MB.` });
       return;
     }
-
-    // Validate file type
     if (!selected.type.startsWith("image/")) {
       setUploadError({ kind: "generic", message: "Please select an image file (JPEG, PNG, or WebP)." });
       return;
@@ -98,11 +125,9 @@ export default function AnalysisPage() {
     reader.onload = async (e) => {
       const rawDataUrl = e.target?.result as string;
       try {
-        // Pre-compress for preview and storage
         const compressed = await compressImageDataUrl(rawDataUrl);
         setPreview(compressed);
       } catch {
-        // Fallback to raw if compression fails (small images)
         setPreview(rawDataUrl);
       } finally {
         setCompressing(false);
@@ -134,16 +159,36 @@ export default function AnalysisPage() {
   const resetUpload = () => {
     setFile(null);
     setPreview(null);
+    sessionStorage.removeItem(PENDING_IMAGE_KEY);
+    sessionStorage.removeItem(PENDING_INTENT_KEY);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Store pre-compressed image in sessionStorage, then navigate to /loading
   const handleAnalyze = async () => {
     if (!preview || submitting) return;
+
+    // If user is NOT authenticated, show auth gate modal
+    if (!user) {
+      // Save image + intent to sessionStorage (survives OAuth redirect)
+      try {
+        sessionStorage.setItem(PENDING_IMAGE_KEY, preview);
+        sessionStorage.setItem(PENDING_INTENT_KEY, "true");
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "QuotaExceededError") {
+          setUploadError({ kind: "too_large", message: "Image is too large to store. Please use a smaller photo." });
+          return;
+        }
+      }
+      setShowAuthModal(true);
+      return;
+    }
+
+    // User IS authenticated — proceed normally
     setSubmitting(true);
     try {
       posthog.capture("analysis_started");
       sessionStorage.setItem(PENDING_IMAGE_KEY, preview);
+      sessionStorage.removeItem(PENDING_INTENT_KEY);
       router.push("/loading");
     } catch (err) {
       setSubmitting(false);
@@ -157,30 +202,25 @@ export default function AnalysisPage() {
   const hasFile = !!file;
 
   return (
-    <RequireAuth>
+    <>
+      <AuthGateModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
+
       <div
         className="bg-[#fcf9f8] text-[#1b1c1b] min-h-screen flex flex-col items-center antialiased"
         style={{ fontFamily: "Inter, sans-serif" }}
       >
-        {/* Background blobs */}
         <div className="fixed top-[-10%] right-[-5%] w-[40vw] h-[40vw] rounded-full bg-[#dde1ff]/20 blur-[120px] -z-10 pointer-events-none" />
         <div className="fixed bottom-[-10%] left-[-5%] w-[30vw] h-[30vw] rounded-full bg-[#fedbca]/20 blur-[100px] -z-10 pointer-events-none" />
 
-        {/* Header */}
         <Navbar activePath="analysis" />
 
-        {/* Main */}
         <main className="flex-grow flex items-center justify-center pt-24 md:pt-32 pb-28 md:pb-20 px-4 sm:px-6 w-full max-w-[1440px]">
           <div className="w-full flex flex-col items-center">
-            {/* Header text */}
             <div className="text-center mb-6 md:mb-10">
               <span className="inline-block text-[10px] md:text-xs font-bold tracking-[0.2em] text-[#5a6060] uppercase mb-2 md:mb-3">
                 AI ANALYSIS
               </span>
-              <h1
-                className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tighter text-[#1b1c1b] mb-3 md:mb-4"
-                style={{ fontFamily: "Manrope, sans-serif" }}
-              >
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tighter text-[#1b1c1b] mb-3 md:mb-4" style={{ fontFamily: "Manrope, sans-serif" }}>
                 Start Your Analysis
               </h1>
               <p className="text-base md:text-lg text-[#5a6060] max-w-md mx-auto leading-relaxed">
@@ -188,7 +228,7 @@ export default function AnalysisPage() {
               </p>
             </div>
 
-            {/* Error banner — face gate, size limit, or generic */}
+            {/* Error banner */}
             {uploadError && (
               <div
                 role="alert"
@@ -206,10 +246,7 @@ export default function AnalysisPage() {
                     {uploadError.kind === "no_face" ? "face_retouching_off" : uploadError.kind === "too_large" ? "photo_size_select_large" : "error"}
                   </span>
                   <div className="flex-1">
-                    <p
-                      className="text-xs font-bold uppercase tracking-widest mb-1"
-                      style={{ color: uploadError.kind === "no_face" ? "#9a3412" : uploadError.kind === "too_large" ? "#854d0e" : "#991b1b", fontFamily: "Space Grotesk, sans-serif", letterSpacing: "0.12em" }}
-                    >
+                    <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: uploadError.kind === "no_face" ? "#9a3412" : uploadError.kind === "too_large" ? "#854d0e" : "#991b1b" }}>
                       {uploadError.kind === "no_face" ? "We couldn't find a face" : uploadError.kind === "too_large" ? "Image too large" : "Analysis failed"}
                     </p>
                     <p className="text-sm leading-snug text-[#1b1c1b]">
@@ -218,16 +255,10 @@ export default function AnalysisPage() {
                         : uploadError.message}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setUploadError(null)}
-                    className="text-stone-400 hover:text-[#1b1c1b] transition-colors flex-shrink-0"
-                  >
+                  <button type="button" onClick={() => setUploadError(null)} className="text-stone-400 hover:text-[#1b1c1b] transition-colors flex-shrink-0">
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
                   </button>
                 </div>
-
-                {/* Tips for no_face error */}
                 {uploadError.kind === "no_face" && (
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 pl-9">
                     {NO_FACE_TIPS.map((tip) => (
@@ -242,17 +273,10 @@ export default function AnalysisPage() {
             )}
 
             {/* Upload card */}
-            <div
-              className="w-full max-w-[680px] bg-white rounded-2xl p-4 sm:p-6 mb-6 md:mb-8"
-              style={{ boxShadow: "0px 12px 32px rgba(27,28,27,0.04)" }}
-            >
-              {/* Drop zone */}
+            <div className="w-full max-w-[680px] bg-white rounded-2xl p-4 sm:p-6 mb-6 md:mb-8" style={{ boxShadow: "0px 12px 32px rgba(27,28,27,0.04)" }}>
               <div
                 className="group relative flex flex-col items-center justify-center w-full min-h-[260px] sm:min-h-[340px] border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300"
-                style={{
-                  borderColor: dragActive ? "#003ec7" : "#c4c5d7",
-                  backgroundColor: dragActive ? "#f0f7ff" : "#fafafa",
-                }}
+                style={{ borderColor: dragActive ? "#003ec7" : "#c4c5d7", backgroundColor: dragActive ? "#f0f7ff" : "#fafafa" }}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
@@ -261,18 +285,10 @@ export default function AnalysisPage() {
                 role="button"
                 aria-label="Upload image area. Click or drag and drop a portrait photo."
                 tabIndex={0}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); !hasFile && fileInputRef.current?.click(); }}}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); !hasFile && fileInputRef.current?.click(); } }}
               >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                  aria-label="Select image file"
-                />
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} aria-label="Select image file" />
 
-                {/* Empty state */}
                 {!hasFile && (
                   <div className="flex flex-col items-center text-center p-12 transition-all duration-300">
                     <div className="w-14 h-14 rounded-full bg-[#dde1ff] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -287,15 +303,10 @@ export default function AnalysisPage() {
                   </div>
                 )}
 
-                {/* Uploaded state */}
                 {hasFile && preview && (
                   <div className="flex flex-col items-center justify-center w-full h-full p-4 transition-all duration-300">
                     <div className="relative">
-                      <img
-                        src={preview}
-                        alt="Preview"
-                        className="max-h-[280px] w-auto rounded-lg shadow-md object-cover"
-                      />
+                      <img src={preview} alt="Preview" className="max-h-[280px] w-auto rounded-lg shadow-md object-cover" />
                       <button
                         type="button"
                         className="absolute -top-3 -right-3 w-8 h-8 bg-white text-[#1b1c1b] rounded-full shadow-lg flex items-center justify-center hover:bg-red-50 hover:text-red-600 transition-colors z-30"
@@ -312,24 +323,17 @@ export default function AnalysisPage() {
                       </p>
                     ) : (
                       <p className="mt-2 text-green-600 font-medium text-sm flex items-center justify-center gap-1">
-                        Looks good{" "}
-                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
+                        Looks good <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
                       </p>
                     )}
                   </div>
                 )}
               </div>
 
-              {/* Tips */}
               <div className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-3">
                 {["Face clearly visible", "Good lighting", "No heavy filters"].map((tip) => (
                   <div key={tip} className="flex items-center gap-2">
-                    <span
-                      className="material-symbols-outlined text-[#002b92] text-lg"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      check_circle
-                    </span>
+                    <span className="material-symbols-outlined text-[#002b92] text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                     <p className="text-sm text-[#5a6060] font-medium">{tip}</p>
                   </div>
                 ))}
@@ -345,38 +349,20 @@ export default function AnalysisPage() {
                 className="w-full md:w-auto min-w-[240px] px-12 py-4 rounded-full font-bold text-lg flex items-center justify-center gap-2 transition-all duration-200"
                 style={
                   hasFile && !submitting && !compressing
-                    ? {
-                      background: "linear-gradient(135deg, #002b92 0%, #003ec7 100%)",
-                      color: "white",
-                      boxShadow: "0 10px 25px rgba(0,43,146,0.25)",
-                      cursor: "pointer",
-                      fontFamily: "Manrope, sans-serif",
-                    }
-                    : {
-                      background: "#e5e7eb",
-                      color: "rgba(255,255,255,0.7)",
-                      cursor: "not-allowed",
-                      opacity: 0.5,
-                      fontFamily: "Manrope, sans-serif",
-                    }
+                    ? { background: "linear-gradient(135deg, #002b92 0%, #003ec7 100%)", color: "white", boxShadow: "0 10px 25px rgba(0,43,146,0.25)", cursor: "pointer", fontFamily: "Manrope, sans-serif" }
+                    : { background: "#e5e7eb", color: "rgba(255,255,255,0.7)", cursor: "not-allowed", opacity: 0.5, fontFamily: "Manrope, sans-serif" }
                 }
               >
                 <span>{submitting ? "Starting..." : "Analyze Now"}</span>
                 {submitting ? (
-                  <span className="material-symbols-outlined" style={{ animation: "spin 1s linear infinite" }}>
-                    progress_activity
-                  </span>
+                  <span className="material-symbols-outlined" style={{ animation: "spin 1s linear infinite" }}>progress_activity</span>
                 ) : (
                   <span className="material-symbols-outlined">arrow_forward</span>
                 )}
               </button>
 
               {hasFile && !submitting && (
-                <button
-                  type="button"
-                  onClick={resetUpload}
-                  className="text-[#5a6060] hover:text-[#002b92] transition-all font-semibold flex items-center gap-2 py-2"
-                >
+                <button type="button" onClick={resetUpload} className="text-[#5a6060] hover:text-[#002b92] transition-all font-semibold flex items-center gap-2 py-2">
                   Choose another photo
                 </button>
               )}
@@ -384,16 +370,13 @@ export default function AnalysisPage() {
           </div>
         </main>
 
-        {/* Mobile bottom nav */}
-        
-
         <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
-    </RequireAuth>
+    </>
   );
 }

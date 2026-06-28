@@ -17,6 +17,7 @@ import adminMetadataRouter from './routes/adminMetadata';
 import adminRouter from './routes/admin';
 import recommendationsRouter from './routes/recommendations';
 import feedbackRouter from './routes/feedback';
+import savedOutfitsRouter from './routes/savedOutfits';
 import { logger } from './middleware/logger';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -81,6 +82,7 @@ app.use("/api/v1/admin/metadata", adminMetadataRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/recommendations", recommendationsRouter);
 app.use("/api/v1/feedback", feedbackRouter);
+app.use("/api/v1/saved-outfits", savedOutfitsRouter);
 
 // Sentry error handler — must be before custom errorHandler
 if (isSentryEnabled) {

@@ -89,10 +89,10 @@ router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
 // DELETE /api/v1/wardrobe/:id — remove by product_id (more practical for frontend)
 router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    // Support deletion by product_id or by row id
+    // Support deletion by product_id or by row id (both are UUIDs)
     const identifier = req.params.id;
     const q = await db.query(
-      "DELETE FROM wardrobe_items WHERE (id::text = $1 OR product_id = $1) AND user_id = $2 RETURNING id",
+      "DELETE FROM wardrobe_items WHERE (id = $1::uuid OR product_id = $1::uuid) AND user_id = $2 RETURNING id",
       [identifier, req.user!.id]
     );
     if (q.rows.length === 0) {

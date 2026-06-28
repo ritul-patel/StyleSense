@@ -2,9 +2,16 @@
 
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { MessageSquare, X, CheckCircle2, Bug, Lightbulb, MessageCircle, Star } from "lucide-react";
 import posthog from "posthog-js";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
+
+const FEEDBACK_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  bug_report: Bug,
+  lightbulb: Lightbulb,
+  chat: MessageCircle,
+};
 
 const FEEDBACK_TYPES = [
   { value: "bug", label: "Bug", icon: "bug_report" },
@@ -95,7 +102,7 @@ export default function FeedbackWidget() {
         aria-label="Send feedback"
         className="feedback-fab fixed z-[90] shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center bg-[#002b92] text-white bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] right-4 w-11 h-11 rounded-full md:bottom-6 md:right-6 md:w-auto md:h-auto md:px-4 md:py-2.5 md:rounded-xl md:gap-2"
       >
-        <span className="material-symbols-outlined text-[20px] leading-none">feedback</span>
+        <MessageSquare size={20} />
         <span className="hidden md:inline text-sm font-semibold">Feedback</span>
       </button>
 
@@ -129,14 +136,14 @@ export default function FeedbackWidget() {
               aria-label="Close feedback"
               className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-lg text-[#747686] hover:text-[#1b1c1b] hover:bg-[#f6f3f2] dark:hover:text-white dark:hover:bg-[#333] transition-colors"
             >
-              <span className="material-symbols-outlined text-[20px] leading-none">close</span>
+              <X size={20} />
             </button>
 
             {submitted ? (
               /* Success state */
               <div className="flex flex-col items-center py-6 sm:py-8 text-center">
                 <div className="w-14 h-14 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined text-green-600 text-[28px] leading-none">check_circle</span>
+                  <CheckCircle2 size={28} className="text-green-600" />
                 </div>
                 <h3 id="feedback-title" className="text-xl font-bold mb-2 font-[family-name:var(--font-headline)]">Thank you!</h3>
                 <p className="text-sm text-[#747686] mb-6">Your feedback helps us improve StyleSense.</p>
@@ -167,7 +174,7 @@ export default function FeedbackWidget() {
                           : "border-[#e4e2e1] dark:border-[#333] text-[#747686] hover:border-[#002b92]/30"
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[20px] leading-none shrink-0">{ft.icon}</span>
+                      {(() => { const Ic = FEEDBACK_ICONS[ft.icon]; return Ic ? <Ic size={20} /> : null; })()}
                       <span className="text-[10px] font-bold uppercase tracking-wider leading-tight text-center">{ft.label}</span>
                     </button>
                   ))}
@@ -184,15 +191,13 @@ export default function FeedbackWidget() {
                         aria-label={`${star} star${star > 1 ? "s" : ""}`}
                         className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-[#f6f3f2] dark:hover:bg-[#2a2a2a] transition-colors"
                       >
-                        <span
-                          className="material-symbols-outlined text-[22px] leading-none transition-colors"
-                          style={{
-                            fontVariationSettings: star <= rating ? "'FILL' 1" : "'FILL' 0",
-                            color: star <= rating ? "#f59e0b" : "#c4c5d7",
-                          }}
-                        >
-                          star
-                        </span>
+                        <Star
+                        size={22}
+                        className="transition-colors"
+                        fill={star <= rating ? "#f59e0b" : "none"}
+                        color={star <= rating ? "#f59e0b" : "#c4c5d7"}
+                        strokeWidth={star <= rating ? 0 : 1.5}
+                      />
                       </button>
                     ))}
                   </div>

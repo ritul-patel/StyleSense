@@ -107,7 +107,7 @@ export default function ResetPasswordPage() {
   // Success state
   if (success) {
     return (
-      <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-10">
+      <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-10 overflow-y-auto" data-lenis-prevent>
         <div className="fixed top-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-primary-fixed/20 blur-[120px] pointer-events-none" />
         <div className="fixed bottom-[-20%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-tertiary-fixed/10 blur-[100px] pointer-events-none" />
 
@@ -147,7 +147,7 @@ export default function ResetPasswordPage() {
   // Session error state (expired/invalid link)
   if (sessionError) {
     return (
-      <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-10">
+      <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-10 overflow-y-auto" data-lenis-prevent>
         <div className="fixed top-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-primary-fixed/20 blur-[120px] pointer-events-none" />
         <div className="fixed bottom-[-20%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-tertiary-fixed/10 blur-[100px] pointer-events-none" />
 
@@ -187,7 +187,7 @@ export default function ResetPasswordPage() {
   // Loading state (waiting for session)
   if (!sessionReady) {
     return (
-      <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-10">
+      <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-10 overflow-y-auto" data-lenis-prevent>
         <div className="fixed top-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-primary-fixed/20 blur-[120px] pointer-events-none" />
         <div className="fixed bottom-[-20%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-tertiary-fixed/10 blur-[100px] pointer-events-none" />
 
@@ -212,7 +212,7 @@ export default function ResetPasswordPage() {
 
   // Main form state
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-10 overflow-y-auto" data-lenis-prevent>
       <div className="fixed top-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-primary-fixed/20 blur-[120px] pointer-events-none" />
       <div className="fixed bottom-[-20%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-tertiary-fixed/10 blur-[100px] pointer-events-none" />
 

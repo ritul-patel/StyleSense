@@ -235,10 +235,17 @@ export class StubMetadataProvider implements MetadataProvider {
 // ─── Factory ──────────────────────────────────────────────────────────────────
 
 export function getMetadataProvider(): MetadataProvider {
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      const { GeminiMetadataProvider } = require("./geminiMetadataService");
+      return new GeminiMetadataProvider();
+    } catch (err: any) {
+      console.error("[metadata] Failed to load GeminiMetadataProvider:", err.message);
+      // Fall through to next provider
+    }
+  }
   if (process.env.ANTHROPIC_API_KEY) return new ClaudeMetadataProvider();
-  // Future:
-  // if (process.env.GEMINI_API_KEY) return new GeminiMetadataProvider();
-  // if (process.env.OPENAI_API_KEY) return new OpenAIMetadataProvider();
+  console.warn("[metadata] No AI provider configured (no GEMINI_API_KEY or ANTHROPIC_API_KEY). Using StubProvider.");
   return new StubMetadataProvider();
 }
 
@@ -249,8 +256,33 @@ export async function generateProductMetadata(product: ProductInput): Promise<Me
   const prompt = buildPrompt(product);
   const start = Date.now();
 
+  // Reject StubProvider — don't pretend to generate metadata
+  if (provider.name === "stub") {
+    return {
+      success: false,
+      metadata: null,
+      provider: "stub",
+      duration_ms: 0,
+      error: "No AI provider configured. Set GEMINI_API_KEY in server/.env",
+    };
+  }
+
   try {
     const metadata = await provider.generate(product, prompt);
+
+    // Reject empty/useless metadata
+    if (!metadata.primary_color && !metadata.description && metadata.confidence === 0) {
+      console.warn(`[metadata] Rejecting empty metadata from provider "${provider.name}" for "${product.name}"`);
+      console.warn(`[metadata] Values: primary_color="${metadata.primary_color}" description="${metadata.description?.slice(0, 50)}" confidence=${metadata.confidence}`);
+      return {
+        success: false,
+        metadata: null,
+        provider: provider.name,
+        duration_ms: Date.now() - start,
+        error: "Provider returned empty metadata",
+      };
+    }
+
     return {
       success: true,
       metadata,
@@ -258,7 +290,7 @@ export async function generateProductMetadata(product: ProductInput): Promise<Me
       duration_ms: Date.now() - start,
     };
   } catch (err: any) {
-    console.error(`[metadata] Provider "${provider.name}" failed:`, err.message);
+    console.error(`[metadata] Provider "${provider.name}" failed for "${product.name}":`, err.message);
     return {
       success: false,
       metadata: null,

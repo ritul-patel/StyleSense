@@ -66,18 +66,23 @@ function computeMatchScore(product: Product, bestColors: ColorEntry[]): number {
 function ProductGrid({ product, score, wishlisted, onToggle }: { product: Product; score?: number; wishlisted: boolean; onToggle: () => void }) {
   const [imgErr, setImgErr] = useState(false);
   if (!product.name) return null;
+  const destinationUrl = product.storeUrl || product.affiliateLink;
+  
+  const CardWrapper = destinationUrl ? "a" : "div";
+  const cardProps = destinationUrl ? { href: destinationUrl, target: "_blank", rel: "noopener noreferrer" } : {};
+
   return (
-    <div className="group bg-white dark:bg-[#1b1c1b] rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+    <CardWrapper {...cardProps} className="group bg-white dark:bg-[#1b1c1b] rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 block cursor-pointer">
       <div className="relative aspect-[3/4] bg-[#f6f3f2] dark:bg-[#0f0f14] overflow-hidden">
         {product.image && !imgErr ? (
-          <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width:768px) 50vw,(max-width:1200px) 33vw,25vw" onError={() => setImgErr(true)} unoptimized />
+          <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width:768px) 50vw,(max-width:1200px) 33vw,25vw" onError={() => setImgErr(true)} loading="lazy" />
         ) : (
           <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-stone-300" style={{ fontSize: 48 }}>checkroom</span></div>
         )}
         {score !== undefined && score > 0 && (
           <div className="absolute top-3 left-3"><span className="bg-[#002b92] text-white text-[9px] font-bold px-2.5 py-1 rounded-full">{score}% Match</span></div>
         )}
-        <button onClick={(e) => { e.preventDefault(); onToggle(); }} aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
+        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggle(); }} aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
           className="absolute top-2 right-2 w-10 h-10 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center shadow-sm hover:scale-110 active:scale-95 transition-transform">
           <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0", color: wishlisted ? "#e11d48" : "#6b7280" }}>favorite</span>
         </button>
@@ -87,10 +92,10 @@ function ProductGrid({ product, score, wishlisted, onToggle }: { product: Produc
         <h4 className="text-sm font-semibold line-clamp-2 leading-tight">{product.name}</h4>
         <div className="flex items-center justify-between pt-1">
           <span className="text-base font-bold">₹{product.price.toLocaleString("en-IN")}</span>
-          {product.storeUrl && <a href={product.storeUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold uppercase text-[#002b92] hover:underline">Buy →</a>}
+          {destinationUrl && <span className="text-[10px] font-bold uppercase text-[#002b92]">Buy →</span>}
         </div>
       </div>
-    </div>
+    </CardWrapper>
   );
 }
 
@@ -197,7 +202,7 @@ function OutfitBuilderPanel({ onSave }: { onSave: (outfit: Omit<OutfitBuild, "id
           <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
             {wishlistProducts.slice(0, 18).map((p) => (
               <button key={p.id} onClick={() => toggleProduct(p.id)} className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selected.has(p.id) ? "border-[#002b92] ring-2 ring-[#002b92]/30" : "border-transparent hover:border-[#c4c5d7]"}`}>
-                {p.image ? <Image src={p.image} alt={p.name} fill className="object-cover" unoptimized /> : <div className="w-full h-full bg-[#f0edec] flex items-center justify-center"><span className="material-symbols-outlined text-stone-400">checkroom</span></div>}
+                {p.image ? <Image src={p.image} alt={p.name} fill className="object-cover" /> : <div className="w-full h-full bg-[#f0edec] flex items-center justify-center"><span className="material-symbols-outlined text-stone-400">checkroom</span></div>}
                 {selected.has(p.id) && <div className="absolute inset-0 bg-[#002b92]/20 flex items-center justify-center"><span className="material-symbols-outlined text-white text-2xl">check_circle</span></div>}
               </button>
             ))}
@@ -448,7 +453,7 @@ function WardrobePageContent() {
                       <div className="flex gap-1 mt-2 overflow-hidden">
                         {o.productIds.slice(0, 4).map((pid) => {
                           const p = allProducts.find((x) => x.id === pid);
-                          return p?.image ? <div key={pid} className="w-10 h-10 rounded-lg overflow-hidden relative flex-shrink-0"><Image src={p.image} alt="" fill className="object-cover" unoptimized /></div> : null;
+                          return p?.image ? <div key={pid} className="w-10 h-10 rounded-lg overflow-hidden relative flex-shrink-0"><Image src={p.image} alt="" fill className="object-cover" /></div> : null;
                         })}
                       </div>
                     </div>
