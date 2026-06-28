@@ -214,10 +214,140 @@ function MigrationContent() {
                 <li>• Run multiple batches until all products are migrated</li>
               </ul>
             </div>
+
+            {/* Outfit Images */}
+            <OutfitMigration showToast={showToast} />
           </>
         )}
       </div>
     </AdminLayout>
+  );
+}
+
+// ─── Outfit Image Migration ─────────────────────────────────────────────────
+
+function OutfitMigration({ showToast }: { showToast: (msg: string) => void }) {
+  const [running, setRunning] = useState(false);
+  const [outfitResults, setOutfitResults] = useState<Array<{ outfit_id: string; status: string; storage_url?: string; error?: string }>>([]);
+
+  const importOutfitImages = async () => {
+    setRunning(true);
+    setOutfitResults([]);
+    try {
+      // Known outfit URLs from the static data file
+      const OUTFIT_URLS = [
+        { outfit_id: "O001", imageUrl: "https://i.pinimg.com/736x/7b/f7/5a/7bf75acdc1d1c58e5ac02fac72ca62ba.jpg" },
+        { outfit_id: "O002", imageUrl: "https://i.pinimg.com/1200x/dc/9b/2b/dc9b2bf3802ffb84bd73dbd46beb3862.jpg" },
+        { outfit_id: "O003", imageUrl: "https://i.pinimg.com/736x/ef/76/da/ef76daaf83ba3ec31e7d34c1d7930857.jpg" },
+        { outfit_id: "O004", imageUrl: "https://i.pinimg.com/1200x/b4/92/5b/b4925bfe2292fecc75944b63fa4f9fb3.jpg" },
+        { outfit_id: "O005", imageUrl: "https://i.pinimg.com/1200x/35/38/85/353885058ac47f5a8169adf9b5e06402.jpg" },
+        { outfit_id: "O006", imageUrl: "https://i.pinimg.com/1200x/6a/83/93/6a8393f4aa0e8e01c93308ec8f37bd5c.jpg" },
+        { outfit_id: "O007", imageUrl: "https://i.pinimg.com/736x/9d/32/14/9d3214d318c351a25e443dd413485215.jpg" },
+        { outfit_id: "O008", imageUrl: "https://i.pinimg.com/736x/31/c4/01/31c401af58ca337fa47c1b374dfef5eb.jpg" },
+        { outfit_id: "O009", imageUrl: "https://i.pinimg.com/1200x/da/af/37/daaf3788146f1cae3f56b73e687e6949.jpg" },
+        { outfit_id: "O010", imageUrl: "https://i.pinimg.com/736x/2b/9e/08/2b9e08c0389b5634382c698f64e6a51d.jpg" },
+        { outfit_id: "O011", imageUrl: "https://i.pinimg.com/736x/e9/de/55/e9de55c00985341065e5a1dc54cc2c93.jpg" },
+        { outfit_id: "O012", imageUrl: "https://i.pinimg.com/1200x/f6/ac/4e/f6ac4e8340b43c0c403fff51bd794fc0.jpg" },
+        { outfit_id: "O013", imageUrl: "https://i.pinimg.com/736x/19/b7/fc/19b7fc6669068f69c0b2a135a96c0842.jpg" },
+        { outfit_id: "O014", imageUrl: "https://i.pinimg.com/736x/c3/f8/80/c3f88064806496953268f77dc1a4ca83.jpg" },
+        { outfit_id: "O015", imageUrl: "https://i.pinimg.com/736x/3a/34/86/3a3486818b4d4d32688d0470883a638d.jpg" },
+        { outfit_id: "O016", imageUrl: "https://i.pinimg.com/736x/b1/86/21/b186210bf89323b132442c625ce097ba.jpg" },
+        { outfit_id: "O017", imageUrl: "https://i.pinimg.com/1200x/5c/29/87/5c29877e25b85e8a4300cba9cf514038.jpg" },
+        { outfit_id: "O018", imageUrl: "https://i.pinimg.com/736x/a4/be/0b/a4be0b5b6d97f6576cff979d11d059b5.jpg" },
+        { outfit_id: "O019", imageUrl: "https://i.pinimg.com/736x/ce/4d/4a/ce4d4a44feb9fbd8ea7ca67a4156b9f8.jpg" },
+        { outfit_id: "O020", imageUrl: "https://i.pinimg.com/736x/fc/9b/0d/fc9b0d2d1981716a7741c50b400db0e9.jpg" },
+        { outfit_id: "O021", imageUrl: "https://i.pinimg.com/1200x/e2/be/f3/e2bef3275e5fddee6ef0b7d13411718e.jpg" },
+        { outfit_id: "O022", imageUrl: "https://i.pinimg.com/1200x/11/30/d8/1130d8b84fab43b53138e08c199d6fe3.jpg" },
+        { outfit_id: "O023", imageUrl: "https://i.pinimg.com/1200x/b5/27/e3/b527e3129dc9014650816a766a655761.jpg" },
+        { outfit_id: "O024", imageUrl: "https://i.pinimg.com/736x/d1/b1/b6/d1b1b6cf26d798f6fdb400563749b197.jpg" },
+        { outfit_id: "O025", imageUrl: "https://i.pinimg.com/736x/8a/2f/72/8a2f72a0aa757997b55496df9f6472c3.jpg" },
+        { outfit_id: "O026", imageUrl: "https://i.pinimg.com/1200x/ab/db/30/abdb3076e7dd1a0a31ab0a04ef3c04ca.jpg" },
+        { outfit_id: "O027", imageUrl: "https://i.pinimg.com/736x/41/57/e8/4157e81791ac50bba198118b740d26b2.jpg" },
+        { outfit_id: "O028", imageUrl: "https://i.pinimg.com/736x/a0/b1/4d/a0b14d9bdd492b19da9c60e34c74a7cf.jpg" },
+        { outfit_id: "O029", imageUrl: "https://i.pinimg.com/1200x/b2/c7/60/b2c76014da9b0b9b61df114313cd012d.jpg" },
+        { outfit_id: "O030", imageUrl: "https://i.pinimg.com/736x/55/49/1d/55491d57362a0961a711c77de64e0d7d.jpg" },
+      ];
+
+      const res = await apiFetch("/api/v1/admin/images/import-outfits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ outfits: OUTFIT_URLS }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOutfitResults(data.data.results || []);
+        showToast(`Outfit import: ${data.data.completed} completed, ${data.data.failed} failed`);
+      } else {
+        showToast(data.message || "Outfit import failed");
+      }
+    } catch { showToast("Outfit import request failed"); }
+    finally { setRunning(false); }
+  };
+
+  return (
+    <div className="mt-6 bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-sm font-bold" style={{ fontFamily: "Manrope, sans-serif" }}>Outfit Cover Images</h3>
+          <p className="text-xs text-gray-500 mt-1">Import outfit cover photos from external URLs into Supabase Storage</p>
+        </div>
+        <button
+          onClick={importOutfitImages}
+          disabled={running}
+          className="px-5 py-2.5 rounded-xl text-white text-xs font-bold disabled:opacity-40 flex items-center gap-2"
+          style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}
+        >
+          <span className="material-symbols-outlined text-sm">{running ? "progress_activity" : "cloud_sync"}</span>
+          {running ? "Importing..." : "Import Outfits"}
+        </button>
+      </div>
+
+      {outfitResults.length > 0 && (
+        <div className="mt-3 space-y-3">
+          <div className="max-h-48 overflow-y-auto space-y-1.5">
+            {outfitResults.map((r, i) => (
+              <div key={i} className="flex items-center gap-2 text-xs">
+                <span className={`material-symbols-outlined text-sm ${r.status === "completed" ? "text-green-600" : "text-red-500"}`}>
+                  {r.status === "completed" ? "check_circle" : "error"}
+                </span>
+                <span className="font-mono text-gray-500">{r.outfit_id}</span>
+                {r.storage_url && <span className="text-green-600 truncate max-w-[200px]">→ Storage ✓</span>}
+                {r.error && <span className="text-red-400 truncate max-w-[200px]">{r.error}</span>}
+              </div>
+            ))}
+          </div>
+
+          {/* Copy-paste snippet */}
+          {outfitResults.some(r => r.storage_url) && (
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Updated outfits.ts URLs</span>
+                <button
+                  onClick={() => {
+                    const lines = outfitResults
+                      .filter(r => r.storage_url)
+                      .map(r => `    imageUrl: "${r.storage_url}",  // ${r.outfit_id}`)
+                      .join("\n");
+                    navigator.clipboard.writeText(lines);
+                    showToast("Copied to clipboard");
+                  }}
+                  className="text-[10px] font-bold text-[#002b92] hover:underline"
+                >
+                  Copy All URLs
+                </button>
+              </div>
+              <pre className="text-[9px] text-gray-600 max-h-32 overflow-y-auto whitespace-pre-wrap">
+                {outfitResults.filter(r => r.storage_url).map(r => `${r.outfit_id}: ${r.storage_url}`).join("\n")}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
+
+      <p className="text-[10px] text-gray-400 mt-3">
+        Note: After import, update <code>client/src/data/outfits.ts</code> with the returned Storage URLs.
+      </p>
+    </div>
   );
 }
 
