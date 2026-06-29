@@ -1,20 +1,28 @@
 "use client";
 
 import { useTheme } from "@/lib/theme-context";
+import { Monitor, Sun, Moon } from "lucide-react";
+
+const THEME_ICONS = {
+  system: Monitor,
+  light: Sun,
+  dark: Moon,
+} as const;
 
 export default function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
 
   const options = [
-    { value: "system", label: "System", icon: "desktop_windows" },
-    { value: "light", label: "Light", icon: "light_mode" },
-    { value: "dark", label: "Dark", icon: "dark_mode" },
+    { value: "system", label: "System" },
+    { value: "light", label: "Light" },
+    { value: "dark", label: "Dark" },
   ] as const;
 
   return (
     <div className="flex bg-[#f6f3f2] dark:bg-[#303030] rounded-xl p-1 w-fit">
-      {options.map(({ value, label, icon }) => {
+      {options.map(({ value, label }) => {
         const isActive = theme === value;
+        const IconComp = THEME_ICONS[value];
         return (
           <button
             key={value}
@@ -25,7 +33,7 @@ export default function ThemeSwitcher() {
               }`}
             style={{ fontFamily: "Manrope, sans-serif" }}
           >
-            <span className="material-symbols-outlined text-[18px]">{icon}</span>
+            <IconComp size={18} />
             {label}
           </button>
         );

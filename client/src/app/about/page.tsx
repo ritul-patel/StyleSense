@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "next/link";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 export const metadata: Metadata = {
   title: "About StyleSense",
@@ -30,7 +31,7 @@ export default function AboutPage() {
       <main className="pt-28 pb-20 px-6 md:px-[6%] max-w-3xl mx-auto">
         <header className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#dde1ff] text-[#001452] rounded-full text-[10px] font-bold uppercase tracking-widest mb-4">
-            <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
+            <AppIcon name="auto_awesome" size={14} />
             AI Personal Stylist
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4" style={{ fontFamily: "Manrope, sans-serif" }}>About StyleSense</h1>
@@ -63,7 +64,7 @@ export default function AboutPage() {
               ].map((item) => (
                 <div key={item.title} className="bg-white rounded-xl border border-black/5 p-5">
                   <div className="w-10 h-10 rounded-lg bg-[#dde1ff] flex items-center justify-center mb-3">
-                    <span className="material-symbols-outlined text-[#002b92] text-xl">{item.icon}</span>
+                    <AppIcon name={item.icon} size={20} className="text-[#002b92]" />
                   </div>
                   <h3 className="text-sm font-bold mb-1">{item.title}</h3>
                   <p className="text-xs text-[#5a6060] leading-relaxed">{item.desc}</p>
@@ -76,7 +77,7 @@ export default function AboutPage() {
           <section className="bg-[#002b92]/5 border border-[#002b92]/10 rounded-2xl p-8">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-lg bg-[#002b92] flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-white text-xl">science</span>
+                <AppIcon name="science" size={20} className="text-white" />
               </div>
               <div>
                 <h3 className="text-lg font-bold mb-2" style={{ fontFamily: "Manrope, sans-serif" }}>Currently in Beta</h3>
@@ -95,7 +96,7 @@ export default function AboutPage() {
               style={{ background: "linear-gradient(135deg, #002b92, #003ec7)", boxShadow: "0 10px 25px rgba(0,43,146,0.2)" }}
             >
               Try StyleSense Free
-              <span className="material-symbols-outlined">arrow_forward</span>
+              <AppIcon name="arrow_forward" />
             </Link>
           </section>
 

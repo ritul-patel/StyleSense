@@ -4,7 +4,8 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -77,7 +78,7 @@ export default function ForgotPasswordPage() {
           {/* Success message */}
           {message && (
             <div className="flex items-start gap-2.5 p-3 rounded-xl bg-green-50 border border-green-200 mb-5" role="status">
-              <span className="material-symbols-outlined text-green-600 text-lg shrink-0 mt-0.5">check_circle</span>
+              <AppIcon name="check_circle" size={18} className="text-green-600 mt-0.5" />
               <p className="text-sm text-green-800">{message}</p>
             </div>
           )}

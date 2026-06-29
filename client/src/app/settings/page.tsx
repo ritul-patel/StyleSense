@@ -8,7 +8,8 @@ import { fetchProfile, invalidateProfileCache } from "@/lib/profile-cache";
 import { useAuth } from "@/lib/auth-context";
 import posthog from "posthog-js";
 import Navbar from "@/app/components/Navbar";
-import RequireAuth from "../components/RequireAuth";
+import RequireAuth from "../components/RequireAuth";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -234,7 +235,7 @@ function SettingsPageContent() {
               <div>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 bg-[#002b92]/10 rounded-lg">
-                    <span className="material-symbols-outlined text-[#002b92] text-lg">auto_awesome</span>
+                    <AppIcon name="auto_awesome" size={18} className="text-[#002b92]" />
                   </div>
                   <h4 className="text-sm font-bold" style={{ fontFamily: "Manrope, sans-serif" }}>Analysis History</h4>
                 </div>
@@ -254,7 +255,7 @@ function SettingsPageContent() {
         <section className="bg-[#3f414e] rounded-2xl md:rounded-[2rem] p-5 md:p-8 lg:p-10 mb-6 md:mb-8 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6" style={{ boxShadow: "0 20px 40px -10px rgba(28,27,27,0.1)" }}>
           <div className="flex items-center gap-6">
             <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-              <span className="material-symbols-outlined text-white text-2xl">lock_reset</span>
+              <AppIcon name="lock_reset" className="text-white" />
             </div>
             <div>
               <h4 className="text-lg font-bold tracking-tight text-white" style={{ fontFamily: "Manrope, sans-serif" }}>Password</h4>
@@ -285,7 +286,7 @@ function SettingsPageContent() {
           <button
             className="flex items-center gap-2 px-6 py-3 text-[#ba1a1a] text-sm font-bold hover:bg-red-50 rounded-xl transition-colors"
             onClick={async () => { await supabase.auth.signOut(); router.push("/"); }}>
-            <span className="material-symbols-outlined text-lg">logout</span>
+            <AppIcon name="logout" size={18} />
             Logout
           </button>
         </div>

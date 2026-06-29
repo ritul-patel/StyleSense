@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 type AvatarData = {
   src: string;
@@ -277,7 +278,7 @@ gl_FragColor = vec4(color, 0.8 * u_is_scanning); }`;
           style={{ opacity: contentVisible ? 1 : 0 }}
         >
           {data.confidence}% Confidence
-          <span className="material-symbols-outlined text-[18px]">check_circle</span>
+          <AppIcon name="check_circle" size={18} />
         </div>
       </div>
 
@@ -348,7 +349,7 @@ gl_FragColor = vec4(color, 0.8 * u_is_scanning); }`;
                   style={{ backgroundColor: a.color }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center text-red-600 opacity-80">
-                  <span className="material-symbols-outlined text-xl">close</span>
+                  <AppIcon name="close" size={20} />
                 </div>
               </div>
               <span className="text-[9px] font-medium text-[#747686] text-center leading-tight">{a.name}</span>

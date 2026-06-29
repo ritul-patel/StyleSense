@@ -4,7 +4,8 @@ import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import RequireAdmin from "../../components/RequireAdmin";
 import AdminLayout from "../../components/AdminLayout";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 type UploadResult = { filename: string; slug: string; url?: string; error?: string; matched?: boolean; productId?: string };
 type BatchResult = { total: number; uploaded: number; matched: number; unmatched: number; failed: number; results: UploadResult[] };
@@ -74,7 +75,7 @@ function ImagesContent() {
         {!uploading && !result && (
           <div onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} onClick={() => fileRef.current?.click()}
             className="bg-white border-2 border-dashed border-gray-300 rounded-2xl p-16 text-center cursor-pointer hover:border-[#002b92]/40 hover:bg-[#002b92]/5 transition-all">
-            <span className="material-symbols-outlined text-gray-300 mb-4" style={{ fontSize: 56 }}>add_photo_alternate</span>
+            <AppIcon name="add_photo_alternate" size={56} className="text-gray-300 mb-4" />
             <p className="text-lg font-semibold text-gray-700 mb-2">Drop images here or click to select</p>
             <p className="text-sm text-gray-400">Supports JPEG, PNG, WebP. Files are matched to products by filename.</p>
             <p className="text-xs text-gray-400 mt-2">Example: <code className="bg-gray-100 px-1 rounded">beige-oversized-tshirt.jpg</code> → product slug <code className="bg-gray-100 px-1 rounded">beige-oversized-tshirt</code></p>

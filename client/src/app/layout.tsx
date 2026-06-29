@@ -116,13 +116,6 @@ export default function RootLayout({
             }),
           }}
         />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Material Symbols — loaded non-blocking via JS after page renders */}
-        <script dangerouslySetInnerHTML={{ __html: `
-          var l=document.createElement('link');l.rel='stylesheet';
-          l.href='https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap';
-          document.head.appendChild(l);
-        ` }} />
       </head>
       <body className="overflow-x-hidden">
         <Providers>{children}</Providers>

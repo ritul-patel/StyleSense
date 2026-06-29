@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
+import { AppIcon } from "@/components/ui/AppIcon";
 import Navbar from "@/app/components/Navbar";
 import type { AnalysisResultData } from "./types";
 import { getRecommendedOutfits } from "@/lib/outfit-recommendation";
@@ -46,7 +47,7 @@ function ConfidenceBadge({ confidence }: { confidence: number }) {
         isHigh ? "bg-green-50 text-green-700 border border-green-200" : "bg-amber-50 text-amber-700 border border-amber-200"
       }`}
     >
-      <span className="material-symbols-outlined text-[13px]">{isHigh ? "verified" : "info"}</span>
+      <AppIcon name={isHigh ? "check_circle" : "info"} size={13} />
       {confidence}% Confidence
     </span>
   );
@@ -101,7 +102,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
             exit="exit"
             className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-inverse-surface text-inverse-on-surface px-5 py-3 rounded-full text-sm font-bold shadow-xl flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-[16px]">check_circle</span>
+            <AppIcon name="check_circle" size={16} />
             {toastMessage}
           </motion.div>
         )}
@@ -121,7 +122,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
           {/* Page header */}
           <div className="text-center mb-10 md:mb-12">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/[0.06] text-primary text-[11px] font-bold tracking-[0.15em] uppercase font-[family-name:var(--font-label)] mb-4">
-              <span className="material-symbols-outlined text-[13px]">auto_awesome</span>
+              <AppIcon name="auto_awesome" size={13} />
               Your Personal Style Profile
             </span>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface font-[family-name:var(--font-headline)]">
@@ -185,7 +186,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                       return (
                         <div key={idx} className="flex justify-between items-center">
                           <span className="text-xs font-semibold text-on-surface-variant flex items-center gap-1.5">
-                            <span className="material-symbols-outlined text-[14px]">{item.icon}</span>
+                            <AppIcon name={item.icon} size={14} />
                             {item.label}
                           </span>
                           <div className="flex gap-1">
@@ -225,9 +226,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                       <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-primary font-[family-name:var(--font-label)]">
                         Why this season?
                       </span>
-                      <span className={`material-symbols-outlined text-[16px] text-primary transition-transform ${showExplanation ? "rotate-180" : ""}`}>
-                        expand_more
-                      </span>
+                      <AppIcon name="expand_more" size={16} className={`text-primary transition-transform ${showExplanation ? "rotate-180" : ""}`} />
                     </button>
                     <AnimatePresence>
                       {showExplanation && (
@@ -319,7 +318,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                           {c.name && <span className="block text-xs font-bold text-on-surface truncate">{c.name}</span>}
                           <span className="block text-[10px] text-outline">{c.reason || "Clashes with undertone"}</span>
                         </div>
-                        <span className="material-symbols-outlined text-[16px] text-error/60">warning</span>
+                        <AppIcon name="warning" size={16} className="text-error/60" />
                       </div>
                     ))}
                     {avoidColors.length === 0 && <p className="text-sm text-outline">No data available</p>}
@@ -342,9 +341,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                             isAvoid ? "bg-red-50/50 border-red-100" : "bg-blue-50/30 border-blue-100"
                           }`}
                         >
-                          <span className={`material-symbols-outlined text-[18px] shrink-0 mt-0.5 ${isAvoid ? "text-error" : "text-primary"}`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                            {isAvoid ? "cancel" : "check_circle"}
-                          </span>
+                          <AppIcon name={isAvoid ? "close" : "check_circle"} size={18} className={`shrink-0 mt-0.5 ${isAvoid ? "text-error" : "text-primary"}`} filled={!isAvoid} />
                           <span className="text-sm text-on-surface leading-relaxed">{rule}</span>
                         </div>
                       );
@@ -411,7 +408,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
 
                 {recommendedOutfits.length === 0 ? (
                   <div className="flex flex-col items-center py-12 text-center">
-                    <span className="material-symbols-outlined text-surface-dim text-[32px]">checkroom</span>
+                    <AppIcon name="checkroom" size={32} className="text-surface-dim" />
                     <p className="text-sm text-outline mt-2">No outfit matches found</p>
                   </div>
                 ) : (
@@ -482,7 +479,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                   className="inline-flex items-center gap-2 px-8 py-4 rounded-full signature-gradient text-white font-bold text-base shadow-[0_10px_25px_rgba(0,43,146,0.25)] hover:scale-[1.02] active:scale-[0.98] transition-transform"
                 >
                   Explore Outfits For My Colors
-                  <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                  <AppIcon name="arrow_forward" size={18} />
                 </button>
                 <div>
                   <button

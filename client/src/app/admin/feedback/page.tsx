@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import RequireAdmin from "../components/RequireAdmin";
-import AdminLayout from "../components/AdminLayout";
+import AdminLayout from "../components/AdminLayout";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 type FeedbackItem = {
   id: string;
@@ -149,7 +150,7 @@ function FeedbackContent() {
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
-            <span className="material-symbols-outlined text-4xl mb-2 block">inbox</span>
+            <AppIcon name="inbox" size={36} className="mb-2 block" />
             <p>No feedback yet</p>
           </div>
         ) : (
@@ -159,7 +160,7 @@ function FeedbackContent() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="material-symbols-outlined text-base text-gray-400">{TYPE_ICONS[item.type] || "chat"}</span>
+                      <AppIcon name={TYPE_ICONS[item.type] || "chat"} size={16} className="text-gray-400" />
                       <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{item.type}</span>
                       {item.rating && (
                         <span className="text-xs text-amber-600 font-semibold">

@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import RequireAdmin from "../components/RequireAdmin";
 import AdminLayout from "../components/AdminLayout";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 type Outfit = { id: string; name: string; productIds: string[]; closetItemIds: string[]; createdAt: number };
 type SearchProduct = { id: string; name: string; brand: string; category: string; image_url: string; price: number };
@@ -150,7 +151,7 @@ function OutfitsContent() {
               <div>
                 <label className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block mb-1">Add Products</label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">search</span>
+                  <AppIcon name="search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
                     value={searchQuery}
@@ -158,7 +159,7 @@ function OutfitsContent() {
                     placeholder="Search products by name or brand..."
                     className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#002b92]/20"
                   />
-                  {searching && <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm animate-spin">progress_activity</span>}
+                  {searching && <AppIcon name="progress_activity" size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" />}
                 </div>
 
                 {/* Search Results Dropdown */}
@@ -179,7 +180,7 @@ function OutfitsContent() {
                           <p className="text-sm font-medium truncate">{p.name}</p>
                           <p className="text-[10px] text-gray-500">{p.brand} • {p.category} • ₹{p.price}</p>
                         </div>
-                        <span className="material-symbols-outlined text-green-600 text-lg flex-shrink-0">add_circle</span>
+                        <AppIcon name="add_circle" size={18} className="text-green-600 flex-" />
                       </button>
                     ))}
                   </div>
@@ -210,14 +211,14 @@ function OutfitsContent() {
                         </div>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={() => moveProduct(index, "up")} disabled={index === 0} className="w-6 h-6 rounded bg-white border border-gray-200 flex items-center justify-center disabled:opacity-30">
-                            <span className="material-symbols-outlined text-xs">arrow_upward</span>
+                            <AppIcon name="arrow_upward" size={12} />
                           </button>
                           <button onClick={() => moveProduct(index, "down")} disabled={index === selectedProducts.length - 1} className="w-6 h-6 rounded bg-white border border-gray-200 flex items-center justify-center disabled:opacity-30">
-                            <span className="material-symbols-outlined text-xs">arrow_downward</span>
+                            <AppIcon name="arrow_downward" size={12} />
                           </button>
                         </div>
                         <button onClick={() => removeProduct(p.id)} className="text-red-400 hover:text-red-600 transition-colors flex-shrink-0">
-                          <span className="material-symbols-outlined text-lg">close</span>
+                          <AppIcon name="close" size={18} />
                         </button>
                       </div>
                     ))}
@@ -250,7 +251,7 @@ function OutfitsContent() {
           </div>
           <div className="flex gap-3">
             <Link href="/admin/outfits/import" className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">upload_file</span> Import
+              <AppIcon name="upload_file" size={14} /> Import
             </Link>
             <button onClick={openNew} className="px-5 py-2.5 rounded-xl text-white text-sm font-bold" style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}>
               + Create Outfit
@@ -266,7 +267,7 @@ function OutfitsContent() {
 
         {!loading && outfits.length === 0 && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
-            <span className="material-symbols-outlined text-gray-300 mb-4" style={{ fontSize: 48 }}>checkroom</span>
+            <AppIcon name="checkroom" size={48} className="text-gray-300 mb-4" />
             <p className="text-gray-600 font-medium mb-2">No outfits yet</p>
             <p className="text-sm text-gray-500">Create your first outfit by combining products from the catalog.</p>
           </div>

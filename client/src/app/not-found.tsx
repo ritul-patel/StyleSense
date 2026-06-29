@@ -1,5 +1,6 @@
 import Link from "next/link";
-import type { Metadata } from "next";
+import type { Metadata } from "next";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 export const metadata: Metadata = {
   title: "Page Not Found",
@@ -18,7 +19,7 @@ export default function NotFound() {
       <div className="text-center max-w-md">
         {/* Icon */}
         <div className="w-20 h-20 rounded-full bg-[#dde1ff] flex items-center justify-center mx-auto mb-8">
-          <span className="material-symbols-outlined text-[#002b92]" style={{ fontSize: 40 }}>explore_off</span>
+          <AppIcon name="explore_off" size={40} className="text-[#002b92]" />
         </div>
 
         {/* Status */}

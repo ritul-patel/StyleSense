@@ -1,7 +1,8 @@
 "use client";
 
 import * as Sentry from "@sentry/nextjs";
-import { useEffect } from "react";
+import { useEffect } from "react";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 export default function GlobalError({
   error,
@@ -33,7 +34,7 @@ export default function GlobalError({
         <div style={{ textAlign: "center", maxWidth: 420, padding: 24 }}>
           {/* Icon */}
           <div style={{ width: 80, height: 80, borderRadius: "50%", background: "#fef2f2", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 32px" }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 40, color: "#ef4444" }}>warning</span>
+            <AppIcon name="warning" size={40} />
           </div>
 
           <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.15em", color: "#747686", marginBottom: 12 }}>Critical Error</p>

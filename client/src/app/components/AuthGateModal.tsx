@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 type AuthGateModalProps = {
   open: boolean;
@@ -111,13 +112,13 @@ export default function AuthGateModal({ open, onClose }: AuthGateModalProps) {
               aria-label="Close"
               className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full text-[#747686] hover:text-[#1b1c1b] hover:bg-[#f6f3f2] transition-colors"
             >
-              <span className="material-symbols-outlined text-[20px]">close</span>
+              <AppIcon name="close" size={20} />
             </button>
 
             {/* Header */}
             <div className="text-center mb-6 pr-6">
               <div className="w-14 h-14 rounded-2xl bg-[#dde1ff] flex items-center justify-center mx-auto mb-4">
-                <span className="material-symbols-outlined text-[#002b92] text-2xl">auto_awesome</span>
+                <AppIcon name="auto_awesome" className="text-[#002b92]" />
               </div>
               <h2 id="auth-gate-title" className="text-2xl font-extrabold tracking-tight text-[#1b1c1b]" style={{ fontFamily: "Manrope, sans-serif" }}>
                 ✨ One Last Step
@@ -136,7 +137,7 @@ export default function AuthGateModal({ open, onClose }: AuthGateModalProps) {
                 "View analysis history",
               ].map((benefit) => (
                 <div key={benefit} className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-[#002b92] text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                  <AppIcon name="check_circle" size={16} className="text-[#002b92]" filled />
                   <span className="text-sm text-[#1b1c1b] font-medium">{benefit}</span>
                 </div>
               ))}
@@ -166,7 +167,7 @@ export default function AuthGateModal({ open, onClose }: AuthGateModalProps) {
                   className="w-full h-12 flex items-center justify-center gap-2 rounded-xl text-sm font-semibold text-white transition-all"
                   style={{ background: "linear-gradient(135deg, #002b92, #003ec7)" }}
                 >
-                  <span className="material-symbols-outlined text-[18px]">mail</span>
+                  <AppIcon name="mail" size={18} />
                   Continue with Email
                 </button>
 

@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -122,7 +123,7 @@ export default function ResetPasswordPage() {
           <div className="w-full bg-surface-container-lowest rounded-3xl border border-black/5 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.08)] p-7 sm:p-9">
             <div className="flex flex-col items-center text-center">
               <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mb-5">
-                <span className="material-symbols-outlined text-green-600 text-[32px]">check_circle</span>
+                <AppIcon name="check_circle" size={32} className="text-green-600" />
               </div>
               <h1 className="text-2xl font-extrabold tracking-tight text-on-surface font-[family-name:var(--font-headline)] mb-2">
                 Password updated
@@ -162,7 +163,7 @@ export default function ResetPasswordPage() {
           <div className="w-full bg-surface-container-lowest rounded-3xl border border-black/5 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.08)] p-7 sm:p-9">
             <div className="flex flex-col items-center text-center">
               <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-5">
-                <span className="material-symbols-outlined text-error text-[32px]">error</span>
+                <AppIcon name="error" size={32} className="text-error" />
               </div>
               <h1 className="text-2xl font-extrabold tracking-tight text-on-surface font-[family-name:var(--font-headline)] mb-2">
                 Link expired
@@ -263,7 +264,7 @@ export default function ResetPasswordPage() {
             {/* Error display */}
             {error && (
               <div className="flex items-start gap-2.5 p-3 rounded-xl bg-error-container/30 border border-error/10" role="alert">
-                <span className="material-symbols-outlined text-error text-lg shrink-0 mt-0.5">error</span>
+                <AppIcon name="error" size={18} className="text-error mt-0.5" />
                 <p className="text-sm text-on-error-container">{error}</p>
               </div>
             )}

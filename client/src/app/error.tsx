@@ -2,7 +2,8 @@
 
 import * as Sentry from "@sentry/nextjs";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect } from "react";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 export default function Error({
   error,
@@ -26,7 +27,7 @@ export default function Error({
       <div className="text-center max-w-md">
         {/* Icon */}
         <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-8">
-          <span className="material-symbols-outlined text-red-500" style={{ fontSize: 40 }}>error_outline</span>
+          <AppIcon name="error_outline" size={40} className="text-red-500" />
         </div>
 
         {/* Status */}

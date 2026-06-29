@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import RequireAdmin from "../components/RequireAdmin";
 import AdminLayout from "../components/AdminLayout";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 type Product = {
   id: string;
@@ -313,7 +314,7 @@ function ProductsContent() {
                       disabled={importing}
                       className="px-4 py-2.5 rounded-xl border-2 border-[#002b92]/20 text-[#002b92] text-xs font-bold hover:bg-[#002b92]/5 disabled:opacity-40 whitespace-nowrap flex items-center gap-1.5"
                     >
-                      <span className="material-symbols-outlined text-sm">cloud_download</span>
+                      <AppIcon name="cloud_download" size={14} />
                       {importing ? "Importing..." : "Import"}
                     </button>
                   )}
@@ -346,7 +347,7 @@ function ProductsContent() {
               {/* AI Generate button (only when editing existing product) */}
               {editId && (
                 <button onClick={generateMetadata} disabled={aiLoading} className="px-5 py-2.5 rounded-xl border-2 border-[#002b92]/20 text-[#002b92] text-sm font-bold hover:bg-[#002b92]/5 disabled:opacity-40 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                  <AppIcon name="auto_awesome" size={14} />
                   {aiLoading ? "Generating..." : "Generate AI Metadata"}
                 </button>
               )}
@@ -363,7 +364,7 @@ function ProductsContent() {
               <div className="mt-6 border border-[#002b92]/20 rounded-xl p-5 bg-[#002b92]/5">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-sm font-bold text-[#002b92] flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                    <AppIcon name="auto_awesome" size={14} />
                     AI Generated Metadata
                     <span className="text-[10px] font-normal text-gray-500 ml-2">
                       {aiResult.provider} • {aiResult.duration_ms}ms • {Math.round(aiResult.metadata.confidence * 100)}% confidence
@@ -396,7 +397,7 @@ function ProductsContent() {
           </div>
           <div className="flex gap-3">
             <Link href="/admin/products/import" className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">upload_file</span> Import CSV
+              <AppIcon name="upload_file" size={14} /> Import CSV
             </Link>
             <button onClick={openNew} className="px-5 py-2.5 rounded-xl text-white text-sm font-bold" style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}>
               + Add Product
@@ -422,7 +423,7 @@ function ProductsContent() {
               disabled={bulkProcessing}
               className="px-4 py-1.5 rounded-lg bg-green-600 text-white text-xs font-bold hover:bg-green-700 disabled:opacity-40 flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm">publish</span>
+              <AppIcon name="publish" size={14} />
               Publish Selected
             </button>
             <button
@@ -430,7 +431,7 @@ function ProductsContent() {
               disabled={bulkProcessing}
               className="px-4 py-1.5 rounded-lg bg-amber-500 text-white text-xs font-bold hover:bg-amber-600 disabled:opacity-40 flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm">unpublished</span>
+              <AppIcon name="unpublished" size={14} />
               Unpublish
             </button>
             <button
@@ -438,11 +439,11 @@ function ProductsContent() {
               disabled={bulkProcessing}
               className="px-4 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 disabled:opacity-40 flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm">delete</span>
+              <AppIcon name="delete" size={14} />
               Delete
             </button>
             {bulkProcessing && (
-              <span className="material-symbols-outlined text-[#002b92] text-sm animate-spin ml-2">progress_activity</span>
+              <AppIcon name="progress_activity" size={14} className="text-[#002b92] animate-spin ml-2" />
             )}
             <button
               onClick={() => setSelected(new Set())}

@@ -4,7 +4,8 @@ import { Link as ScrollLink, Element, Events, scrollSpy } from "react-scroll";
 import NextLink from "next/link";
 import { useEffect, useState } from "react";
 import HeroScannerCard from "./HeroScannerCard";
-import { ScrollReveal, ScrollStagger, ScrollStaggerItem } from "@/components/motion";
+import { ScrollReveal, ScrollStagger, ScrollStaggerItem } from "@/components/motion";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 const NAV_OFFSET = -80; // offset for fixed navbar height
 const SCROLL_DURATION = 800;
@@ -92,7 +93,7 @@ export default function HomePageClient() {
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10 w-full">
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#dde1ff] text-[#001452] rounded-full text-[10px] font-bold uppercase tracking-widest mb-4">
-                  <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
+                  <AppIcon name="auto_awesome" size={14} />
                   AI Personal Stylist
                 </div>
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter leading-[1.05] mb-4" style={{ fontFamily: "Manrope, sans-serif" }}>
@@ -108,7 +109,7 @@ export default function HomePageClient() {
                     style={{ background: "linear-gradient(135deg, #002b92, #003ec7)", boxShadow: "0 10px 25px rgba(0,43,146,0.25)" }}
                   >
                     Analyze My Photo
-                    <span className="material-symbols-outlined">arrow_forward</span>
+                    <AppIcon name="arrow_forward" />
                   </NextLink>
                   <NextLink
                     href="/discover"
@@ -151,7 +152,7 @@ export default function HomePageClient() {
                   <ScrollStaggerItem key={f.title}>
                   <div className="h-full bg-[#fcf9f8] p-8 rounded-2xl border border-black/5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                     <div className={`w-12 h-12 rounded-xl ${f.accent} flex items-center justify-center mb-5`}>
-                      <span className="material-symbols-outlined text-[#002b92] text-2xl">{f.icon}</span>
+                      <AppIcon name={f.icon} size={24} className="text-[#002b92]" />
                     </div>
                     <h3 className="text-lg font-bold mb-3" style={{ fontFamily: "Manrope, sans-serif" }}>{f.title}</h3>
                     <p className="text-sm text-[#5a6060] leading-relaxed">{f.desc}</p>
@@ -183,7 +184,7 @@ export default function HomePageClient() {
                   <div className="relative h-full bg-white p-8 rounded-2xl border border-black/5 shadow-sm">
                     <span className="text-[64px] font-black text-[#002b92]/5 absolute top-4 right-6" style={{ fontFamily: "Manrope, sans-serif" }}>{s.step}</span>
                     <div className="w-12 h-12 rounded-xl bg-[#002b92] flex items-center justify-center mb-5">
-                      <span className="material-symbols-outlined text-white text-2xl">{s.icon}</span>
+                      <AppIcon name={s.icon} size={24} className="text-white" />
                     </div>
                     <h3 className="text-lg font-bold mb-3" style={{ fontFamily: "Manrope, sans-serif" }}>{s.title}</h3>
                     <p className="text-sm text-[#5a6060] leading-relaxed">{s.desc}</p>
@@ -214,7 +215,7 @@ export default function HomePageClient() {
                 ].map((item) => (
                   <ScrollStaggerItem key={item.label}>
                   <div className="h-full bg-white/5 border border-white/10 rounded-2xl p-6">
-                    <span className="material-symbols-outlined text-[#dde1ff] text-2xl mb-4 block">{item.icon}</span>
+                    <AppIcon name={item.icon} size={24} className="text-[#dde1ff] mb-4 block" />
                     <h3 className="text-white font-bold mb-2">{item.label}</h3>
                     <p className="text-white/60 text-sm leading-relaxed">{item.desc}</p>
                   </div>
@@ -247,7 +248,7 @@ export default function HomePageClient() {
                   <details key={item.q} className="bg-white rounded-2xl border border-black/5 p-6 group">
                     <summary className="flex items-center justify-between cursor-pointer font-bold text-[#1b1c1b] list-none">
                       {item.q}
-                      <span className="material-symbols-outlined text-[#747686] group-open:rotate-180 transition-transform">expand_more</span>
+                      <AppIcon name="expand_more" className="text-[#747686] group-open:rotate-180 transition-transform" />
                     </summary>
                     <p className="mt-4 text-sm text-[#5a6060] leading-relaxed">{item.a}</p>
                   </details>
@@ -273,7 +274,7 @@ export default function HomePageClient() {
                   className="inline-flex items-center gap-2 bg-white text-[#002b92] px-10 py-5 rounded-full font-bold text-lg hover:scale-[1.02] transition-transform shadow-lg"
                 >
                   Get Started Free
-                  <span className="material-symbols-outlined">arrow_forward</span>
+                  <AppIcon name="arrow_forward" />
                 </NextLink>
               </div>
             </div>

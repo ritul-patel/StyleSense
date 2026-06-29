@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "next/link";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 export const metadata: Metadata = {
   title: "Contact StyleSense",
@@ -44,7 +45,7 @@ export default function ContactPage() {
               <div className="space-y-4">
                 <a href="mailto:ritul6740@gmail.com" className="flex items-center gap-3 group">
                   <div className="w-10 h-10 rounded-xl bg-[#dde1ff] flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[#002b92] text-xl">mail</span>
+                    <AppIcon name="mail" size={20} className="text-[#002b92]" />
                   </div>
                   <div>
                     <span className="text-[10px] uppercase tracking-wider text-[#747686] font-bold block">Email</span>
@@ -66,7 +67,7 @@ export default function ContactPage() {
                   { icon: "chat", text: "General questions" },
                 ].map((item) => (
                   <li key={item.text} className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-[#747686] text-lg">{item.icon}</span>
+                    <AppIcon name={item.icon} size={18} className="text-[#747686]" />
                     <span className="text-sm text-[#434654]">{item.text}</span>
                   </li>
                 ))}

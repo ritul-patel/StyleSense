@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import RequireAdmin from "../components/RequireAdmin";
 import AdminLayout from "../components/AdminLayout";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 type AnalyticsData = {
   total_analyses: number;
@@ -48,7 +49,7 @@ function AnalyticsContent() {
                 { label: "Wardrobe Saves", value: data.total_wardrobe_items, icon: "favorite" },
               ].map((m) => (
                 <div key={m.label} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-                  <span className="material-symbols-outlined text-[#002b92] text-lg">{m.icon}</span>
+                  <AppIcon name={m.icon} size={18} className="text-[#002b92]" />
                   <p className="text-xl font-bold mt-2">{m.value}</p>
                   <p className="text-[11px] text-gray-500 font-medium">{m.label}</p>
                 </div>

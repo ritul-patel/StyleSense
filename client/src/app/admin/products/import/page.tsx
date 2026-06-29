@@ -4,7 +4,8 @@ import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import RequireAdmin from "../../components/RequireAdmin";
 import AdminLayout from "../../components/AdminLayout";
-import { apiFetch, API_BASE_URL } from "@/lib/api";
+import { apiFetch, API_BASE_URL } from "@/lib/api";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 type ImportResult = { imported: number; skipped: number; failed: number; duplicates: number; errors: { row: number; field: string; message: string }[] };
 type ImportState = "idle" | "preview" | "importing" | "done";
@@ -81,7 +82,7 @@ function ProductImportContent() {
           </div>
           <div className="flex gap-3">
             <a href={`${API_BASE_URL}/api/v1/admin/import/products/template`} className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">download</span> Template
+              <AppIcon name="download" size={14} /> Template
             </a>
             <Link href="/admin/products" className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50">← Products</Link>
           </div>
@@ -97,7 +98,7 @@ function ProductImportContent() {
             onClick={() => fileRef.current?.click()}
             className="bg-white border-2 border-dashed border-gray-300 rounded-2xl p-16 text-center cursor-pointer hover:border-[#002b92]/40 hover:bg-[#002b92]/5 transition-all"
           >
-            <span className="material-symbols-outlined text-gray-300 mb-4" style={{ fontSize: 56 }}>upload_file</span>
+            <AppIcon name="upload_file" size={56} className="text-gray-300 mb-4" />
             <p className="text-lg font-semibold text-gray-700 mb-2">Drop CSV here or click to upload</p>
             <p className="text-sm text-gray-400">Requires: name, category. Optional: brand, price, image_url, etc.</p>
             <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />

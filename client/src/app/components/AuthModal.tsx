@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 type AuthModalProps = {
   open: boolean;
@@ -120,13 +121,13 @@ export default function AuthModal({ open, onClose, onAuthenticated }: AuthModalP
               aria-label="Close"
               className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full text-[#747686] hover:text-[#1b1c1b] hover:bg-[#f6f3f2] transition-colors"
             >
-              <span className="material-symbols-outlined text-[20px]">close</span>
+              <AppIcon name="close" size={20} />
             </button>
 
             {/* Header */}
             <div className="text-center mb-6">
               <div className="w-12 h-12 rounded-full bg-[#dde1ff] flex items-center justify-center mx-auto mb-4">
-                <span className="material-symbols-outlined text-[#002b92] text-2xl">auto_awesome</span>
+                <AppIcon name="auto_awesome" className="text-[#002b92]" />
               </div>
               <h2 id="auth-modal-title" className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#1b1c1b]" style={{ fontFamily: "Manrope, sans-serif" }}>
                 One Last Step
@@ -140,9 +141,7 @@ export default function AuthModal({ open, onClose, onAuthenticated }: AuthModalP
             <div className="space-y-2.5 mb-6">
               {BENEFITS.map((b) => (
                 <div key={b.text} className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[#002b92] text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    {b.icon}
-                  </span>
+                  <AppIcon name={b.icon} size={18} className="text-[#002b92]" filled />
                   <span className="text-sm text-[#1b1c1b] font-medium">{b.text}</span>
                 </div>
               ))}
@@ -151,7 +150,7 @@ export default function AuthModal({ open, onClose, onAuthenticated }: AuthModalP
             {/* Error */}
             {error && (
               <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-100 flex items-start gap-2" role="alert">
-                <span className="material-symbols-outlined text-red-500 text-lg shrink-0 mt-0.5">error</span>
+                <AppIcon name="error" size={18} className="text-red-500 mt-0.5" />
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
@@ -180,7 +179,7 @@ export default function AuthModal({ open, onClose, onAuthenticated }: AuthModalP
                   className="w-full h-12 flex items-center justify-center gap-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
                   style={{ background: "linear-gradient(135deg, #002b92, #003ec7)" }}
                 >
-                  <span className="material-symbols-outlined text-lg">mail</span>
+                  <AppIcon name="mail" size={18} />
                   Continue with Email
                 </button>
 
@@ -246,7 +245,7 @@ export default function AuthModal({ open, onClose, onAuthenticated }: AuthModalP
                   onClick={() => { setMode("choose"); setError(""); }}
                   className="w-full mt-2 py-2 text-xs font-medium text-[#747686] hover:text-[#1b1c1b] transition-colors text-center flex items-center justify-center gap-1"
                 >
-                  <span className="material-symbols-outlined text-sm">arrow_back</span>
+                  <AppIcon name="arrow_back" size={14} />
                   Back
                 </button>
               </>

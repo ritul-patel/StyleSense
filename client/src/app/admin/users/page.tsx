@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import RequireAdmin from "../components/RequireAdmin";
 import AdminLayout from "../components/AdminLayout";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 type User = {
   id: string;
@@ -69,7 +70,7 @@ function UsersContent() {
 
         {!loading && !error && users.length === 0 && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
-            <span className="material-symbols-outlined text-gray-300 mb-4" style={{ fontSize: 48 }}>group</span>
+            <AppIcon name="group" size={48} className="text-gray-300 mb-4" />
             <p className="text-sm text-gray-500">No users found.</p>
           </div>
         )}

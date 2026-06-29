@@ -8,7 +8,8 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Divider } from "@/components/ui/divider";
-import posthog from "posthog-js";
+import posthog from "posthog-js";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 export default function SignupPage() {
   const router = useRouter();
@@ -147,7 +148,7 @@ export default function SignupPage() {
           {/* Success message */}
           {successMessage && (
             <div className="flex items-start gap-2.5 p-3 rounded-xl bg-green-50 border border-green-200 mb-4" role="status">
-              <span className="material-symbols-outlined text-green-600 text-lg shrink-0 mt-0.5">check_circle</span>
+              <AppIcon name="check_circle" size={18} className="text-green-600 mt-0.5" />
               <p className="text-sm text-green-800">{successMessage}</p>
             </div>
           )}
@@ -215,7 +216,7 @@ export default function SignupPage() {
             {/* Error */}
             {error && (
               <div className="flex items-start gap-2.5 p-3 rounded-xl bg-error-container/30 border border-error/10" role="alert">
-                <span className="material-symbols-outlined text-error text-lg shrink-0 mt-0.5">error</span>
+                <AppIcon name="error" size={18} className="text-error mt-0.5" />
                 <p className="text-sm text-on-error-container">{error}</p>
               </div>
             )}

@@ -6,7 +6,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchAnalysisHistory, type AnalysisHistoryItem } from "@/lib/api";
 import RequireAuth from "../components/RequireAuth";
-import { ScrollStagger, ScrollStaggerItem } from "@/components/motion";
+import { ScrollStagger, ScrollStaggerItem } from "@/components/motion";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 function formatDate(value: string | null): string {
   if (!value) return "Unknown date";
@@ -101,7 +102,7 @@ function HistoryCard({ item, onReanalyze }: { item: AnalysisHistoryItem; onReana
             fontFamily: "Manrope, sans-serif",
           }}
         >
-          <span className="material-symbols-outlined text-sm">visibility</span>
+          <AppIcon name="visibility" size={14} />
           View
         </Link>
         <button
@@ -109,7 +110,7 @@ function HistoryCard({ item, onReanalyze }: { item: AnalysisHistoryItem; onReana
           style={{ fontFamily: "Manrope, sans-serif" }}
           onClick={() => onReanalyze(item.analysisId)}
         >
-          <span className="material-symbols-outlined text-sm">refresh</span>
+          <AppIcon name="refresh" size={14} />
           Re-analyze
         </button>
       </div>
@@ -181,7 +182,7 @@ function HistoryPageContent() {
               className="flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-white hover:opacity-90 transition-all text-[10px] md:text-xs uppercase tracking-widest font-bold"
               style={{ background: "linear-gradient(135deg, #003ec7, #002b92)", boxShadow: "0 4px 16px rgba(0,62,199,0.3)" }}
             >
-              <span className="material-symbols-outlined text-sm">add</span>
+              <AppIcon name="add" size={14} />
               New Analysis
             </Link>
           </div>
@@ -224,7 +225,7 @@ function HistoryPageContent() {
         {!loading && !error && !hasItems && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="w-20 h-20 rounded-full bg-[#dde1ff] flex items-center justify-center mb-6">
-              <span className="material-symbols-outlined text-[#002b92]" style={{ fontSize: 40 }}>history</span>
+              <AppIcon name="history" size={40} className="text-[#002b92]" />
             </div>
             <h2 className="text-2xl font-bold text-[#1b1c1b] mb-3" style={{ fontFamily: "Manrope, sans-serif" }}>
               No analyses yet

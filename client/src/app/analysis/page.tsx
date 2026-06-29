@@ -6,6 +6,8 @@ import Navbar from "@/app/components/Navbar";
 import AuthGateModal from "@/app/components/AuthGateModal";
 import { useAuth } from "@/lib/auth-context";
 import posthog from "posthog-js";
+import { AppIcon } from "@/components/ui/AppIcon";
+
 
 const PENDING_IMAGE_KEY = "pending_image";
 const PENDING_INTENT_KEY = "analysis_pending_intent";
@@ -239,12 +241,12 @@ export default function AnalysisPage() {
                 }}
               >
                 <div className="flex gap-3 items-start">
-                  <span
-                    className="material-symbols-outlined flex-shrink-0 mt-0.5"
-                    style={{ fontSize: 22, color: uploadError.kind === "no_face" ? "#c2410c" : uploadError.kind === "too_large" ? "#a16207" : "#b91c1c" }}
-                  >
-                    {uploadError.kind === "no_face" ? "face_retouching_off" : uploadError.kind === "too_large" ? "photo_size_select_large" : "error"}
-                  </span>
+                  <AppIcon
+                    name={uploadError.kind === "no_face" ? "face" : uploadError.kind === "too_large" ? "image" : "error"}
+                    size={22}
+                    className="flex-shrink-0 mt-0.5"
+                    style={{ color: uploadError.kind === "no_face" ? "#c2410c" : uploadError.kind === "too_large" ? "#a16207" : "#b91c1c" }}
+                  />
                   <div className="flex-1">
                     <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: uploadError.kind === "no_face" ? "#9a3412" : uploadError.kind === "too_large" ? "#854d0e" : "#991b1b" }}>
                       {uploadError.kind === "no_face" ? "We couldn't find a face" : uploadError.kind === "too_large" ? "Image too large" : "Analysis failed"}
@@ -256,14 +258,14 @@ export default function AnalysisPage() {
                     </p>
                   </div>
                   <button type="button" onClick={() => setUploadError(null)} className="text-stone-400 hover:text-[#1b1c1b] transition-colors flex-shrink-0">
-                    <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
+                    <AppIcon name="close" size={18} />
                   </button>
                 </div>
                 {uploadError.kind === "no_face" && (
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 pl-9">
                     {NO_FACE_TIPS.map((tip) => (
                       <div key={tip.text} className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm text-[#c2410c]/70">{tip.icon}</span>
+                        <AppIcon name={tip.icon} size={14} className="text-[#c2410c]/70" />
                         <span className="text-xs text-[#78350f] font-medium">{tip.text}</span>
                       </div>
                     ))}
@@ -292,7 +294,7 @@ export default function AnalysisPage() {
                 {!hasFile && (
                   <div className="flex flex-col items-center text-center p-12 transition-all duration-300">
                     <div className="w-14 h-14 rounded-full bg-[#dde1ff] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                      <span className="material-symbols-outlined text-[#002b92] text-2xl">cloud_upload</span>
+                      <AppIcon name="cloud_upload" className="text-[#002b92]" />
                     </div>
                     <h3 className="text-xl font-bold text-[#1b1c1b] mb-1" style={{ fontFamily: "Manrope, sans-serif" }}>
                       Drag &amp; drop your portrait here
@@ -312,18 +314,18 @@ export default function AnalysisPage() {
                         className="absolute -top-3 -right-3 w-8 h-8 bg-white text-[#1b1c1b] rounded-full shadow-lg flex items-center justify-center hover:bg-red-50 hover:text-red-600 transition-colors z-30"
                         onClick={(e) => { e.stopPropagation(); resetUpload(); }}
                       >
-                        <span className="material-symbols-outlined text-lg">close</span>
+                        <AppIcon name="close" size={18} />
                       </button>
                     </div>
                     <p className="mt-4 text-sm font-medium text-[#5a6060]">{file?.name}</p>
                     {compressing ? (
                       <p className="mt-2 text-[#002b92] font-medium text-sm flex items-center justify-center gap-1">
                         Optimizing image...
-                        <span className="material-symbols-outlined text-sm" style={{ animation: "spin 1s linear infinite" }}>progress_activity</span>
+                        <AppIcon name="progress_activity" size={14} />
                       </p>
                     ) : (
                       <p className="mt-2 text-green-600 font-medium text-sm flex items-center justify-center gap-1">
-                        Looks good <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
+                        Looks good <AppIcon name="check" size={14} filled />
                       </p>
                     )}
                   </div>
@@ -333,7 +335,7 @@ export default function AnalysisPage() {
               <div className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-3">
                 {["Face clearly visible", "Good lighting", "No heavy filters"].map((tip) => (
                   <div key={tip} className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[#002b92] text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                    <AppIcon name="check_circle" size={18} className="text-[#002b92]" filled />
                     <p className="text-sm text-[#5a6060] font-medium">{tip}</p>
                   </div>
                 ))}
@@ -355,9 +357,9 @@ export default function AnalysisPage() {
               >
                 <span>{submitting ? "Starting..." : "Analyze Now"}</span>
                 {submitting ? (
-                  <span className="material-symbols-outlined" style={{ animation: "spin 1s linear infinite" }}>progress_activity</span>
+                  <AppIcon name="progress_activity" />
                 ) : (
-                  <span className="material-symbols-outlined">arrow_forward</span>
+                  <AppIcon name="arrow_forward" />
                 )}
               </button>
 

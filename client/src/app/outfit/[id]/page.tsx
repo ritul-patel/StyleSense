@@ -11,7 +11,8 @@ import { OUTFIT_PRODUCTS, getProductsForOutfit } from "@/data/outfitProducts";
 import { generateOutfitTitle, getOutfitStyle, generateOutfitDescription, getSimilarOutfits, getAlternativeProducts, generateOutfitTags } from "@/utils/outfitLogic";
 import ProductCard from "../../components/ProductCard";
 import RelatedLookCard from "../../components/RelatedLookCard";
-import { ArrowLeft, ArrowRight, CreditCard, Download, SearchX, Share2, Shirt, Wand2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CreditCard, Download, SearchX, Share2, Shirt, Wand2 } from "lucide-react";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 function shortProductName(p: { name: string; color: string; category: string }): string {
   const color = p.color ? p.color.split("-")[0].split("/")[0].split("+")[0].trim() : "";
@@ -311,7 +312,7 @@ export default function OutfitDetailsPage() {
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200 dark:from-[#1a1a1a] dark:to-[#121212]">
-                <span className="material-symbols-outlined text-stone-300 dark:text-stone-600 text-5xl mb-2">image</span>
+                <AppIcon name="image" size={48} className="text-stone-300 dark:text-stone-600 mb-2" />
                 <span className="text-sm font-bold tracking-widest uppercase text-stone-400 dark:text-stone-600">No image</span>
               </div>
             )}

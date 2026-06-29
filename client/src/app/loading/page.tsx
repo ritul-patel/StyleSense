@@ -7,6 +7,8 @@ import posthog from "posthog-js";
 import { type AnalysisResultData } from "../components/result/types";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
+import { AppIcon } from "@/components/ui/AppIcon";
+
 
 const PENDING_IMAGE_KEY = "pending_image";
 const ANALYSIS_RESULT_KEY = "analysis_result";
@@ -370,7 +372,7 @@ export default function LoadingPage() {
       <div className="min-h-screen bg-[#fcf9f8] flex items-center justify-center px-6">
         <div className="text-center max-w-md">
           <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6">
-            <span className="material-symbols-outlined text-red-500 text-3xl">error</span>
+            <AppIcon name="error" size={30} className="text-red-500" />
           </div>
           <h2 className="text-2xl font-bold text-[#1b1c1b] mb-3" style={{ fontFamily: "Manrope, sans-serif" }}>
             Something went wrong
@@ -415,8 +417,8 @@ export default function LoadingPage() {
           <Link href="/settings" className="text-[#1b1c1b]/60 font-medium hover:text-[#002b92] transition-colors">Settings</Link>
         </div>
         <div className="flex items-center gap-4">
-          <button className="material-symbols-outlined text-[#5a6060] hover:text-[#002b92] transition-all p-2 rounded-full hover:bg-[#f0edec]">
-            notifications
+          <button className="text-[#5a6060] hover:text-[#002b92] transition-all p-2 rounded-full hover:bg-[#f0edec]" aria-label="Notifications">
+            <AppIcon name="inbox" size={20} />
           </button>
         </div>
       </nav>
@@ -432,7 +434,7 @@ export default function LoadingPage() {
             {/* Step 1: Upload (done) */}
             <div className="flex flex-col items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#002b92] flex items-center justify-center text-white shadow-lg">
-                <span className="material-symbols-outlined text-sm">check</span>
+                <AppIcon name="check" size={14} />
               </div>
               <span className="text-[10px] uppercase tracking-[0.2em] text-[#002b92] font-bold">Upload</span>
             </div>
@@ -444,12 +446,7 @@ export default function LoadingPage() {
                   className="absolute inset-0 rounded-full border-2 border-[#002b92]"
                   style={{ animation: "avatar-pulse 3s cubic-bezier(0.4,0,0.6,1) infinite" }}
                 />
-                <span
-                  className="material-symbols-outlined text-sm"
-                  style={{ animation: "spin 2s linear infinite" }}
-                >
-                  progress_activity
-                </span>
+                <AppIcon name="progress_activity" size={14} />
               </div>
               <span className="text-[10px] uppercase tracking-[0.2em] text-[#002b92] font-bold">Analyze</span>
             </div>
@@ -457,7 +454,7 @@ export default function LoadingPage() {
             {/* Step 3: Results */}
             <div className="flex flex-col items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#f0edec] flex items-center justify-center text-[#5a6060]/40">
-                <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                <AppIcon name="auto_awesome" size={14} />
               </div>
               <span className="text-[10px] uppercase tracking-[0.2em] text-[#5a6060]/40 font-medium">Results</span>
             </div>
@@ -483,14 +480,14 @@ export default function LoadingPage() {
             </p>
             <div className="space-y-4">
               <div className="flex items-center gap-4 p-4 rounded-lg bg-[#f6f3f2] border border-[#c3c5d9]/10">
-                <span className="material-symbols-outlined text-[#002b92]">face</span>
+                <AppIcon name="face" className="text-[#002b92]" />
                 <span className="text-xs uppercase tracking-wider font-semibold">
                   Skin Tone Analysis:{" "}
                   <span className="text-[#002b92] animate-pulse">In Progress</span>
                 </span>
               </div>
               <div className="flex items-center gap-4 p-4 rounded-lg bg-[#f6f3f2] border border-[#c3c5d9]/10">
-                <span className="material-symbols-outlined text-[#5a6060]/40">palette</span>
+                <AppIcon name="palette" className="text-[#5a6060]/40" />
                 <span className="text-xs uppercase tracking-wider font-semibold text-[#5a6060]/40">
                   Pattern Recognition: <span>Queued</span>
                 </span>
@@ -529,12 +526,7 @@ export default function LoadingPage() {
                   />
                   <div className="absolute inset-0 border border-[#c3c5d9]/20 rounded-full" />
                   <div className="absolute inset-4 rounded-full overflow-hidden border-4 border-white shadow-xl bg-[#f0edec] flex items-center justify-center">
-                    <span
-                      className="material-symbols-outlined text-[#002b92]"
-                      style={{ fontSize: 64, animation: "spin 3s linear infinite" }}
-                    >
-                      progress_activity
-                    </span>
+                    <AppIcon name="progress_activity" className="text-[#002b92]" />
                   </div>
                 </div>
 
@@ -596,7 +588,7 @@ export default function LoadingPage() {
             { icon: "insights", title: "Dynamic Learning", body: "The engine evolves as you upload more photos, refining your personal style profile." },
           ].map((f) => (
             <div key={f.title} className="p-8 rounded-lg bg-[#f6f3f2]/50 flex flex-col gap-4 border border-[#c3c5d9]/5">
-              <span className="material-symbols-outlined text-[#002b92] text-3xl">{f.icon}</span>
+              <AppIcon name={f.icon} size={30} className="text-[#002b92]" />
               <h3 className="font-bold text-xl">{f.title}</h3>
               <p className="text-[#5a6060] text-sm leading-relaxed">{f.body}</p>
             </div>

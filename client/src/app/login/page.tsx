@@ -7,7 +7,8 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Divider } from "@/components/ui/divider";
+import { Divider } from "@/components/ui/divider";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 function getLoginErrorMessage(error: unknown): string {
   if (!(error instanceof Error)) return "Something went wrong.";
@@ -151,7 +152,7 @@ export default function LoginPage() {
             {/* Error display */}
             {error && (
               <div className="flex items-start gap-2.5 p-3 rounded-xl bg-error-container/30 border border-error/10" role="alert">
-                <span className="material-symbols-outlined text-error text-lg shrink-0 mt-0.5">error</span>
+                <AppIcon name="error" size={18} className="text-error mt-0.5" />
                 <p className="text-sm text-on-error-container">{error}</p>
               </div>
             )}

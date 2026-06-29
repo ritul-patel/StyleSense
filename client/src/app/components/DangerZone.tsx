@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { apiFetch } from "@/lib/api";
 import SettingsCard from "./SettingsCard";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 
@@ -19,9 +20,7 @@ function ToastContainer({ toasts }: { toasts: Toast[] }) {
           key={t.id}
           className="px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 animate-slide-up bg-[#1b1c1b] dark:bg-[#fcf9f8] text-[#fcf9f8] dark:text-[#1b1c1b]"
         >
-          <span className="material-symbols-outlined text-sm">
-            {t.type === "success" ? "check_circle" : "error"}
-          </span>
+          <AppIcon name={t.type === "success" ? "check_circle" : "error"} size={14} />
           <span className="text-xs font-bold uppercase tracking-widest">
             {t.message}
           </span>

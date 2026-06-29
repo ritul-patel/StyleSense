@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import RequireAdmin from "../../components/RequireAdmin";
 import AdminLayout from "../../components/AdminLayout";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 type Product = {
   id: string;
@@ -173,7 +174,7 @@ function MetadataContent() {
                 {!editMode && <button onClick={() => setEditMode(true)} className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold hover:bg-gray-50">Edit</button>}
                 {editMode && <button onClick={saveMetadata} className="px-3 py-1.5 rounded-lg bg-[#002b92] text-white text-xs font-bold">Save</button>}
                 {editMode && <button onClick={() => setEditMode(false)} className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold hover:bg-gray-50">Cancel</button>}
-                <button onClick={() => setViewProduct(null)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100"><span className="material-symbols-outlined text-lg">close</span></button>
+                <button onClick={() => setViewProduct(null)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100"><AppIcon name="close" size={18} /></button>
               </div>
             </div>
 
@@ -298,7 +299,7 @@ function MetadataContent() {
             <button onClick={() => publishSelected(true)} disabled={selected.size === 0} className="px-3 py-1.5 rounded-lg border border-green-200 text-[10px] font-bold text-green-700 hover:bg-green-50 disabled:opacity-30">Publish</button>
             <button onClick={() => publishSelected(false)} disabled={selected.size === 0} className="px-3 py-1.5 rounded-lg border border-gray-200 text-[10px] font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-30">Unpublish</button>
             <button onClick={() => generateMetadata(false)} disabled={selected.size === 0 || generating} className="px-4 py-1.5 rounded-lg text-white text-[10px] font-bold disabled:opacity-40 flex items-center gap-1.5" style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}>
-              <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
+              <AppIcon name="auto_awesome" size={14} />
               {generating ? "Working..." : "Generate AI"}
             </button>
           </div>
@@ -314,7 +315,7 @@ function MetadataContent() {
                   onClick={() => generateMetadata(true)}
                   className="px-3 py-1 rounded-lg border border-amber-200 text-[10px] font-bold text-amber-700 hover:bg-amber-50 flex items-center gap-1"
                 >
-                  <span className="material-symbols-outlined text-[12px]">refresh</span>
+                  <AppIcon name="refresh" size={12} />
                   Retry Failed ({results.filter((r) => !r.success && !r.skipped).length})
                 </button>
               )}
@@ -322,9 +323,7 @@ function MetadataContent() {
             <div className="max-h-40 overflow-y-auto space-y-1" data-lenis-prevent>
               {results.map((r, i) => (
                 <div key={i} className="flex items-center gap-2 text-[11px] py-1 border-b border-gray-50 last:border-0">
-                  <span className={`material-symbols-outlined text-[14px] ${r.success ? (r.skipped ? "text-gray-400" : "text-green-600") : "text-red-500"}`}>
-                    {r.success ? (r.skipped ? "skip_next" : "check_circle") : "error"}
-                  </span>
+                  <AppIcon name={r.success ? (r.skipped ? "check_circle" : "check_circle") : "error"} size={14} className={r.success ? (r.skipped ? "text-gray-400" : "text-green-600") : "text-red-500"} />
                   <span className="font-medium text-gray-700 w-36 truncate">{r.name}</span>
                   {r.skipped && <span className="text-gray-400">skipped</span>}
                   {!r.skipped && r.success && <span className="text-green-600">{r.duration_ms ? `${Math.round(r.duration_ms / 1000)}s` : ""}{r.retries > 0 ? ` (${r.retries} retries)` : ""}</span>}
@@ -345,7 +344,7 @@ function MetadataContent() {
           <div className="bg-white rounded-xl p-8 border border-gray-100 text-center text-sm text-gray-400">Loading...</div>
         ) : filteredProducts.length === 0 ? (
           <div className="bg-white rounded-xl p-8 border border-gray-100 text-center">
-            <span className="material-symbols-outlined text-gray-300 block mb-2" style={{ fontSize: 36 }}>inventory_2</span>
+            <AppIcon name="inventory_2" size={36} className="text-gray-300 block mb-2" />
             <p className="text-sm text-gray-400">No products match this filter.</p>
           </div>
         ) : (

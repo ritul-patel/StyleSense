@@ -9,6 +9,8 @@ import { OUTFITS } from "@/data/outfits";
 import { getProductsForOutfit } from "@/data/outfitProducts";
 import { useSavedOutfits } from "@/app/context/SavedOutfitsContext";
 import { ScrollStagger, ScrollStaggerItem } from "@/components/motion";
+import { AppIcon } from "@/components/ui/AppIcon";
+
 
 const CATEGORIES = ["All", "T-Shirts", "Polo", "Shirts", "Jeans", "Sneakers"];
 const BUDGETS = ["All", "₹0-999", "₹1000-1999", "₹2000+"];
@@ -206,9 +208,7 @@ export default function DiscoverPage() {
 
         {/* Search */}
         <div className="relative w-full max-w-2xl mb-8">
-          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
-            search
-          </span>
+          <AppIcon name="search" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             value={searchQuery}
@@ -289,7 +289,7 @@ export default function DiscoverPage() {
           {filteredLooks.length === 0 ? (
             <div className="col-span-full py-20 text-center">
               <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                <span className="material-symbols-outlined text-gray-400 text-2xl">search_off</span>
+                <AppIcon name="search_off" className="text-gray-400" />
               </div>
               <p className="text-gray-500 font-medium mb-2">No outfits found</p>
               <p className="text-gray-400 text-sm">Try changing your filters or search term.</p>
@@ -338,9 +338,7 @@ export default function DiscoverPage() {
                       }}
                       className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-gray-200 transition-colors shrink-0"
                     >
-                      <span className={`material-symbols-outlined text-[18px] ${isSaved(look.id) ? "text-red-500" : ""}`}>
-                        {isSaved(look.id) ? "favorite" : "favorite_border"}
-                      </span>
+                      <AppIcon name="favorite" size={18} className={isSaved(look.id) ? "text-red-500" : "text-gray-600"} filled={isSaved(look.id)} />
                     </button>
                     <div className="flex-1 bg-[#1a1a1a] text-white h-10 rounded-lg flex items-center justify-center text-xs font-bold tracking-wide hover:bg-black transition-colors">
                       View Look

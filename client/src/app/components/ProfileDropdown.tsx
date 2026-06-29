@@ -6,7 +6,8 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 import { fetchProfile, getCachedProfile } from "@/lib/profile-cache";
 import { AnimatePresence, motion } from "framer-motion";
-import { dropdownVariants } from "@/lib/motion";
+import { dropdownVariants } from "@/lib/motion";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 function getInitials(name: string, email: string): string {
   if (name.trim()) {
@@ -125,7 +126,7 @@ export default function ProfileDropdown() {
               role="menuitem"
               className="w-full flex items-center gap-3 px-5 py-3 text-sm text-[#1b1c1b] hover:bg-[#f6f3f2] transition-colors text-left"
             >
-              <span className="material-symbols-outlined text-[18px] text-[#747686]">settings</span>
+              <AppIcon name="settings" size={18} className="text-[#747686]" />
               Settings
             </button>
           </div>
@@ -137,7 +138,7 @@ export default function ProfileDropdown() {
               role="menuitem"
               className="w-full flex items-center gap-3 px-5 py-3 text-sm text-[#ba1a1a] hover:bg-red-50 transition-colors text-left"
             >
-              <span className="material-symbols-outlined text-[18px]">logout</span>
+              <AppIcon name="logout" size={18} />
               Sign Out
             </button>
           </div>

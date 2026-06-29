@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import RequireAdmin from "../components/RequireAdmin";
 import AdminLayout from "../components/AdminLayout";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 type Stats = {
   total_analyses: number;
@@ -55,7 +56,7 @@ function DashboardContent() {
                 <div key={card.label} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${card.color}10` }}>
-                      <span className="material-symbols-outlined" style={{ color: card.color, fontSize: 22 }}>{card.icon}</span>
+                      <AppIcon name={card.icon} />
                     </div>
                   </div>
                   <p className="text-2xl font-bold text-[#1b1c1b]">{card.value}</p>
@@ -115,7 +116,7 @@ function DashboardContent() {
                   { label: "View Users", href: "/admin/users", icon: "people" },
                 ].map((a) => (
                   <a key={a.href} href={a.href} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:border-[#002b92]/30 hover:bg-[#002b92]/5 transition-all">
-                    <span className="material-symbols-outlined text-[#002b92] text-lg">{a.icon}</span>
+                    <AppIcon name={a.icon} size={18} className="text-[#002b92]" />
                     <span className="text-sm font-medium">{a.label}</span>
                   </a>
                 ))}

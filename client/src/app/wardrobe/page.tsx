@@ -10,7 +10,8 @@ import { fetchProductsLegacy, type LegacyProduct } from "@/lib/products-api";
 import { PRODUCTS as STATIC_PRODUCTS } from "@/data/products";
 import { ScrollStagger, ScrollStaggerItem } from "@/components/motion";
 import type { ColorEntry } from "@/types/analysis";
-import type { ClosetItem, OutfitBuild } from "@/lib/wardrobe-repository";
+import type { ClosetItem, OutfitBuild } from "@/lib/wardrobe-repository";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 // Use LegacyProduct as the local Product type for backward compat
 type Product = LegacyProduct;
@@ -77,14 +78,14 @@ function ProductGrid({ product, score, wishlisted, onToggle }: { product: Produc
         {product.image && !imgErr ? (
           <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width:768px) 50vw,(max-width:1200px) 33vw,25vw" onError={() => setImgErr(true)} loading="lazy" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-stone-300" style={{ fontSize: 48 }}>checkroom</span></div>
+          <div className="w-full h-full flex items-center justify-center"><AppIcon name="checkroom" size={48} className="text-stone-300" /></div>
         )}
         {score !== undefined && score > 0 && (
           <div className="absolute top-3 left-3"><span className="bg-[#002b92] text-white text-[9px] font-bold px-2.5 py-1 rounded-full">{score}% Match</span></div>
         )}
         <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggle(); }} aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
           className="absolute top-2 right-2 w-10 h-10 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center shadow-sm hover:scale-110 active:scale-95 transition-transform">
-          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0", color: wishlisted ? "#e11d48" : "#6b7280" }}>favorite</span>
+          <AppIcon name="favorite" size={20} filled />
         </button>
       </div>
       <div className="p-4 space-y-1.5">
@@ -105,7 +106,7 @@ function ClosetCard({ item, onRemove }: { item: ClosetItem; onRemove: () => void
       <div className="relative aspect-square bg-[#f6f3f2] dark:bg-[#0f0f14] overflow-hidden">
         <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
         <button onClick={onRemove} aria-label="Remove" className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 dark:bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <span className="material-symbols-outlined text-[16px] text-red-500">delete</span>
+          <AppIcon name="delete" size={16} className="text-red-500" />
         </button>
         {item.category && <div className="absolute bottom-3 left-3"><span className="bg-black/60 text-white text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm">{item.category}</span></div>}
       </div>
@@ -139,7 +140,7 @@ function UploadModal({ onAdd, onClose }: { onAdd: (item: Omit<ClosetItem, "id" |
         <div className="relative aspect-square w-full max-w-[200px] mx-auto rounded-2xl overflow-hidden bg-[#f6f3f2] dark:bg-[#0f0f14] border-2 border-dashed border-[#c4c5d7] cursor-pointer" onClick={() => fileRef.current?.click()}>
           {preview ? <img src={preview} alt="Preview" className="w-full h-full object-cover" /> : (
             <div className="flex flex-col items-center justify-center h-full gap-2">
-              <span className="material-symbols-outlined text-[#747686]" style={{ fontSize: 40 }}>add_a_photo</span>
+              <AppIcon name="add_a_photo" size={40} className="text-[#747686]" />
               <span className="text-xs text-[#747686] font-semibold">Tap to upload</span>
             </div>
           )}
@@ -202,8 +203,8 @@ function OutfitBuilderPanel({ onSave }: { onSave: (outfit: Omit<OutfitBuild, "id
           <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
             {wishlistProducts.slice(0, 18).map((p) => (
               <button key={p.id} onClick={() => toggleProduct(p.id)} className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selected.has(p.id) ? "border-[#002b92] ring-2 ring-[#002b92]/30" : "border-transparent hover:border-[#c4c5d7]"}`}>
-                {p.image ? <Image src={p.image} alt={p.name} fill className="object-cover" /> : <div className="w-full h-full bg-[#f0edec] flex items-center justify-center"><span className="material-symbols-outlined text-stone-400">checkroom</span></div>}
-                {selected.has(p.id) && <div className="absolute inset-0 bg-[#002b92]/20 flex items-center justify-center"><span className="material-symbols-outlined text-white text-2xl">check_circle</span></div>}
+                {p.image ? <Image src={p.image} alt={p.name} fill className="object-cover" /> : <div className="w-full h-full bg-[#f0edec] flex items-center justify-center"><AppIcon name="checkroom" className="text-stone-400" /></div>}
+                {selected.has(p.id) && <div className="absolute inset-0 bg-[#002b92]/20 flex items-center justify-center"><AppIcon name="check_circle" className="text-white" /></div>}
               </button>
             ))}
           </div>
@@ -218,7 +219,7 @@ function OutfitBuilderPanel({ onSave }: { onSave: (outfit: Omit<OutfitBuild, "id
             {closetItems.map((item) => (
               <button key={item.id} onClick={() => toggleCloset(item.id)} className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedCloset.has(item.id) ? "border-[#002b92] ring-2 ring-[#002b92]/30" : "border-transparent hover:border-[#c4c5d7]"}`}>
                 <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                {selectedCloset.has(item.id) && <div className="absolute inset-0 bg-[#002b92]/20 flex items-center justify-center"><span className="material-symbols-outlined text-white text-2xl">check_circle</span></div>}
+                {selectedCloset.has(item.id) && <div className="absolute inset-0 bg-[#002b92]/20 flex items-center justify-center"><AppIcon name="check_circle" className="text-white" /></div>}
               </button>
             ))}
           </div>
@@ -240,7 +241,7 @@ function EmptyState({ icon, title, desc, cta, href, onClick }: { icon: string; t
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
       <div className="w-20 h-20 rounded-full bg-[#dde1ff] flex items-center justify-center mb-6">
-        <span className="material-symbols-outlined text-[#002b92]" style={{ fontSize: 40 }}>{icon}</span>
+        <AppIcon name={icon} size={40} className="text-[#002b92]" />
       </div>
       <h2 className="text-2xl font-bold mb-3" style={{ fontFamily: "Manrope, sans-serif" }}>{title}</h2>
       <p className="text-[#434654] dark:text-[#a0a0b8] mb-8 max-w-sm">{desc}</p>
@@ -396,7 +397,7 @@ function WardrobePageContent() {
             <div className="flex justify-between items-center mb-6">
               <p className="text-sm text-[#747686]">{closetItems.length} items</p>
               <button onClick={() => setShowUpload(true)} className="px-5 py-2.5 rounded-full text-white text-xs font-bold uppercase tracking-wider hover:scale-[1.02] transition-transform" style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}>
-                <span className="material-symbols-outlined text-sm mr-1 align-middle">add_a_photo</span>Upload
+                <AppIcon name="add_a_photo" size={14} className="mr-1 align-middle" />Upload
               </button>
             </div>
             {closetItems.length > 0 ? (
@@ -447,7 +448,7 @@ function WardrobePageContent() {
                     <div key={o.id} className="bg-white dark:bg-[#1b1c1b] rounded-2xl p-4 border border-black/5 dark:border-white/5">
                       <div className="flex justify-between items-start mb-3">
                         <h4 className="font-bold text-sm">{o.name}</h4>
-                        <button onClick={() => removeOutfit(o.id)} className="text-[#747686] hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-[18px]">delete</span></button>
+                        <button onClick={() => removeOutfit(o.id)} className="text-[#747686] hover:text-red-500 transition-colors"><AppIcon name="delete" size={18} /></button>
                       </div>
                       <p className="text-[10px] text-[#747686] uppercase tracking-wider">{o.productIds.length + o.closetItemIds.length} items</p>
                       <div className="flex gap-1 mt-2 overflow-hidden">

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/lib/auth-context";import { AppIcon } from "@/components/ui/AppIcon";
+
 
 const NAV_ITEMS = [
   { href: "/admin/dashboard", label: "Dashboard", icon: "dashboard" },
@@ -47,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="px-6 py-6 border-b border-white/10">
           <Link href="/admin/dashboard" className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-[#002b92] flex items-center justify-center">
-              <span className="material-symbols-outlined text-white text-sm">shield_person</span>
+              <AppIcon name="shield_person" size={14} className="text-white" />
             </div>
             <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "Manrope, sans-serif" }}>Admin</span>
           </Link>
@@ -60,7 +61,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             return (
               <Link key={href} href={href}
                 className={`flex items-center gap-3 ${indent ? "pl-10" : "px-4"} py-2.5 rounded-xl text-sm transition-all ${isActive ? "bg-white/10 text-white font-semibold" : "text-white/60 hover:text-white hover:bg-white/5"}`}>
-                <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}>{icon}</span>
+                <AppIcon name={icon} size={18} filled={isActive} />
                 <span className={indent ? "text-xs" : ""}>{label}</span>
               </Link>
             );
@@ -70,11 +71,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Bottom */}
         <div className="px-3 py-4 border-t border-white/10">
           <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all">
-            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+            <AppIcon name="arrow_back" size={20} />
             Back to Site
           </Link>
           <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-all mt-1">
-            <span className="material-symbols-outlined text-[20px]">logout</span>
+            <AppIcon name="logout" size={20} />
             Sign Out
           </button>
         </div>

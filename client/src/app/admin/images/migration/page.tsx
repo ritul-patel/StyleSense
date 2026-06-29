@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import RequireAdmin from "../../components/RequireAdmin";
 import AdminLayout from "../../components/AdminLayout";
 import { apiFetch } from "@/lib/api";
+import { AppIcon } from "@/components/ui/AppIcon";
+
 
 type MigrationStatus = {
   total_products_with_images: number;
@@ -139,7 +141,7 @@ function MigrationContent() {
                   className="px-6 py-3 rounded-xl text-white text-sm font-bold disabled:opacity-40 flex items-center gap-2"
                   style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}
                 >
-                  <span className="material-symbols-outlined text-sm">{running ? "progress_activity" : "cloud_sync"}</span>
+                  <AppIcon name={running ? "progress_activity" : "cloud_sync"} size={14} />
                   {running ? "Migrating..." : "Start Migration"}
                 </button>
 
@@ -148,7 +150,7 @@ function MigrationContent() {
                     onClick={retryFailed}
                     className="px-6 py-3 rounded-xl border-2 border-[#002b92]/20 text-[#002b92] text-sm font-bold hover:bg-[#002b92]/5 flex items-center gap-2"
                   >
-                    <span className="material-symbols-outlined text-sm">refresh</span>
+                    <AppIcon name="refresh" size={14} />
                     Retry Failed ({status?.failed})
                   </button>
                 )}
@@ -157,7 +159,7 @@ function MigrationContent() {
                   onClick={fetchStatus}
                   className="px-4 py-3 rounded-xl border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50 flex items-center gap-2"
                 >
-                  <span className="material-symbols-outlined text-sm">refresh</span>
+                  <AppIcon name="refresh" size={14} />
                   Refresh
                 </button>
               </div>
@@ -177,15 +179,11 @@ function MigrationContent() {
                 <div className="max-h-80 overflow-y-auto space-y-2">
                   {results.map((r, i) => (
                     <div key={i} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                      <span className={`material-symbols-outlined text-sm ${
-                        r.status === "completed" || r.status === "duplicate" ? "text-green-600" :
-                        r.status === "failed" ? "text-red-500" :
-                        r.status === "already_migrated" ? "text-blue-500" : "text-gray-400"
-                      }`}>
-                        {r.status === "completed" || r.status === "duplicate" ? "check_circle" :
-                         r.status === "failed" ? "error" :
-                         r.status === "already_migrated" ? "info" : "pending"}
-                      </span>
+                      <AppIcon
+                        name={r.status === "completed" || r.status === "duplicate" ? "check_circle" : r.status === "failed" ? "error" : r.status === "already_migrated" ? "check_circle" : "refresh"}
+                        size={14}
+                        className={r.status === "completed" || r.status === "duplicate" ? "text-green-600" : r.status === "failed" ? "text-red-500" : r.status === "already_migrated" ? "text-blue-500" : "text-gray-400"}
+                      />
                       <span className="text-xs font-mono text-gray-500 w-20 shrink-0">{r.product_id.slice(0, 8)}...</span>
                       <span className={`text-xs font-semibold ${
                         r.status === "completed" ? "text-green-700" :
@@ -297,7 +295,7 @@ function OutfitMigration({ showToast }: { showToast: (msg: string) => void }) {
           className="px-5 py-2.5 rounded-xl text-white text-xs font-bold disabled:opacity-40 flex items-center gap-2"
           style={{ background: "linear-gradient(135deg, #003ec7, #002b92)" }}
         >
-          <span className="material-symbols-outlined text-sm">{running ? "progress_activity" : "cloud_sync"}</span>
+          <AppIcon name={running ? "progress_activity" : "cloud_sync"} size={14} />
           {running ? "Importing..." : "Import Outfits"}
         </button>
       </div>
@@ -307,9 +305,7 @@ function OutfitMigration({ showToast }: { showToast: (msg: string) => void }) {
           <div className="max-h-48 overflow-y-auto space-y-1.5">
             {outfitResults.map((r, i) => (
               <div key={i} className="flex items-center gap-2 text-xs">
-                <span className={`material-symbols-outlined text-sm ${r.status === "completed" ? "text-green-600" : "text-red-500"}`}>
-                  {r.status === "completed" ? "check_circle" : "error"}
-                </span>
+                <AppIcon name={r.status === "completed" ? "check_circle" : "error"} size={14} className={r.status === "completed" ? "text-green-600" : "text-red-500"} />
                 <span className="font-mono text-gray-500">{r.outfit_id}</span>
                 {r.storage_url && <span className="text-green-600 truncate max-w-[200px]">→ Storage ✓</span>}
                 {r.error && <span className="text-red-400 truncate max-w-[200px]">{r.error}</span>}
