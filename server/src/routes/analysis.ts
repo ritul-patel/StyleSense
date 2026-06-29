@@ -432,6 +432,7 @@ router.get("/history", optionalAuthMiddleware, async (req: AuthenticatedRequest,
       };
     });
     console.log(`[history] GET / — auth: ${authMs}ms, db: ${dbMs}ms, rows: ${payload.length}`);
+    res.setHeader("Cache-Control", "private, max-age=30, stale-while-revalidate=60");
     return res.json(payload);
   } catch (error: any) {
     console.error(`[history][${reqId}] ${error.message || error}`);

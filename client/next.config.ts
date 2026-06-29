@@ -16,7 +16,9 @@ const nextConfig: NextConfig = {
     ],
   },
   images: {
+    formats: ["image/avif", "image/webp"],
     qualities: [60, 75],
+    minimumCacheTTL: 31536000, // 1 year — images are content-addressed
     remotePatterns: [
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "assets.myntassets.com" },
@@ -30,9 +32,26 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "uizrytwhgvvwhrdwwyyh.supabase.co" },
     ],
   },
+  // Compression handled by Vercel CDN — disable Node.js gzip for faster SSR
+  compress: false,
   // TypeScript errors must be fixed — do not suppress in production builds
   typescript: {
     ignoreBuildErrors: false,
+  },
+  // Cache build artifacts
+  cacheMaxMemorySize: 128,
+  // Headers for static assets
+  async headers() {
+    return [
+      {
+        source: "/logo.png",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
+        source: "/(.*)\\.(png|jpg|jpeg|webp|avif|ico|svg)",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+    ];
   },
 };
 
