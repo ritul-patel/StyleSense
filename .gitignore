@@ -1,4 +1,4 @@
-﻿# dependencies
+# dependencies
 node_modules/
 # env
 .env
@@ -44,3 +44,24 @@ PERFORMANCE_AUDIT.md
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# TypeScript build cache
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Python virtual environments
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Uploaded files (local dev only)
+server/uploads/
+
+# Test artifacts
+jest-results/
+.jest-cache/
+
+# Package tarballs
+*.tgz
