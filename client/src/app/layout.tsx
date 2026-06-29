@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Manrope, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
-import FeedbackWidget from "./components/FeedbackWidget";
+import LazyFeedbackWidget from "./components/LazyFeedbackWidget";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
@@ -117,12 +117,7 @@ export default function RootLayout({
           }}
         />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Material Symbols — non-blocking: preload fetches early, script activates after load */}
-        <link
-          rel="preload"
-          as="style"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
-        />
+        {/* Material Symbols — loaded non-blocking via JS after page renders */}
         <script dangerouslySetInnerHTML={{ __html: `
           var l=document.createElement('link');l.rel='stylesheet';
           l.href='https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap';
@@ -131,7 +126,7 @@ export default function RootLayout({
       </head>
       <body className="overflow-x-hidden">
         <Providers>{children}</Providers>
-        <FeedbackWidget />
+        <LazyFeedbackWidget />
         <Analytics />
         <SpeedInsights />
       </body>
