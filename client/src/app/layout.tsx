@@ -3,6 +3,7 @@ import { Inter, Manrope, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import FeedbackWidget from "./components/FeedbackWidget";
+import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // Self-hosted fonts via next/font — eliminates render-blocking external requests
@@ -131,6 +132,7 @@ export default function RootLayout({
       <body className="overflow-x-hidden">
         <Providers>{children}</Providers>
         <FeedbackWidget />
+        <Analytics />
         <SpeedInsights />
       </body>
     </html>
