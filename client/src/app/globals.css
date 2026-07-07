@@ -172,3 +172,42 @@
     }
   }
 }
+
+/* ── Blog Typography ── */
+.prose-blog {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: #1b1c1b;
+}
+
+.prose-blog .blog-h1 { font-size: 2.25rem; font-weight: 800; margin: 2rem 0 1rem; font-family: var(--font-headline); letter-spacing: -0.02em; }
+.prose-blog .blog-h2 { font-size: 1.75rem; font-weight: 700; margin: 2.5rem 0 0.75rem; font-family: var(--font-headline); letter-spacing: -0.01em; border-bottom: 1px solid #f0edec; padding-bottom: 0.5rem; }
+.prose-blog .blog-h3 { font-size: 1.35rem; font-weight: 700; margin: 2rem 0 0.5rem; font-family: var(--font-headline); }
+.prose-blog .blog-h4 { font-size: 1.125rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+.prose-blog .blog-h5 { font-size: 1rem; font-weight: 600; margin: 1.25rem 0 0.5rem; }
+.prose-blog .blog-h6 { font-size: 0.875rem; font-weight: 600; margin: 1rem 0 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; color: #747686; }
+
+.prose-blog .blog-p { margin: 1rem 0; }
+
+.prose-blog .blog-link { color: #002b92; font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
+.prose-blog .blog-link:hover { color: #003ec7; }
+
+.prose-blog .blog-img { width: 100%; border-radius: 1rem; margin: 1.5rem 0; }
+
+.prose-blog .blog-ul { list-style: disc; padding-left: 1.5rem; margin: 1rem 0; }
+.prose-blog .blog-ol { list-style: decimal; padding-left: 1.5rem; margin: 1rem 0; }
+.prose-blog .blog-li { margin: 0.25rem 0; }
+.prose-blog .blog-li-ol { margin: 0.25rem 0; }
+
+.prose-blog .blog-quote { border-left: 3px solid #002b92; padding: 0.75rem 1rem; margin: 1.5rem 0; background: #f6f3f2; border-radius: 0 0.75rem 0.75rem 0; font-style: italic; color: #434654; }
+
+.prose-blog .blog-hr { border: none; border-top: 1px solid #e4e2e1; margin: 2.5rem 0; }
+
+.prose-blog .blog-code { padding: 1rem 1.25rem; background: #1b1c1b; color: #f6f3f2; border-radius: 0.75rem; overflow-x: auto; font-size: 0.85rem; margin: 1.5rem 0; display: block; }
+.prose-blog .blog-inline-code { background: #f0edec; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.9em; color: #002b92; }
+
+.prose-blog .blog-callout { background: #dde1ff; border-radius: 1rem; padding: 1.25rem 1.5rem; margin: 1.5rem 0; border-left: 4px solid #002b92; }
+
+.prose-blog table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.875rem; }
+.prose-blog th { text-align: left; padding: 0.75rem; background: #f6f3f2; font-weight: 600; border-bottom: 2px solid #e4e2e1; }
+.prose-blog td { padding: 0.75rem; border-bottom: 1px solid #f0edec; }
