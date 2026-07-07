@@ -1,0 +1,37 @@
+# Dependencies (rebuilt in Docker)
+node_modules
+
+# Build output (rebuilt in Docker)
+dist
+
+# Git
+.git
+.github
+
+# IDE
+.vscode
+.idea
+
+# Environment (secrets injected by Koyeb)
+.env
+.env.*
+!.env.example
+
+# Test/Dev files
+coverage
+*.log
+test-api.http
+test-image.txt
+jest.config.js
+__pycache__
+
+# Temp files
+uploads/*
+tmp
+cd
+
+# Migrations (not needed at runtime)
+migrations
+
+# Scripts (dev-only)
+scripts

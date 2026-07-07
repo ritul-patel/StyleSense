@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { useAuth } from "@/lib/auth-context";import { AppIcon } from "@/components/ui/AppIcon";
+import { useAuth } from "@/lib/auth-context";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 
 const NAV_ITEMS = [
   { href: "/admin/dashboard", label: "Dashboard", icon: "dashboard" },
+  { href: "/admin/blog", label: "Blog", icon: "mail" },
   { href: "/admin/products", label: "Products", icon: "inventory_2" },
   { href: "/admin/products/import", label: "Import CSV", icon: "upload_file", indent: true },
   { href: "/admin/products/images", label: "Upload Images", icon: "add_photo_alternate", indent: true },
