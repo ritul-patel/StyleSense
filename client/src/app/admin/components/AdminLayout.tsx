@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/admin/images/migration", label: "Image Migration", icon: "cloud_sync", indent: true },
   { href: "/admin/outfits", label: "Outfits", icon: "checkroom" },
   { href: "/admin/users", label: "Users", icon: "group" },
+  { href: "/admin/feedback", label: "Feedback", icon: "inbox" },
   { href: "/admin/analytics", label: "Analytics", icon: "analytics" },
   { href: "/admin/settings", label: "Settings", icon: "settings" },
 ];
