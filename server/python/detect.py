@@ -23,9 +23,42 @@ FITZPATRICK_BANDS = [
 SKIN_YCRB_LOWER = np.array([0,  133, 77],  dtype=np.uint8)
 SKIN_YCRB_UPPER = np.array([255, 173, 127], dtype=np.uint8)
 
-# Load OpenCV Haar cascade (ships with cv2)
-CASCADE_PATH = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-face_cascade = cv2.CascadeClassifier(CASCADE_PATH)
+# Load OpenCV Haar cascade
+# Strategy: try cv2.data.haarcascades (works when opencv ships data files),
+# then fall back to bundled XML in same directory as this script.
+def _load_cascade():
+    """Load face cascade with fallback to bundled XML."""
+    # Try 1: OpenCV's built-in data directory
+    try:
+        cv2_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        if os.path.isfile(cv2_path):
+            cc = cv2.CascadeClassifier(cv2_path)
+            if not cc.empty():
+                return cc
+    except (AttributeError, Exception):
+        pass  # cv2.data may not exist in some builds
+
+    # Try 2: Bundled XML relative to this script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    bundled_path = os.path.join(script_dir, "haarcascade_frontalface_default.xml")
+    if os.path.isfile(bundled_path):
+        cc = cv2.CascadeClassifier(bundled_path)
+        if not cc.empty():
+            return cc
+
+    # Try 3: Common Linux system paths
+    for sys_path in [
+        "/usr/share/opencv4/haarcascades/haarcascade_frontalface_default.xml",
+        "/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_default.xml",
+    ]:
+        if os.path.isfile(sys_path):
+            cc = cv2.CascadeClassifier(sys_path)
+            if not cc.empty():
+                return cc
+
+    return None
+
+face_cascade = _load_cascade()
 
 
 def emit_json(payload):
@@ -63,6 +96,8 @@ def grey_world_white_balance(img):
 
 def detect_face(img):
     """Returns (x, y, w, h) of largest face, or None."""
+    if face_cascade is None or face_cascade.empty():
+        return None  # Cascade not available — skip face detection, use center fallback
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.equalizeHist(gray)
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=4, minSize=(60, 60))
