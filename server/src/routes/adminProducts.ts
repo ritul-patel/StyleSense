@@ -8,7 +8,7 @@ import { invalidateProductsCache } from "./products";
 const router = Router();
 router.use(adminMiddleware);
 
-// GET /api/v1/admin/products — list all (paginated, searchable)
+// GET /api/v1/admin/products - list all (paginated, searchable)
 router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
@@ -67,7 +67,7 @@ router.get("/:id", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// POST /api/v1/admin/products — create
+// POST /api/v1/admin/products - create
 router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { name, brand, category, description, price, currency, image_url, affiliate_url, store_url, primary_color, secondary_colors, seasons, occasions, styles, materials, fit, formality, is_published } = req.body;
@@ -116,10 +116,10 @@ router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// PATCH /api/v1/admin/products/:id — update
+// PATCH /api/v1/admin/products/:id - update
 router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    // ai_metadata is intentionally EXCLUDED — it must only be modified via
+    // ai_metadata is intentionally EXCLUDED - it must only be modified via
     // dedicated metadata endpoints (PATCH /admin/metadata/update/:id or generate-batch)
     // to prevent accidental overwrites of generated AI data.
     const allowedFields = ["name", "brand", "category", "description", "price", "currency", "image_url", "affiliate_url", "store_url", "primary_color", "secondary_colors", "seasons", "occasions", "styles", "materials", "fit", "formality", "is_published"];
@@ -182,7 +182,7 @@ router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// POST /api/v1/admin/products/:id/generate-metadata — AI metadata generation
+// POST /api/v1/admin/products/:id/generate-metadata - AI metadata generation
 router.post("/:id/generate-metadata", async (req: AuthenticatedRequest, res: Response) => {
   try {
     // Fetch the product

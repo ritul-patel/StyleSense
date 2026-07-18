@@ -13,7 +13,7 @@ export default function LazyFeedbackWidget() {
   const [Widget, setWidget] = useState<React.ComponentType | null>(null);
 
   useEffect(() => {
-    // Load after the browser is idle — never block initial render
+    // Load after the browser is idle - never block initial render
     const load = () => {
       import("./FeedbackWidget").then((mod) => {
         setWidget(() => mod.default);

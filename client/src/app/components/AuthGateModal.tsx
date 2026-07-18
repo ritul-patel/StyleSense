@@ -61,7 +61,7 @@ export default function AuthGateModal({ open, onClose }: AuthGateModalProps) {
       } else {
         const { error: err } = await supabase.auth.signInWithPassword({ email, password });
         if (err) throw err;
-        // Login success — onAuthStateChange will fire, analysis will auto-continue
+        // Login success - onAuthStateChange will fire, analysis will auto-continue
       }
     } catch (err: any) {
       setError(err.message || "Authentication failed.");

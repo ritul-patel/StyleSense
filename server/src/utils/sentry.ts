@@ -50,9 +50,9 @@ if (dsn && isProduction) {
 
   console.log("[sentry] Initialized for production");
 } else if (!dsn) {
-  console.log("[sentry] Skipped — no SENTRY_DSN configured");
+  console.log("[sentry] Skipped - no SENTRY_DSN configured");
 } else {
-  console.log("[sentry] Skipped — not production");
+  console.log("[sentry] Skipped - not production");
 }
 
 export { Sentry };

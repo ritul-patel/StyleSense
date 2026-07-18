@@ -63,7 +63,7 @@ async function generateSingleProduct(product: any): Promise<{
       if (!hasSubstance(result.metadata)) {
         lastError = "AI returned empty/zero-confidence metadata";
         lastErrorType = "empty_response";
-        // Don't retry empty responses — AI just couldn't analyze this product
+        // Don't retry empty responses - AI just couldn't analyze this product
         break;
       }
       return {
@@ -96,7 +96,7 @@ async function generateSingleProduct(product: any): Promise<{
 
     // Rate limit gets a longer pause
     const delay = isRateLimited(lastError) ? RATE_LIMIT_PAUSE : RETRY_DELAYS[attempt];
-    console.log(`[metadata] Retry ${attempt + 1}/${RETRY_DELAYS.length} for "${product.name}" — waiting ${delay / 1000}s (${lastErrorType})`);
+    console.log(`[metadata] Retry ${attempt + 1}/${RETRY_DELAYS.length} for "${product.name}" - waiting ${delay / 1000}s (${lastErrorType})`);
     await new Promise((r) => setTimeout(r, delay));
   }
 
@@ -145,7 +145,7 @@ router.post("/generate-batch", async (req: AuthenticatedRequest, res: Response) 
       );
 
       if (q.rows.length === 0) {
-        results.push({ id, name: "—", success: false, duration_ms: 0, retries: 0, error: "Product not found", errorType: "not_found" });
+        results.push({ id, name: "-", success: false, duration_ms: 0, retries: 0, error: "Product not found", errorType: "not_found" });
         continue;
       }
 
@@ -224,7 +224,7 @@ router.post("/generate-batch", async (req: AuthenticatedRequest, res: Response) 
   }
 });
 
-// ─── PATCH /update/:id — edit metadata manually ─────────────────────────────
+// ─── PATCH /update/:id - edit metadata manually ─────────────────────────────
 
 router.patch("/update/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -259,7 +259,7 @@ router.patch("/update/:id", async (req: AuthenticatedRequest, res: Response) => 
   }
 });
 
-// ─── POST /publish — publish/unpublish products ─────────────────────────────
+// ─── POST /publish - publish/unpublish products ─────────────────────────────
 
 router.post("/publish", async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -291,7 +291,7 @@ router.post("/publish", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// ─── GET /status — metadata stats ───────────────────────────────────────────
+// ─── GET /status - metadata stats ───────────────────────────────────────────
 
 router.get("/status", async (req: AuthenticatedRequest, res: Response) => {
   try {

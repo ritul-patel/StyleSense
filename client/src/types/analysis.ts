@@ -1,5 +1,5 @@
 // Client-side mirror of server/src/types/analysis.ts
-// Do not diverge — these two files must stay in sync.
+// Do not diverge - these two files must stay in sync.
 
 export interface ColorEntry {
   name: string;

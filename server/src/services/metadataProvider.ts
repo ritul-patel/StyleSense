@@ -5,8 +5,8 @@
  *   ProductInput → PromptBuilder → Provider → RawOutput → Validator → GeneratedMetadata
  *
  * Providers:
- *   - ClaudeProvider (Anthropic) — active if ANTHROPIC_API_KEY is set
- *   - StubProvider — fallback when no provider configured
+ *   - ClaudeProvider (Anthropic) - active if ANTHROPIC_API_KEY is set
+ *   - StubProvider - fallback when no provider configured
  *   - Future: GeminiProvider, OpenAIProvider, LocalVisionProvider
  */
 
@@ -256,7 +256,7 @@ export async function generateProductMetadata(product: ProductInput): Promise<Me
   const prompt = buildPrompt(product);
   const start = Date.now();
 
-  // Reject StubProvider — don't pretend to generate metadata
+  // Reject StubProvider - don't pretend to generate metadata
   if (provider.name === "stub") {
     return {
       success: false,

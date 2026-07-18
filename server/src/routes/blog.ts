@@ -5,7 +5,7 @@ const router = Router();
 
 // ─── Public Blog Endpoints (no auth required) ───────────────────────────────
 
-// GET /api/v1/blog/posts — published posts (paginated)
+// GET /api/v1/blog/posts - published posts (paginated)
 router.get("/posts", async (req: Request, res: Response) => {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
@@ -64,7 +64,7 @@ router.get("/posts", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/v1/blog/posts/:slug — single published post by slug
+// GET /api/v1/blog/posts/:slug - single published post by slug
 router.get("/posts/:slug", async (req: Request, res: Response) => {
   try {
     const q = await db.query(
@@ -129,7 +129,7 @@ router.get("/posts/:slug", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/v1/blog/categories — all categories with post counts
+// GET /api/v1/blog/categories - all categories with post counts
 router.get("/categories", async (_req: Request, res: Response) => {
   try {
     const q = await db.query(
@@ -146,7 +146,7 @@ router.get("/categories", async (_req: Request, res: Response) => {
   }
 });
 
-// GET /api/v1/blog/tags — all tags
+// GET /api/v1/blog/tags - all tags
 router.get("/tags", async (_req: Request, res: Response) => {
   try {
     const q = await db.query(

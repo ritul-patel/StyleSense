@@ -111,7 +111,7 @@ export default function AnalysisPage() {
 
   function handleFileSelect(selected: File) {
     if (selected.size > MAX_FILE_SIZE_BYTES) {
-      setUploadError({ kind: "too_large", message: `Image is ${Math.round(selected.size / 1024 / 1024)}MB — please use a photo under ${MAX_FILE_SIZE_MB}MB.` });
+      setUploadError({ kind: "too_large", message: `Image is ${Math.round(selected.size / 1024 / 1024)}MB - please use a photo under ${MAX_FILE_SIZE_MB}MB.` });
       return;
     }
     if (!selected.type.startsWith("image/")) {
@@ -185,7 +185,7 @@ export default function AnalysisPage() {
       return;
     }
 
-    // User IS authenticated — proceed normally
+    // User IS authenticated - proceed normally
     setSubmitting(true);
     try {
       posthog.capture("analysis_started");

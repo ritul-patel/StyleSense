@@ -140,7 +140,7 @@ export async function importImage(options: ImportOptions): Promise<PipelineResul
   const contentHash = crypto.createHash("sha256").update(processed).digest("hex");
   const shortHash = contentHash.slice(0, 8);
 
-  // 6. Check for duplicate (graceful — works before product_images table exists)
+  // 6. Check for duplicate (graceful - works before product_images table exists)
   let existingPath: string | null = null;
   try {
     const existingQ = await db.query(
@@ -151,7 +151,7 @@ export async function importImage(options: ImportOptions): Promise<PipelineResul
       existingPath = existingQ.rows[0].storage_path;
     }
   } catch {
-    // Table may not exist yet — skip dedup check
+    // Table may not exist yet - skip dedup check
   }
 
   if (existingPath) {
@@ -284,7 +284,7 @@ async function downloadImage(url: string): Promise<Buffer> {
     }
 
     if (buffer.length < 1024) {
-      throw new Error("Downloaded file is too small — likely an error page.");
+      throw new Error("Downloaded file is too small - likely an error page.");
     }
 
     return buffer;

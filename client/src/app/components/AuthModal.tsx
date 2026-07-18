@@ -62,7 +62,7 @@ export default function AuthModal({ open, onClose, onAuthenticated }: AuthModalP
         }
         const { error: authError } = await supabase.auth.signUp({ email, password });
         if (authError) throw authError;
-        // For email signup, user needs to verify — but sign them in anyway for the flow
+        // For email signup, user needs to verify - but sign them in anyway for the flow
         // Supabase auto-signs in on signup if email confirmation is disabled
       } else {
         const { error: authError } = await supabase.auth.signInWithPassword({ email, password });

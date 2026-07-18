@@ -79,7 +79,7 @@
   }
 
   .lenis.lenis-smooth {
-    scroll-behavior: auto; /* Lenis handles smooth scroll — prevent conflicts */
+    scroll-behavior: auto; /* Lenis handles smooth scroll - prevent conflicts */
   }
 
   .lenis.lenis-smooth [data-lenis-prevent] {

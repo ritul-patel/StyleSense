@@ -5,15 +5,15 @@ import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 
 /**
- * LenisProvider — Global smooth scrolling for the entire application.
+ * LenisProvider - Global smooth scrolling for the entire application.
  *
  * Configuration:
- * - duration: 1.0s — subtle momentum, not floaty (Apple/Linear feel)
- * - easing: exponential decay — fast response, soft deceleration
- * - wheelMultiplier: 1 — no amplification, preserves user intent
- * - smoothWheel only — touch devices use native scroll (no conflicts
+ * - duration: 1.0s - subtle momentum, not floaty (Apple/Linear feel)
+ * - easing: exponential decay - fast response, soft deceleration
+ * - wheelMultiplier: 1 - no amplification, preserves user intent
+ * - smoothWheel only - touch devices use native scroll (no conflicts
  *   with mobile keyboards, pull-to-refresh, rubber-banding)
- * - autoResize: true — handles viewport changes (keyboard, rotation)
+ * - autoResize: true - handles viewport changes (keyboard, rotation)
  *
  * Respects prefers-reduced-motion (disables entirely).
  * Scrolls to top on Next.js route changes (immediate, no animation).
@@ -24,7 +24,7 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Respect prefers-reduced-motion — skip Lenis entirely
+    // Respect prefers-reduced-motion - skip Lenis entirely
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) return;
 

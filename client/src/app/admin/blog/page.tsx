@@ -95,7 +95,7 @@ function BlogContent() {
   };
 
   const formatDate = (d: string | null) => {
-    if (!d) return "—";
+    if (!d) return "-";
     return new Date(d).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" });
   };
 
@@ -194,7 +194,7 @@ function BlogContent() {
                         {post.status}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-gray-500 hidden md:table-cell">{post.category_name || "—"}</td>
+                    <td className="px-5 py-3 text-gray-500 hidden md:table-cell">{post.category_name || "-"}</td>
                     <td className="px-5 py-3 text-gray-500 text-xs hidden lg:table-cell">{formatDate(post.published_at || post.created_at)}</td>
                     <td className="px-5 py-3 text-gray-500 hidden lg:table-cell">{post.views}</td>
                     <td className="px-5 py-3 text-right space-x-2">

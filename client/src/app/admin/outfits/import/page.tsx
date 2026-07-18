@@ -101,7 +101,7 @@ function OutfitImportContent() {
               <div className="overflow-x-auto border rounded-xl">
                 <table className="w-full text-xs">
                   <thead className="bg-gray-50"><tr>{Object.keys(previewRows[0] || {}).slice(0, 5).map((h) => <th key={h} className="px-3 py-2 text-left font-semibold text-gray-600 uppercase">{h}</th>)}</tr></thead>
-                  <tbody>{previewRows.map((row, i) => (<tr key={i} className="border-t border-gray-50">{Object.values(row).slice(0, 5).map((v, j) => <td key={j} className="px-3 py-2 text-gray-700 truncate max-w-[120px]">{v || "—"}</td>)}</tr>))}</tbody>
+                  <tbody>{previewRows.map((row, i) => (<tr key={i} className="border-t border-gray-50">{Object.values(row).slice(0, 5).map((v, j) => <td key={j} className="px-3 py-2 text-gray-700 truncate max-w-[120px]">{v || "-"}</td>)}</tr>))}</tbody>
                 </table>
               </div>
             </div>

@@ -96,7 +96,7 @@ export default function FeedbackWidget() {
 
   return (
     <>
-      {/* Floating button — positioned above mobile nav on small screens */}
+      {/* Floating button - positioned above mobile nav on small screens */}
       <button
         onClick={() => { setOpen(true); reset(); }}
         aria-label="Send feedback"
@@ -162,7 +162,7 @@ export default function FeedbackWidget() {
                   <p className="text-sm text-[#747686] mt-1">Help us improve your experience</p>
                 </div>
 
-                {/* Type selector — fixed sizing to prevent icon overflow */}
+                {/* Type selector - fixed sizing to prevent icon overflow */}
                 <div className="grid grid-cols-3 gap-2">
                   {FEEDBACK_TYPES.map((ft) => (
                     <button
@@ -180,7 +180,7 @@ export default function FeedbackWidget() {
                   ))}
                 </div>
 
-                {/* Rating — minimum 44px touch targets */}
+                {/* Rating - minimum 44px touch targets */}
                 <div>
                   <label className="text-[10px] uppercase tracking-wider text-[#747686] font-bold block mb-2">Rating (optional)</label>
                   <div className="flex gap-0.5">

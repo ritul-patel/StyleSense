@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * SavedOutfitsContext — API-backed persistence with localStorage fallback.
+ * SavedOutfitsContext - API-backed persistence with localStorage fallback.
  *
  * When user is authenticated: syncs with backend via /api/v1/saved-outfits
  * When user is anonymous: falls back to localStorage (migrated to backend on next login)
@@ -101,11 +101,11 @@ export function SavedOutfitsProvider({ children }: { children: React.ReactNode }
           localStorage.removeItem(LS_KEY);
         })
         .catch(() => {
-          // API failed — fall back to localStorage
+          // API failed - fall back to localStorage
           setSavedOutfits(readLocalStorage());
         });
     } else if (!user && !authLoading) {
-      // Anonymous user — use localStorage
+      // Anonymous user - use localStorage
       hydratedRef.current = false;
       setSavedOutfits(readLocalStorage());
     }

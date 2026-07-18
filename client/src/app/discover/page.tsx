@@ -148,7 +148,7 @@ export default function DiscoverPage() {
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
-    // Debounce search tracking — only fire after 800ms of inactivity
+    // Debounce search tracking - only fire after 800ms of inactivity
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     if (value.trim().length >= 2) {
       searchTimerRef.current = setTimeout(() => {

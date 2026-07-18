@@ -1,4 +1,4 @@
-// Sentry must be imported first — before any other modules
+// Sentry must be imported first - before any other modules
 import { Sentry, isSentryEnabled } from './utils/sentry';
 import express from 'express';
 import dotenv from 'dotenv';
@@ -88,7 +88,7 @@ app.use("/api/v1/saved-outfits", savedOutfitsRouter);
 app.use("/api/v1/blog", blogRouter);
 app.use("/api/v1/admin/blog", adminBlogRouter);
 
-// Sentry error handler — must be before custom errorHandler
+// Sentry error handler - must be before custom errorHandler
 if (isSentryEnabled) {
   Sentry.setupExpressErrorHandler(app);
 }

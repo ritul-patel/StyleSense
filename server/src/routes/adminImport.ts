@@ -6,7 +6,7 @@ import { invalidateProductsCache } from "./products";
 
 const router = Router();
 
-// ─── CSV Templates (PUBLIC — no auth required) ────────────────────────────────
+// ─── CSV Templates (PUBLIC - no auth required) ────────────────────────────────
 
 const PRODUCT_TEMPLATE_COLS = "name,brand,category,price,currency,image_url,affiliate_url,primary_color,secondary_colors,season,style,occasion,material,fit,formality,gender,description";
 const OUTFIT_TEMPLATE_COLS = "outfit_name,occasion,season,style,top_product_slug,bottom_product_slug,shoes_product_slug,layer_product_slug,accessories,image_url";
@@ -84,7 +84,7 @@ type ImportResult = {
   errors: { row: number; field: string; message: string }[];
 };
 
-// POST /api/v1/admin/import/products (PROTECTED — admin only)
+// POST /api/v1/admin/import/products (PROTECTED - admin only)
 router.post("/products", adminMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { csv } = req.body;
@@ -173,7 +173,7 @@ router.post("/products", adminMiddleware, async (req: AuthenticatedRequest, res:
 
 // ─── Outfit Import ────────────────────────────────────────────────────────────
 
-// POST /api/v1/admin/import/outfits (PROTECTED — admin only)
+// POST /api/v1/admin/import/outfits (PROTECTED - admin only)
 router.post("/outfits", adminMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { csv } = req.body;

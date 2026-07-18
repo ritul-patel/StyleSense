@@ -12,7 +12,7 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
-// GET /api/v1/admin/stats — platform-wide statistics
+// GET /api/v1/admin/stats - platform-wide statistics
 router.get("/stats", async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const [analyses, products, users, wardrobe] = await Promise.all([
@@ -56,7 +56,7 @@ router.get("/stats", async (_req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// GET /api/v1/admin/users — list users with pagination and search
+// GET /api/v1/admin/users - list users with pagination and search
 router.get("/users", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
@@ -83,7 +83,7 @@ router.get("/users", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// PATCH /api/v1/admin/users/:id/role — update user role
+// PATCH /api/v1/admin/users/:id/role - update user role
 router.patch("/users/:id/role", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { role } = req.body;

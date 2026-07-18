@@ -81,7 +81,7 @@ function HistoryCard({ item, onReanalyze }: { item: AnalysisHistoryItem; onReana
             <div>
               <p className="text-[10px] text-[#747686] uppercase tracking-wider mb-1">Skin Hex</p>
               <p className="text-lg font-extrabold text-[#1b1c1b]" style={{ fontFamily: "Manrope, sans-serif" }}>
-                {item.hex || "—"}
+                {item.hex || "-"}
               </p>
             </div>
             <div className="text-right">

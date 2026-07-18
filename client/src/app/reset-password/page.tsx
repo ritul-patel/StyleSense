@@ -23,7 +23,7 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY") {
-        // Session is established with recovery token — user can now set a new password
+        // Session is established with recovery token - user can now set a new password
         setSessionReady(true);
       } else if (event === "SIGNED_IN" && session) {
         // Some flows fire SIGNED_IN instead of PASSWORD_RECOVERY

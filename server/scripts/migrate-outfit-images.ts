@@ -17,7 +17,7 @@ import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
 
-// Load env FIRST — before any imports that need env vars
+// Load env FIRST - before any imports that need env vars
 const envPath = path.resolve(__dirname, "../.env");
 console.log(`[env] Loading: ${envPath}`);
 const envResult = dotenv.config({ path: envPath });
@@ -55,7 +55,7 @@ function parseOutfitsFile(filePath: string): Outfit[] {
 
   const outfits: Outfit[] = [];
 
-  // Match each outfit object — handles multiline with any whitespace
+  // Match each outfit object - handles multiline with any whitespace
   const objectRegex = /outfit_id:\s*"([^"]+)"[\s\S]*?imageUrl:\s*"([^"]+)"[\s\S]*?pinterestUrl:\s*"([^"]+)"/g;
   let match;
 
@@ -102,14 +102,14 @@ ${entries.join(",\n")}
   if (verification.length !== content.length) {
     throw new Error(`Write verification failed! Expected ${content.length} bytes, got ${verification.length}`);
   }
-  console.log(`[write] ✅ Verified — file written successfully`);
+  console.log(`[write] ✅ Verified - file written successfully`);
 }
 
 // ─── Main ───────────────────────────────────────────────────────────────────
 
 async function main() {
   console.log("═══════════════════════════════════════════════════════════");
-  console.log("  StyleSense — Outfit Image Migration");
+  console.log("  StyleSense - Outfit Image Migration");
   console.log("═══════════════════════════════════════════════════════════\n");
 
   // 1. Verify paths
@@ -132,12 +132,12 @@ async function main() {
 
     // Skip if already migrated
     if (outfit.imageUrl.includes("supabase.co/storage")) {
-      console.log(`  ${label} — SKIP (already Supabase URL)`);
+      console.log(`  ${label} - SKIP (already Supabase URL)`);
       skipped++;
       continue;
     }
 
-    console.log(`  ${label} — downloading: ${outfit.imageUrl.substring(0, 60)}...`);
+    console.log(`  ${label} - downloading: ${outfit.imageUrl.substring(0, 60)}...`);
 
     try {
       const result = await importImage({
@@ -152,20 +152,20 @@ async function main() {
         outfit.imageUrl = newUrl;
         uploaded++;
         const sizeKB = Math.round((result.sizeBytes || 0) / 1024);
-        console.log(`  ${label} — ✅ SUCCESS (${sizeKB}KB WebP)${result.wasDuplicate ? " [reused]" : ""}`);
+        console.log(`  ${label} - ✅ SUCCESS (${sizeKB}KB WebP)${result.wasDuplicate ? " [reused]" : ""}`);
         console.log(`           OLD: ${oldUrl.substring(0, 50)}...`);
         console.log(`           NEW: ${newUrl.substring(0, 50)}...`);
       } else {
         failed++;
         const errMsg = result.error || "Pipeline returned success:false with no error";
         errors.push({ outfit_id: outfit.outfit_id, url: outfit.imageUrl, error: errMsg });
-        console.log(`  ${label} — ❌ FAILED: ${errMsg}`);
+        console.log(`  ${label} - ❌ FAILED: ${errMsg}`);
       }
     } catch (err: any) {
       failed++;
       const errMsg = err.message || String(err);
       errors.push({ outfit_id: outfit.outfit_id, url: outfit.imageUrl, error: errMsg });
-      console.log(`  ${label} — ❌ EXCEPTION: ${errMsg}`);
+      console.log(`  ${label} - ❌ EXCEPTION: ${errMsg}`);
     }
 
     // Throttle
@@ -183,7 +183,7 @@ async function main() {
   } else if (skipped === outfits.length) {
     console.log("[write] All outfits already migrated. No write needed.");
   } else {
-    console.log("[write] ⚠️  No successful uploads — file NOT modified.");
+    console.log("[write] ⚠️  No successful uploads - file NOT modified.");
     console.log("[write] Check errors above. Common causes:");
     console.log("[write]   - SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set");
     console.log("[write]   - Supabase Storage bucket 'product-images' doesn't exist");

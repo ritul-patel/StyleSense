@@ -5,7 +5,7 @@
  * to guarantee valid JSON responses.
  *
  * The SDK's responseSchema parameter forces Gemini to return JSON
- * conforming to the exact schema — no markdown, no explanatory text.
+ * conforming to the exact schema - no markdown, no explanatory text.
  */
 
 import { GoogleGenAI, Type } from "@google/genai";
@@ -137,7 +137,7 @@ export class GeminiMetadataProvider implements MetadataProvider {
     console.log(`[gemini:validate] ✓ primary_color="${validated.primary_color}" confidence=${validated.confidence} keywords=${validated.keywords.length}`);
 
     const durationMs = Date.now() - startMs;
-    console.log(`[gemini] ✓ "${product.name}" — ${durationMs}ms`);
+    console.log(`[gemini] ✓ "${product.name}" - ${durationMs}ms`);
 
     return validated;
   }
@@ -189,7 +189,7 @@ export class GeminiMetadataProvider implements MetadataProvider {
       console.log(`[gemini:req#${reqNum}] Finish reason: ${finishReason}`);
       console.log(`[gemini:req#${reqNum}] Text length: ${text.length}`);
       if (usageMetadata) {
-        console.log(`[gemini:req#${reqNum}] Tokens — prompt: ${usageMetadata.promptTokenCount}, response: ${usageMetadata.candidatesTokenCount}, total: ${usageMetadata.totalTokenCount}`);
+        console.log(`[gemini:req#${reqNum}] Tokens - prompt: ${usageMetadata.promptTokenCount}, response: ${usageMetadata.candidatesTokenCount}, total: ${usageMetadata.totalTokenCount}`);
       }
       console.log(`[gemini:req#${reqNum}] ──────────────────────────────────────`);
 

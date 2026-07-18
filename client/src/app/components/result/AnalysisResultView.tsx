@@ -138,7 +138,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
           {/* Main Layout: sidebar + content */}
           <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6">
 
-            {/* LEFT — Identity Card (sticky on desktop) */}
+            {/* LEFT - Identity Card (sticky on desktop) */}
             <div className="lg:sticky lg:top-24 lg:self-start">
               <ResultCard className="space-y-5">
                 {/* Season + Swatch */}
@@ -245,7 +245,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
               </ResultCard>
             </div>
 
-            {/* RIGHT — Content sections */}
+            {/* RIGHT - Content sections */}
             <motion.div
               className="space-y-5"
               variants={revealContainer}
@@ -380,7 +380,7 @@ export default function AnalysisResultView({ data, onRetry }: Props) {
                           <span className="text-[10px] text-outline uppercase tracking-[0.1em] font-bold font-[family-name:var(--font-label)]">
                             {a.type || "Accessory"}
                           </span>
-                          <span className="text-sm font-semibold text-on-surface">{a.value || "—"}</span>
+                          <span className="text-sm font-semibold text-on-surface">{a.value || "-"}</span>
                         </div>
                       ))}
                     </div>

@@ -107,7 +107,7 @@ function ProductsContent() {
 
   const togglePublish = async (id: string, current: boolean) => {
     if (!current) {
-      // Publishing — validate first
+      // Publishing - validate first
       const product = products.find((p) => p.id === id);
       if (product && !canPublish(product)) {
         showToast("Cannot publish: image and metadata required");
@@ -250,7 +250,7 @@ function ProductsContent() {
       primary_color: m.primary_color || f.primary_color,
       description: m.description || f.description,
     }));
-    showToast("AI metadata applied — review and save");
+    showToast("AI metadata applied - review and save");
     setAiResult(null);
   };
 
@@ -308,7 +308,7 @@ function ProductsContent() {
                           } else {
                             showToast(data.message || "Import failed");
                           }
-                        } catch { showToast("Import failed — network error"); }
+                        } catch { showToast("Import failed - network error"); }
                         finally { setImporting(false); }
                       }}
                       disabled={importing}
@@ -378,7 +378,7 @@ function ProductsContent() {
                   {Object.entries(aiResult.metadata).filter(([k]) => k !== "confidence").map(([key, val]) => (
                     <div key={key} className="bg-white rounded-lg p-2 border border-gray-100">
                       <span className="text-[9px] uppercase tracking-wider text-gray-400 block">{key.replace(/_/g, " ")}</span>
-                      <span className="text-[#1b1c1b] font-medium">{Array.isArray(val) ? (val as string[]).join(", ") || "—" : String(val) || "—"}</span>
+                      <span className="text-[#1b1c1b] font-medium">{Array.isArray(val) ? (val as string[]).join(", ") || "-" : String(val) || "-"}</span>
                     </div>
                   ))}
                 </div>
@@ -496,7 +496,7 @@ function ProductsContent() {
                       {p.image_url ? <img src={p.image_url} alt={p.name} className="w-10 h-10 rounded-lg object-cover" /> : <div className="w-10 h-10 rounded-lg bg-gray-100" />}
                     </td>
                     <td className="px-5 py-3 font-medium text-[#1b1c1b] max-w-[200px] truncate">{p.name}</td>
-                    <td className="px-5 py-3 text-gray-600">{p.brand || "—"}</td>
+                    <td className="px-5 py-3 text-gray-600">{p.brand || "-"}</td>
                     <td className="px-5 py-3 text-gray-600">{p.category}</td>
                     <td className="px-5 py-3 font-semibold">₹{Number(p.price).toLocaleString("en-IN")}</td>
                     <td className="px-5 py-3">

@@ -6,7 +6,7 @@ import LazyFeedbackWidget from "./components/LazyFeedbackWidget";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
-// Self-hosted fonts via next/font — eliminates render-blocking external requests
+// Self-hosted fonts via next/font - eliminates render-blocking external requests
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
@@ -28,7 +28,7 @@ const spaceGrotesk = Space_Grotesk({
   weight: ["500", "700"],
   variable: "--font-space-grotesk",
   display: "swap",
-  preload: false, // Used sparingly for labels — no need to preload
+  preload: false, // Used sparingly for labels - no need to preload
 });
 
 export const metadata: Metadata = {

@@ -11,7 +11,7 @@
  *   because the hook returns null on server and a boolean on client → hydration mismatch.
  * - Instead, always render <motion.div> and pass `initial={false}` when reduced motion
  *   is preferred. This tells framer-motion to skip the initial state and render the
- *   element in its final "visible" state immediately — same DOM structure, no mismatch.
+ *   element in its final "visible" state immediately - same DOM structure, no mismatch.
  */
 
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -216,7 +216,7 @@ export function Skeleton({ className = "", width, height }: { className?: string
 // ─── Scroll Reveal ──────────────────────────────────────────────────────────
 // Elements animate every time they enter the viewport and reset when they leave.
 // Framer-motion automatically reverts to `initial` when `whileInView` is no
-// longer satisfied — no manual state management needed.
+// longer satisfied - no manual state management needed.
 
 const VIEWPORT_OPTS = { once: true, margin: "-60px 0px" } as const;
 

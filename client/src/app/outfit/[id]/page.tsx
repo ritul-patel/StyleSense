@@ -65,7 +65,7 @@ export default function OutfitDetailsPage() {
     return OUTFITS.find((o) => o.outfit_id === outfitId) ?? null;
   }, [outfitId]);
 
-  // Fallback values used when outfit is null — prevents hook ordering issues
+  // Fallback values used when outfit is null - prevents hook ordering issues
   const safeOutfit = outfit ?? OUTFITS[0];
 
   const { top, bottom, shoes } = useMemo(() => {

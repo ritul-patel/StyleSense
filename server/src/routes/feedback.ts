@@ -5,7 +5,7 @@ import { adminMiddleware } from "../middleware/adminAuth";
 
 const router = Router();
 
-// POST /api/v1/feedback — submit feedback (auth optional)
+// POST /api/v1/feedback - submit feedback (auth optional)
 router.post("/", optionalAuthMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { type, rating, message, page, browser, device, app_version, screenshot_url, sentry_event_id } = req.body;
@@ -45,7 +45,7 @@ router.post("/", optionalAuthMiddleware, async (req: AuthenticatedRequest, res: 
 
 // ─── Admin Routes ─────────────────────────────────────────────────────────────
 
-// GET /api/v1/feedback/admin — list all feedback (admin only)
+// GET /api/v1/feedback/admin - list all feedback (admin only)
 router.get("/admin", adminMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const status = typeof req.query.status === "string" ? req.query.status.trim() : "";
@@ -92,7 +92,7 @@ router.get("/admin", adminMiddleware, async (req: AuthenticatedRequest, res: Res
   }
 });
 
-// PATCH /api/v1/feedback/admin/:id — update feedback status (admin only)
+// PATCH /api/v1/feedback/admin/:id - update feedback status (admin only)
 router.patch("/admin/:id", adminMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { status } = req.body;

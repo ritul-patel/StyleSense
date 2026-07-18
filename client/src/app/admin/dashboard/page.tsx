@@ -70,7 +70,7 @@ function DashboardContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Recent activity (simple bar chart) */}
               <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">Analyses — Last 30 Days</h3>
+                <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">Analyses - Last 30 Days</h3>
                 {stats.recent_analyses.length === 0 ? (
                   <p className="text-sm text-gray-400 py-8 text-center">No data yet</p>
                 ) : (

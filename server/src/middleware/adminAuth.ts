@@ -24,7 +24,7 @@ export async function adminMiddleware(
     return res.status(401).json({ success: false, message: "Unauthorized" });
   }
 
-  // ONLY trust app_metadata — it can only be set by service_role (server-side)
+  // ONLY trust app_metadata - it can only be set by service_role (server-side)
   const appRole = (user as any).app_metadata?.role;
 
   if (appRole !== "admin") {

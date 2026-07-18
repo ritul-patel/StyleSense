@@ -12,7 +12,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   }
 }
 
-// Create client even with empty strings — operations will fail gracefully at call sites.
+// Create client even with empty strings - operations will fail gracefully at call sites.
 // This prevents the build from crashing during SSG/prerendering when env vars aren't injected yet.
 export const supabase: SupabaseClient = createClient(
   supabaseUrl || "https://placeholder.supabase.co",

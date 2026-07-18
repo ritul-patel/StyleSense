@@ -58,7 +58,7 @@ function AnalyticsContent() {
 
             {/* Trend chart */}
             <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-6">Analysis Activity — Last 30 Days</h3>
+              <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-6">Analysis Activity - Last 30 Days</h3>
               {data.recent_analyses.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-8">No analyses in the last 30 days.</p>
               ) : (

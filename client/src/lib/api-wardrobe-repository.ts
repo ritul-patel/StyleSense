@@ -213,7 +213,7 @@ export class ApiWardrobeRepository implements WardrobeRepository {
     }
   }
 
-  // ─── Persist (no-op for API repo — server is source of truth) ───────────
+  // ─── Persist (no-op for API repo - server is source of truth) ───────────
 
   persist(): void { /* No-op: all mutations are sent to the API immediately */ }
 }

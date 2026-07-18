@@ -85,7 +85,7 @@ function MetadataContent() {
     setResults([]);
     setProgress({ current: 0, total: ids.length, currentName: "Starting..." });
 
-    // Send all IDs — backend processes one at a time with proper pacing
+    // Send all IDs - backend processes one at a time with proper pacing
     try {
       const res = await apiFetch("/api/v1/admin/metadata/generate-batch", {
         method: "POST",
@@ -104,7 +104,7 @@ function MetadataContent() {
         showToast(data.message || "Generation failed");
       }
     } catch {
-      showToast("Network error — batch request failed");
+      showToast("Network error - batch request failed");
     }
 
     setSelected(new Set());
@@ -207,7 +207,7 @@ function MetadataContent() {
                           className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#002b92]/30"
                         />
                       ) : (
-                        <span className="text-xs font-medium text-gray-700">{Array.isArray(val) ? (val as string[]).join(", ") || "—" : String(val) || "—"}</span>
+                        <span className="text-xs font-medium text-gray-700">{Array.isArray(val) ? (val as string[]).join(", ") || "-" : String(val) || "-"}</span>
                       )}
                     </div>
                   ))}
@@ -370,7 +370,7 @@ function MetadataContent() {
                           {p.image_url ? <img src={p.image_url} alt="" className="w-8 h-8 rounded-lg object-cover border border-gray-100" /> : <div className="w-8 h-8 rounded-lg bg-gray-100" />}
                           <div>
                             <p className="font-medium text-gray-800 truncate max-w-[180px]">{p.name}</p>
-                            <p className="text-[9px] text-gray-400">{p.brand || "—"}</p>
+                            <p className="text-[9px] text-gray-400">{p.brand || "-"}</p>
                           </div>
                         </div>
                       </td>

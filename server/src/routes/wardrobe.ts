@@ -11,7 +11,7 @@ router.use(authMiddleware);
 // WARDROBE ITEMS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// GET /api/v1/wardrobe — all items for the authenticated user
+// GET /api/v1/wardrobe - all items for the authenticated user
 router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const dbStart = Date.now();
@@ -21,7 +21,7 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
     );
     const dbMs = Date.now() - dbStart;
     const authMs = (req as any)._authMs || 0;
-    console.log(`[wardrobe] GET / — auth: ${authMs}ms, db: ${dbMs}ms, rows: ${q.rows.length}`);
+    console.log(`[wardrobe] GET / - auth: ${authMs}ms, db: ${dbMs}ms, rows: ${q.rows.length}`);
     return res.json(q.rows.map((r) => ({
       id: r.id,
       productId: r.product_id,
@@ -34,7 +34,7 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// POST /api/v1/wardrobe — add a product
+// POST /api/v1/wardrobe - add a product
 router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { productId, collection = "Wishlist" } = req.body;
@@ -49,7 +49,7 @@ router.post("/", async (req: AuthenticatedRequest, res: Response) => {
       [req.user!.id, productId.trim(), collection.trim()]
     );
     if (q.rows.length === 0) {
-      // Already exists — return existing
+      // Already exists - return existing
       const existing = await db.query(
         "SELECT id, product_id, collection, created_at FROM wardrobe_items WHERE user_id = $1 AND product_id = $2",
         [req.user!.id, productId.trim()]
@@ -64,7 +64,7 @@ router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// PATCH /api/v1/wardrobe/:id — update collection
+// PATCH /api/v1/wardrobe/:id - update collection
 router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { collection } = req.body;
@@ -86,7 +86,7 @@ router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// DELETE /api/v1/wardrobe/:id — remove by product_id (more practical for frontend)
+// DELETE /api/v1/wardrobe/:id - remove by product_id (more practical for frontend)
 router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
     // Support deletion by product_id or by row id (both are UUIDs)

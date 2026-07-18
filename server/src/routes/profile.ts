@@ -5,7 +5,7 @@ import { authMiddleware, type AuthenticatedRequest } from "../middleware/auth";
 const router = Router();
 router.use(authMiddleware);
 
-// GET /api/v1/profile — get current user's profile
+// GET /api/v1/profile - get current user's profile
 router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user!.id;
@@ -17,7 +17,7 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
     const authAvatar = authMeta.avatar_url || authMeta.picture || "";
 
     const dbStart = Date.now();
-    // Ensure profile exists — auto-populate from OAuth on first creation
+    // Ensure profile exists - auto-populate from OAuth on first creation
     await db.query(
       `INSERT INTO profiles (id, full_name, avatar_url)
        VALUES ($1, $2, $3)
@@ -31,7 +31,7 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
       [userId]
     );
     const dbMs = Date.now() - dbStart;
-    console.log(`[profile] GET / — auth: ${authMs}ms, db: ${dbMs}ms`);
+    console.log(`[profile] GET / - auth: ${authMs}ms, db: ${dbMs}ms`);
 
     if (q.rows.length === 0) {
       return res.json({ full_name: authName, avatar_url: authAvatar, email_notifs: true, marketing_notifs: false, analysis_reminders: true });
@@ -58,7 +58,7 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// PATCH /api/v1/profile — update profile fields
+// PATCH /api/v1/profile - update profile fields
 router.patch("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user!.id;
@@ -85,7 +85,7 @@ router.patch("/", async (req: AuthenticatedRequest, res: Response) => {
     );
 
     if (result.rows.length === 0) {
-      // Profile row doesn't exist — create it first, then update
+      // Profile row doesn't exist - create it first, then update
       await db.query(
         `INSERT INTO profiles (id) VALUES ($1) ON CONFLICT (id) DO NOTHING`,
         [userId]
@@ -103,7 +103,7 @@ router.patch("/", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// POST /api/v1/profile/delete — soft delete account
+// POST /api/v1/profile/delete - soft delete account
 router.post("/delete", async (req: AuthenticatedRequest, res: Response) => {
   const client = await db.connect();
   try {
@@ -134,7 +134,7 @@ router.post("/delete", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// DELETE /api/v1/profile/history — clear analysis history
+// DELETE /api/v1/profile/history - clear analysis history
 router.delete("/history", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user!.id;

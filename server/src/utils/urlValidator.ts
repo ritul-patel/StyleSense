@@ -1,5 +1,5 @@
 /**
- * URL Validator — SSRF Protection
+ * URL Validator - SSRF Protection
  *
  * Validates external image URLs before downloading to prevent:
  * - Private IP access (10.x, 172.16-31.x, 192.168.x, 127.x, 169.254.x)
@@ -71,7 +71,7 @@ export async function validateImageUrl(rawUrl: string): Promise<UrlValidationRes
     return { valid: false, error: "Private IP addresses are not allowed." };
   }
 
-  // DNS resolution check — resolve hostname and verify no private IPs
+  // DNS resolution check - resolve hostname and verify no private IPs
   try {
     const ips = await resolve4(hostname);
     const privateIp = ips.find(isPrivateIp);

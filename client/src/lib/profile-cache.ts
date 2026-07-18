@@ -1,5 +1,5 @@
 /**
- * Shared profile cache — prevents duplicate /profile API calls across components.
+ * Shared profile cache - prevents duplicate /profile API calls across components.
  * Module-level singleton: ProfileDropdown and Settings both use this.
  */
 

@@ -9,7 +9,7 @@ function SettingsContent() {
 
   // Platform config (read from env at build time for display)
   const config = {
-    supabaseProject: process.env.NEXT_PUBLIC_SUPABASE_URL?.replace("https://", "").replace(".supabase.co", "") || "—",
+    supabaseProject: process.env.NEXT_PUBLIC_SUPABASE_URL?.replace("https://", "").replace(".supabase.co", "") || "-",
     apiUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1",
     sentryEnabled: !!process.env.NEXT_PUBLIC_SENTRY_DSN,
     posthogEnabled: !!process.env.NEXT_PUBLIC_POSTHOG_KEY,
@@ -54,7 +54,7 @@ function SettingsContent() {
               { name: "Wardrobe System", status: "active", desc: "API-backed with collections, closet, outfits" },
               { name: "Recommendation Engine", status: "active", desc: "Modular scoring with 7 components" },
               { name: "User Profiles", status: "active", desc: "OAuth auto-population + preferences" },
-              { name: "Image Upload (Closet)", status: "limited", desc: "Base64 storage — migrate to Supabase Storage" },
+              { name: "Image Upload (Closet)", status: "limited", desc: "Base64 storage - migrate to Supabase Storage" },
               { name: "Dark Mode", status: "partial", desc: "Some pages support, not globally consistent" },
             ].map((f) => (
               <div key={f.name} className="flex items-center justify-between py-2">

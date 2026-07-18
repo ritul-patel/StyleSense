@@ -50,17 +50,17 @@ export function WardrobeProvider({ children }: { children: React.ReactNode }) {
   const [outfits, setOutfits] = useState<OutfitBuild[]>([]);
   const [ready, setReady] = useState(false);
 
-  // Hydrate once per user session — stable dependency on user.id string
+  // Hydrate once per user session - stable dependency on user.id string
   const userId = user?.id ?? null;
 
   useEffect(() => {
     if (authLoading) return;
 
-    // Already hydrated for this user — skip
+    // Already hydrated for this user - skip
     if (hydratedForUser.current === userId) return;
 
     if (!userId) {
-      // Not logged in — reset state
+      // Not logged in - reset state
       repoRef.current = null;
       hydratedForUser.current = null;
       setItems([]);
@@ -71,7 +71,7 @@ export function WardrobeProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // New user — hydrate from API
+    // New user - hydrate from API
     hydratedForUser.current = userId;
     const repo = new ApiWardrobeRepository();
     repoRef.current = repo;

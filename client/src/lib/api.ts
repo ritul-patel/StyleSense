@@ -66,7 +66,7 @@ export async function getAuthHeaders(input?: HeadersInit): Promise<Headers> {
   return headers;
 }
 
-// apiFetch — single entry point for all API calls.
+// apiFetch - single entry point for all API calls.
 // Automatically attaches the auth header and resolves relative paths.
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const headers = await getAuthHeaders(init.headers);

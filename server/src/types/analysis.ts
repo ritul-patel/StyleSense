@@ -1,6 +1,6 @@
 // Canonical data types for StyleSense analysis.
 // These types flow from the AI engine → API response → client unchanged.
-// The client mirrors this file at client/src/types/analysis.ts — keep them in sync.
+// The client mirrors this file at client/src/types/analysis.ts - keep them in sync.
 
 export interface ColorEntry {
   name: string;
@@ -52,7 +52,7 @@ export interface SignatureColor {
 }
 
 // Full payload stored in the DB and returned by POST /upload and GET /:id.
-// best_colors, avoid_colors, and outfits are always rich objects — never string[].
+// best_colors, avoid_colors, and outfits are always rich objects - never string[].
 export interface AnalysisPayload {
   skin_tone: string;
   undertone: string;
@@ -73,7 +73,7 @@ export interface AnalysisPayload {
   next_steps?: string[];
 }
 
-// Summary row returned by GET /history — no recommendation detail.
+// Summary row returned by GET /history - no recommendation detail.
 export interface AnalysisHistoryItem {
   analysisId: string;
   skin_tone: string;

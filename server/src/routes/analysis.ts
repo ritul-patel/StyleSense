@@ -21,7 +21,7 @@ const PYTHON_TIMEOUT_MS = 25_000;
 const DEFAULT_RGB: [number, number, number] = [122, 122, 122];
 const DEFAULT_HEX = "#7A7A7A";
 
-// AnalysisPayload is imported from ../types/analysis — do not redefine it here.
+// AnalysisPayload is imported from ../types/analysis - do not redefine it here.
 
 const manualSchema = z.object({
   skin_tone: z.string().trim().min(1),
@@ -208,10 +208,10 @@ async function analysesCaps(reqId: string): Promise<AnalysesCaps> {
   const cols = new Set(q.rows.map((r) => String(r.column_name || "")));
   const hasResult = cols.has("result");
   const hasUserId = cols.has("user_id");
-  console.log(`[analysis/db][${reqId}] analysesCaps — hasResult: ${hasResult} | hasUserId: ${hasUserId} | columns: [${[...cols].join(", ")}]`);
-  if (!hasResult) console.warn(`[analysis/db][${reqId}] analyses.result column missing — result JSONB will NOT be saved or read. Run the schema SQL migration.`);
+  console.log(`[analysis/db][${reqId}] analysesCaps - hasResult: ${hasResult} | hasUserId: ${hasUserId} | columns: [${[...cols].join(", ")}]`);
+  if (!hasResult) console.warn(`[analysis/db][${reqId}] analyses.result column missing - result JSONB will NOT be saved or read. Run the schema SQL migration.`);
   // Only cache permanently when all expected columns exist.
-  // If a column is missing the schema migration may not have run yet — re-check next request.
+  // If a column is missing the schema migration may not have run yet - re-check next request.
   if (hasResult && hasUserId) {
     analysesCapsCache = { hasResult, hasUserId };
   }
@@ -431,7 +431,7 @@ router.get("/history", optionalAuthMiddleware, async (req: AuthenticatedRequest,
         created_at: createdAtStr,
       };
     });
-    console.log(`[history] GET / — auth: ${authMs}ms, db: ${dbMs}ms, rows: ${payload.length}`);
+    console.log(`[history] GET / - auth: ${authMs}ms, db: ${dbMs}ms, rows: ${payload.length}`);
     res.setHeader("Cache-Control", "private, max-age=30, stale-while-revalidate=60");
     return res.json(payload);
   } catch (error: any) {

@@ -6,7 +6,7 @@ import type { AuthenticatedRequest } from "../middleware/auth";
 const router = Router();
 router.use(adminMiddleware);
 
-// GET /api/v1/admin/outfits — list all outfits (paginated)
+// GET /api/v1/admin/outfits - list all outfits (paginated)
 router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
@@ -49,7 +49,7 @@ router.get("/:id", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// POST /api/v1/admin/outfits — create
+// POST /api/v1/admin/outfits - create
 router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { name, productIds = [], closetItemIds = [] } = req.body;
@@ -68,7 +68,7 @@ router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// PATCH /api/v1/admin/outfits/:id — update
+// PATCH /api/v1/admin/outfits/:id - update
 router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { name, productIds, closetItemIds } = req.body;

@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [60, 75],
-    minimumCacheTTL: 31536000, // 1 year — images are content-addressed
+    minimumCacheTTL: 31536000, // 1 year - images are content-addressed
     remotePatterns: [
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "assets.myntassets.com" },
@@ -32,9 +32,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "uizrytwhgvvwhrdwwyyh.supabase.co" },
     ],
   },
-  // Compression handled by Vercel CDN — disable Node.js gzip for faster SSR
+  // Compression handled by Vercel CDN - disable Node.js gzip for faster SSR
   compress: false,
-  // TypeScript errors must be fixed — do not suppress in production builds
+  // TypeScript errors must be fixed - do not suppress in production builds
   typescript: {
     ignoreBuildErrors: false,
   },
@@ -55,7 +55,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-// Only wrap with Sentry in production builds — it significantly slows dev compilation
+// Only wrap with Sentry in production builds - it significantly slows dev compilation
 const isDev = process.env.NODE_ENV === "development";
 
 let exportedConfig: NextConfig = nextConfig;

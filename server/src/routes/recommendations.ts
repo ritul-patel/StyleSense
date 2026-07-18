@@ -4,7 +4,7 @@ import { getRecommendedProducts, buildOutfitRecommendations, type UserStyleProfi
 
 const router = Router();
 
-// POST /api/v1/recommendations/products — get ranked products for a profile
+// POST /api/v1/recommendations/products - get ranked products for a profile
 router.post("/products", optionalAuthMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { profile, occasion, style, formality, category, limit } = req.body;
@@ -47,7 +47,7 @@ router.post("/products", optionalAuthMiddleware, async (req: AuthenticatedReques
   }
 });
 
-// POST /api/v1/recommendations/outfits — get outfit combinations
+// POST /api/v1/recommendations/outfits - get outfit combinations
 router.post("/outfits", optionalAuthMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { profile, occasion, limit } = req.body;

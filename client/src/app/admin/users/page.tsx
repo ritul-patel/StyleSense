@@ -100,7 +100,7 @@ function UsersContent() {
                             {(u.full_name || u.email)?.[0]?.toUpperCase() || "?"}
                           </div>
                         )}
-                        <span className="font-medium text-[#1b1c1b]">{u.full_name || "—"}</span>
+                        <span className="font-medium text-[#1b1c1b]">{u.full_name || "-"}</span>
                       </div>
                     </td>
                     <td className="px-5 py-3 text-gray-600">{u.email}</td>

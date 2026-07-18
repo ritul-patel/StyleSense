@@ -5,7 +5,7 @@ import { authMiddleware, type AuthenticatedRequest } from "../middleware/auth";
 const router = Router();
 router.use(authMiddleware);
 
-// GET /api/v1/saved-outfits — list user's saved outfits
+// GET /api/v1/saved-outfits - list user's saved outfits
 router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const q = await db.query(
@@ -24,7 +24,7 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// POST /api/v1/saved-outfits — save an outfit
+// POST /api/v1/saved-outfits - save an outfit
 router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { outfitId, folderId = "favorites" } = req.body;
@@ -41,7 +41,7 @@ router.post("/", async (req: AuthenticatedRequest, res: Response) => {
     );
 
     if (q.rows.length === 0) {
-      // Already saved — return existing
+      // Already saved - return existing
       const existing = await db.query(
         "SELECT id, outfit_id, category, created_at FROM saved_outfits WHERE user_id = $1 AND outfit_id = $2",
         [req.user!.id, outfitId.trim()]
@@ -60,7 +60,7 @@ router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// DELETE /api/v1/saved-outfits/:outfitId — unsave an outfit
+// DELETE /api/v1/saved-outfits/:outfitId - unsave an outfit
 router.delete("/:outfitId", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const q = await db.query(

@@ -17,7 +17,7 @@ const upload = multer({
   },
 });
 
-// POST /api/v1/admin/images/upload — upload single image
+// POST /api/v1/admin/images/upload - upload single image
 router.post("/upload", upload.single("image"), async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: "No image file provided." });
@@ -39,7 +39,7 @@ router.post("/upload", upload.single("image"), async (req: AuthenticatedRequest,
   }
 });
 
-// POST /api/v1/admin/images/upload-batch — upload multiple images
+// POST /api/v1/admin/images/upload-batch - upload multiple images
 router.post("/upload-batch", upload.array("images", 50), async (req: AuthenticatedRequest, res: Response) => {
   try {
     const files = req.files as Express.Multer.File[];
@@ -89,7 +89,7 @@ router.post("/upload-batch", upload.array("images", 50), async (req: Authenticat
   }
 });
 
-// POST /api/v1/admin/images/match — manually match an image URL to a product
+// POST /api/v1/admin/images/match - manually match an image URL to a product
 router.post("/match", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { productId, imageUrl } = req.body;
@@ -106,7 +106,7 @@ router.post("/match", async (req: AuthenticatedRequest, res: Response) => {
 
 // ─── URL Import Pipeline Endpoints ──────────────────────────────────────────
 
-// POST /api/v1/admin/images/import — import single image from external URL
+// POST /api/v1/admin/images/import - import single image from external URL
 router.post("/import", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { product_id, source_url, category, role } = req.body;
@@ -175,7 +175,7 @@ router.post("/import", async (req: AuthenticatedRequest, res: Response) => {
         ]
       );
     } catch {
-      // product_images table may not exist yet — non-fatal
+      // product_images table may not exist yet - non-fatal
     }
 
     return res.status(201).json({
@@ -197,7 +197,7 @@ router.post("/import", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// POST /api/v1/admin/images/import-batch — import multiple images from URLs
+// POST /api/v1/admin/images/import-batch - import multiple images from URLs
 router.post("/import-batch", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { items } = req.body;
@@ -284,7 +284,7 @@ router.post("/import-batch", async (req: AuthenticatedRequest, res: Response) =>
   }
 });
 
-// POST /api/v1/admin/images/:imageId/reimport — re-download and reprocess
+// POST /api/v1/admin/images/:imageId/reimport - re-download and reprocess
 router.post("/:imageId/reimport", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { imageId } = req.params;
@@ -357,7 +357,7 @@ router.post("/:imageId/reimport", async (req: AuthenticatedRequest, res: Respons
   }
 });
 
-// DELETE /api/v1/admin/images/:imageId — delete image from storage + DB
+// DELETE /api/v1/admin/images/:imageId - delete image from storage + DB
 router.delete("/:imageId", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { imageId } = req.params;
@@ -394,7 +394,7 @@ router.delete("/:imageId", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// GET /api/v1/admin/images/migration/status — migration progress
+// GET /api/v1/admin/images/migration/status - migration progress
 router.get("/migration/status", async (req: AuthenticatedRequest, res: Response) => {
   try {
     // Count products with external URLs that haven't been migrated
@@ -421,7 +421,7 @@ router.get("/migration/status", async (req: AuthenticatedRequest, res: Response)
         else if (row.processing_status === "processing") processing = row.count;
       }
     } catch {
-      // Table doesn't exist yet — ignore
+      // Table doesn't exist yet - ignore
     }
 
     return res.json({
@@ -441,7 +441,7 @@ router.get("/migration/status", async (req: AuthenticatedRequest, res: Response)
   }
 });
 
-// POST /api/v1/admin/images/migration/start — begin migrating all unmigrated products
+// POST /api/v1/admin/images/migration/start - begin migrating all unmigrated products
 router.post("/migration/start", async (req: AuthenticatedRequest, res: Response) => {
   try {
     // Find all products with EXTERNAL image URLs that haven't been migrated.
@@ -531,7 +531,7 @@ router.post("/migration/start", async (req: AuthenticatedRequest, res: Response)
   }
 });
 
-// POST /api/v1/admin/images/import-outfits — import outfit images from URL array
+// POST /api/v1/admin/images/import-outfits - import outfit images from URL array
 // Returns the new Storage URLs to update the static outfits.ts file
 router.post("/import-outfits", async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -602,7 +602,7 @@ router.post("/import-outfits", async (req: AuthenticatedRequest, res: Response) 
   }
 });
 
-// POST /api/v1/admin/images/migration/retry — retry all failed items
+// POST /api/v1/admin/images/migration/retry - retry all failed items
 router.post("/migration/retry", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const updated = await db.query(

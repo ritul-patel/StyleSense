@@ -1,5 +1,5 @@
 /**
- * AppIcon — Unified SVG icon component replacing Material Symbols.
+ * AppIcon - Unified SVG icon component replacing Material Symbols.
  *
  * Maps Material Symbol names to Lucide React SVG equivalents.
  * Eliminates the ~200-300KB Google Fonts Material Symbols woff2 download.
@@ -92,7 +92,7 @@ function AppIconInner({ name, size = 24, className = "", filled = false, style }
   const IconComponent = ICON_MAP[name];
 
   if (!IconComponent) {
-    // Development fallback — renders nothing in production
+    // Development fallback - renders nothing in production
     if (process.env.NODE_ENV === "development") {
       console.warn(`[AppIcon] No mapping for icon: "${name}"`);
     }

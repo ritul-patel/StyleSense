@@ -21,7 +21,7 @@ export function invalidateProductsCache(): void {
   _cache.clear();
 }
 
-// GET /api/v1/products — public: returns only published products
+// GET /api/v1/products - public: returns only published products
 router.get("/", async (req: Request, res: Response) => {
   try {
     const category = typeof req.query.category === "string" ? req.query.category.trim() : "";
@@ -56,7 +56,7 @@ router.get("/", async (req: Request, res: Response) => {
     );
 
     const dbMs = Date.now() - dbStart;
-    console.log(`[products] GET / — db: ${dbMs}ms, rows: ${q.rows.length}`);
+    console.log(`[products] GET / - db: ${dbMs}ms, rows: ${q.rows.length}`);
 
     // Cache the result
     _cache.set(cacheKey, { data: q.rows, timestamp: Date.now() });

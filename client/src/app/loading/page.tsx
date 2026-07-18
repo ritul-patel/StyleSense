@@ -564,7 +564,7 @@ export default function LoadingPage() {
                       </div>
                     </div>
 
-                    {/* Status message — derived from progress band */}
+                    {/* Status message - derived from progress band */}
                     <div className="h-6 relative overflow-hidden">
                       <p className="absolute inset-0 text-[#5a6060] text-[11px] uppercase tracking-[0.3em] text-center transition-all duration-500">
                         {getStatusMessage(progress)}

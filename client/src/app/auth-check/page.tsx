@@ -17,6 +17,6 @@ export default function AuthCheckPage() {
     }
   }, [user, loading, router]);
 
-  // Render nothing — this page only exists to route
+  // Render nothing - this page only exists to route
   return null;
 }

@@ -1,6 +1,6 @@
 /**
  * Products API client.
- * Single source of truth for product data — reads from /api/v1/products (database).
+ * Single source of truth for product data - reads from /api/v1/products (database).
  * Replaces the static @/data/products.ts import for customer-facing pages.
  */
 

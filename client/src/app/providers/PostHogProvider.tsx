@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, Suspense } from "react";
 
 /**
- * PostHog initialization — deferred until after hydration.
+ * PostHog initialization - deferred until after hydration.
  * 
  * Previously ran at module-evaluation time (blocking main thread during parse).
  * Now deferred via requestIdleCallback so the browser can render first.

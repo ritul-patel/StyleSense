@@ -126,7 +126,7 @@ function ProductImportContent() {
                   <tbody>
                     {previewRows.map((row, i) => (
                       <tr key={i} className="border-t border-gray-50">
-                        {Object.values(row).slice(0, 6).map((v, j) => <td key={j} className="px-3 py-2 text-gray-700 truncate max-w-[150px]">{v || "—"}</td>)}
+                        {Object.values(row).slice(0, 6).map((v, j) => <td key={j} className="px-3 py-2 text-gray-700 truncate max-w-[150px]">{v || "-"}</td>)}
                       </tr>
                     ))}
                   </tbody>

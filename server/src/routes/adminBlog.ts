@@ -28,7 +28,7 @@ function calculateWordCount(text: string): number {
 
 // ─── POSTS ──────────────────────────────────────────────────────────────────
 
-// GET /api/v1/admin/blog/posts — list all posts (paginated, filterable)
+// GET /api/v1/admin/blog/posts - list all posts (paginated, filterable)
 router.get("/posts", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
@@ -86,7 +86,7 @@ router.get("/posts", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// GET /api/v1/admin/blog/posts/:id — single post with full content
+// GET /api/v1/admin/blog/posts/:id - single post with full content
 router.get("/posts/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const q = await db.query(
@@ -112,7 +112,7 @@ router.get("/posts/:id", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// POST /api/v1/admin/blog/posts — create post
+// POST /api/v1/admin/blog/posts - create post
 router.post("/posts", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const {
@@ -174,7 +174,7 @@ router.post("/posts", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// PATCH /api/v1/admin/blog/posts/:id — update post
+// PATCH /api/v1/admin/blog/posts/:id - update post
 router.patch("/posts/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
@@ -254,7 +254,7 @@ router.patch("/posts/:id", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// DELETE /api/v1/admin/blog/posts/:id — move to trash or permanent delete
+// DELETE /api/v1/admin/blog/posts/:id - move to trash or permanent delete
 router.delete("/posts/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
@@ -278,7 +278,7 @@ router.delete("/posts/:id", async (req: AuthenticatedRequest, res: Response) => 
   }
 });
 
-// POST /api/v1/admin/blog/posts/:id/duplicate — duplicate a post as draft
+// POST /api/v1/admin/blog/posts/:id/duplicate - duplicate a post as draft
 router.post("/posts/:id/duplicate", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const q = await db.query("SELECT * FROM blog_posts WHERE id = $1", [req.params.id]);
@@ -308,7 +308,7 @@ router.post("/posts/:id/duplicate", async (req: AuthenticatedRequest, res: Respo
   }
 });
 
-// GET /api/v1/admin/blog/stats — blog dashboard stats
+// GET /api/v1/admin/blog/stats - blog dashboard stats
 router.get("/stats", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const q = await db.query(`
