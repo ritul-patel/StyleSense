@@ -1,4 +1,4 @@
-# UX Design Specification — StyleSense
+# UX Design Specification - StyleSense
 ## Color & Style Analyzer (Men)
 
 ---
@@ -20,7 +20,7 @@
 
 ---
 
-### Screen 1 — Landing / Home Screen
+### Screen 1 - Landing / Home Screen
 
 **Goal:** Get user to start within 3–5 seconds.
 
@@ -63,7 +63,7 @@
 
 ---
 
-### Screen 2 — Upload Photo Screen
+### Screen 2 - Upload Photo Screen
 
 **Goal:** Make uploading simple and clear.
 
@@ -104,14 +104,14 @@
 
 | State | Behavior |
 |---|---|
-| Empty | "No image uploaded yet" — Continue disabled |
+| Empty | "No image uploaded yet" - Continue disabled |
 | Error: Invalid file type | "Please upload an image" |
 | Error: File too large | "Image too large" |
 | Warning: Poor image | "Face not clear, results may be inaccurate" |
 
 ---
 
-### Screen 3 — Manual Selection Screen
+### Screen 3 - Manual Selection Screen
 
 **Goal:** Provide reliable fallback with zero confusion.
 
@@ -155,7 +155,7 @@
 
 ---
 
-### Screen 4 — Processing Screen
+### Screen 4 - Processing Screen
 
 **Goal:** Give feedback during processing (reduce drop-off).
 
@@ -188,7 +188,7 @@
 
 ---
 
-### Screen 5 — Results Screen *(Most Important)*
+### Screen 5 - Results Screen *(Most Important)*
 
 **Goal:** Deliver clear, actionable output.
 
@@ -278,9 +278,9 @@
 
 This product should feel:
 
-✅ **Fast** — Results in under 60 seconds  
-✅ **Obvious** — No learning curve  
-✅ **Helpful** — Actionable, not theoretical  
+✅ **Fast** - Results in under 60 seconds  
+✅ **Obvious** - No learning curve  
+✅ **Helpful** - Actionable, not theoretical  
 
 It should **not** feel like:
 

@@ -106,7 +106,7 @@ Convert curiosity → ownership
 
 ## Core Value:
 
-> **“Your complete personal style system — tailored, saved, and reusable”**
+> **“Your complete personal style system - tailored, saved, and reusable”**
 
 ---
 

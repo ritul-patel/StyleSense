@@ -8,7 +8,7 @@ The StyleSense frontend is a **Next.js 16 App Router** application written in Ty
 
 ```
 client/src/
-├── app/                    # Next.js App Router — all pages live here
+├── app/                    # Next.js App Router - all pages live here
 │   ├── (auth)/             # Route group for unauthenticated pages
 │   │   ├── login/
 │   │   ├── signup/
@@ -40,8 +40,8 @@ client/src/
 ├── lib/
 │   ├── api.ts              # Typed API client (fetch wrapper with auth)
 │   ├── supabase.ts         # Supabase browser client (singleton)
-│   ├── auth-context.tsx    # AuthContext — session + user state
-│   ├── theme-context.tsx   # ThemeContext — light/dark mode
+│   ├── auth-context.tsx    # AuthContext - session + user state
+│   ├── theme-context.tsx   # ThemeContext - light/dark mode
 │   ├── motion.ts           # Shared Framer Motion animation variants
 │   ├── lenis.tsx           # Lenis smooth scroll provider
 │   ├── outfit-recommendation.ts  # Client-side outfit logic
@@ -63,13 +63,13 @@ StyleSense uses the **Next.js App Router** with file-based routing. Key conventi
 
 | File | Purpose |
 |---|---|
-| `page.tsx` | The route's UI — renders as a Server Component by default |
+| `page.tsx` | The route's UI - renders as a Server Component by default |
 | `layout.tsx` | Shared layout wrapping all child routes |
 | `loading.tsx` | Suspense boundary UI shown during async data loading |
 | `error.tsx` | Error boundary UI for route-level errors |
 | `not-found.tsx` | Custom 404 page |
 
-The `(auth)` folder is a **route group** — it doesn't appear in the URL but allows shared layout for unauthenticated pages.
+The `(auth)` folder is a **route group** - it doesn't appear in the URL but allows shared layout for unauthenticated pages.
 
 ---
 
@@ -88,7 +88,7 @@ The `(auth)` folder is a **route group** — it doesn't appear in the URL but al
 
 ## State Management
 
-StyleSense uses **local component state** via `useState` and `useReducer` — no global state library. Cross-component state is handled via React Context:
+StyleSense uses **local component state** via `useState` and `useReducer` - no global state library. Cross-component state is handled via React Context:
 
 | Context | File | Purpose |
 |---|---|---|
@@ -121,29 +121,29 @@ async function handleSubmit() {
 
 Rules:
 - Submit buttons are `disabled` while `status === 'loading'`
-- Errors are always shown to the user — never swallowed silently
-- Loading state is set immediately on submit — before the network call starts
+- Errors are always shown to the user - never swallowed silently
+- Loading state is set immediately on submit - before the network call starts
 
 ---
 
 ## API Client
 
-All network calls go through `lib/api.ts` — a typed fetch wrapper that:
+All network calls go through `lib/api.ts` - a typed fetch wrapper that:
 
 - Sets `Authorization: Bearer <token>` on every request using the Supabase session
 - Normalizes error responses to a consistent `{ code, message, field? }` shape
 - Throws typed errors that components can display directly
 
-Never use raw `fetch()` in page or component files — always go through the API client.
+Never use raw `fetch()` in page or component files - always go through the API client.
 
 ---
 
 ## Animation
 
 Framer Motion is used for:
-- **Page transitions** — fade/slide in on route change
-- **Component animations** — staggered list reveals, hover effects
-- **Micro-interactions** — button feedback, card hover states
+- **Page transitions** - fade/slide in on route change
+- **Component animations** - staggered list reveals, hover effects
+- **Micro-interactions** - button feedback, card hover states
 
 Animation variants are defined centrally in `lib/motion.ts` so they're consistent across the app.
 
@@ -157,19 +157,19 @@ Animation variants are defined centrally in `lib/motion.ts` so they're consisten
 
 ## Performance
 
-- `next/image` is used for all images — automatic WebP/AVIF conversion, lazy loading, and size optimization
+- `next/image` is used for all images - automatic WebP/AVIF conversion, lazy loading, and size optimization
 - Heavy dependencies (`framer-motion`, `lucide-react`, `posthog-js`) are tree-shaken via `optimizePackageImports`
 - Static assets have 1-year immutable cache headers (configured in `next.config.ts`)
-- The app disables Node.js gzip compression (`compress: false`) — Vercel's CDN handles compression at the edge
+- The app disables Node.js gzip compression (`compress: false`) - Vercel's CDN handles compression at the edge
 
 ---
 
 ## Error Monitoring
 
 **Sentry** is configured in three files:
-- `sentry.client.config.ts` — browser error tracking
-- `sentry.server.config.ts` — server-side error tracking
-- `sentry.edge.config.ts` — edge runtime error tracking
+- `sentry.client.config.ts` - browser error tracking
+- `sentry.server.config.ts` - server-side error tracking
+- `sentry.edge.config.ts` - edge runtime error tracking
 
 In production builds, Sentry source maps are uploaded and hidden from the browser. A tunnel route (`/monitoring`) bypasses ad blockers.
 
@@ -177,6 +177,6 @@ In production builds, Sentry source maps are uploaded and hidden from the browse
 
 ## Analytics
 
-- **PostHog** — product analytics (initialized in the providers wrapper)
-- **Vercel Analytics** — page view tracking
-- **Vercel Speed Insights** — Core Web Vitals reporting
+- **PostHog** - product analytics (initialized in the providers wrapper)
+- **Vercel Analytics** - page view tracking
+- **Vercel Speed Insights** - Core Web Vitals reporting

@@ -6,7 +6,7 @@ This guide covers deploying the StyleSense frontend to **Vercel** and the backen
 
 ## Deploy Order
 
-Always deploy in this sequence — each step depends on the one before it:
+Always deploy in this sequence - each step depends on the one before it:
 
 ```
 1. PostgreSQL (Supabase)   → provision + run migrations
@@ -41,7 +41,7 @@ npm --prefix server run migrate up
 
 ---
 
-## 2. Backend — Railway
+## 2. Backend - Railway
 
 ### Deploy Steps
 
@@ -80,7 +80,7 @@ curl https://your-railway-url.railway.app/health
 
 ---
 
-## 2. Backend — Render (Alternative)
+## 2. Backend - Render (Alternative)
 
 1. Create a new **Web Service** at [render.com](https://render.com)
 2. Connect your GitHub repository
@@ -92,14 +92,14 @@ curl https://your-railway-url.railway.app/health
 
 ---
 
-## 3. Frontend — Vercel
+## 3. Frontend - Vercel
 
 ### Deploy Steps
 
 1. Import the project at [vercel.com/new](https://vercel.com/new)
 2. Select your GitHub repository
 3. Set the **Root Directory** to `client/`
-4. Vercel auto-detects Next.js — no build command changes needed
+4. Vercel auto-detects Next.js - no build command changes needed
 
 ### Environment Variables
 
@@ -123,7 +123,7 @@ SENTRY_AUTH_TOKEN=your_sentry_auth_token
 
 In Vercel → Project → Domains, add `stylesense.co.in` and follow the DNS instructions.
 
-After adding your domain, update the server's CORS allowlist — it is currently set to:
+After adding your domain, update the server's CORS allowlist - it is currently set to:
 ```typescript
 const allowedOrigins = [
   "https://www.stylesense.co.in",
@@ -143,12 +143,12 @@ Run these checks after every production deploy:
 # 1. Health check
 curl https://api.stylesense.co.in/health
 
-# 2. Manual analysis (requires valid JWT — test via browser DevTools)
+# 2. Manual analysis (requires valid JWT - test via browser DevTools)
 # POST /api/v1/analysis/manual
 # Body: { "skin_tone": "medium", "undertone": "warm" }
 
 # 3. Verify rate limiter
-# Make 11 rapid requests to /api/v1/analysis — 11th should return 429
+# Make 11 rapid requests to /api/v1/analysis - 11th should return 429
 ```
 
 Also verify in the browser:

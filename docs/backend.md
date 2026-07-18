@@ -8,31 +8,31 @@ The StyleSense backend is a **Node.js + Express 5** REST API written in TypeScri
 
 `server/src/index.ts` bootstraps the application in this order:
 
-1. **Sentry** — initialized first, before any other import, to capture startup errors
-2. **Express app** — created and configured
-3. **Trust proxy** — `app.set('trust proxy', 1)` for accurate IP detection behind Railway/Render
-4. **Middleware stack** — applied in a strict, load-sensitive order
-5. **Route modules** — mounted at their prefixes
-6. **Sentry error handler** — must come before the custom error handler
-7. **Global error handler** — catches all unhandled errors
-8. **Server listen** — binds to `PORT` (default: 4000)
+1. **Sentry** - initialized first, before any other import, to capture startup errors
+2. **Express app** - created and configured
+3. **Trust proxy** - `app.set('trust proxy', 1)` for accurate IP detection behind Railway/Render
+4. **Middleware stack** - applied in a strict, load-sensitive order
+5. **Route modules** - mounted at their prefixes
+6. **Sentry error handler** - must come before the custom error handler
+7. **Global error handler** - catches all unhandled errors
+8. **Server listen** - binds to `PORT` (default: 4000)
 
 ---
 
 ## Middleware Stack
 
-Middleware is applied in this exact order — order matters for security and correctness:
+Middleware is applied in this exact order - order matters for security and correctness:
 
 ```
-1. helmet()           — security headers (X-Frame-Options, CSP, etc.)
-2. cors()             — origin allowlist (stylesense.co.in + localhost in dev)
-3. express.json()     — parse JSON bodies (10 MB limit)
-4. logger             — request logging
-5. rateLimit()        — 100 req/min per IP (general)
-   └─ analysisLimiter — 10 req/min per IP (analysis + AI routes only)
+1. helmet()           - security headers (X-Frame-Options, CSP, etc.)
+2. cors()             - origin allowlist (stylesense.co.in + localhost in dev)
+3. express.json()     - parse JSON bodies (10 MB limit)
+4. logger             - request logging
+5. rateLimit()        - 100 req/min per IP (general)
+   └─ analysisLimiter - 10 req/min per IP (analysis + AI routes only)
 6. Routes
 7. Sentry.setupExpressErrorHandler()
-8. errorHandler()     — global catch-all → structured JSON error response
+8. errorHandler()     - global catch-all → structured JSON error response
 ```
 
 ---
@@ -116,20 +116,20 @@ All errors flow to the global `errorHandler` middleware in `middleware/errorHand
 
 ## Authentication Middleware
 
-`middleware/auth.ts` — verifies the Supabase JWT on every protected route:
+`middleware/auth.ts` - verifies the Supabase JWT on every protected route:
 
 1. Reads `Authorization: Bearer <token>` header
 2. Calls Supabase `auth.getUser(token)` with the service role key
 3. Attaches `req.user` for use in route handlers
 4. Returns `401 UNAUTHORIZED` if the token is missing or invalid
 
-`middleware/adminAuth.ts` — additionally checks that `req.user` has admin privileges.
+`middleware/adminAuth.ts` - additionally checks that `req.user` has admin privileges.
 
 ---
 
 ## Database Access
 
-All database queries go through `utils/db.ts` — a thin wrapper around the `pg` client that:
+All database queries go through `utils/db.ts` - a thin wrapper around the `pg` client that:
 
 - Implements retry logic (`DB_MAX_ATTEMPTS`, `DB_RETRY_DELAY_MS`)
 - Provides a consistent `query(sql, params)` interface
@@ -161,11 +161,11 @@ UserStyleProfile + Product[] → ScoredProduct[]
 It scores each product across 7 dimensions (color, season, undertone, occasion, style, material, formality) with confidence adjustment. Output includes:
 
 - `score` (0–100)
-- `reasons[]` — plain-English positive factors
-- `negatives[]` — why a product scored lower
-- `breakdown` — per-dimension scores for debugging
+- `reasons[]` - plain-English positive factors
+- `negatives[]` - why a product scored lower
+- `breakdown` - per-dimension scores for debugging
 
-The engine has no hardcoded UI rules — everything comes from the product's `ai_metadata` field populated by the Gemini pipeline.
+The engine has no hardcoded UI rules - everything comes from the product's `ai_metadata` field populated by the Gemini pipeline.
 
 ---
 

@@ -1,4 +1,4 @@
-# StyleSense — Backend Integration Architecture
+# StyleSense - Backend Integration Architecture
 
 > **Scope:** This document defines the API connection structure, service layer pattern, error handling strategy, loading state logic, and security enforcement rules for the StyleSense (Color & Style Analyzer) app. It is written to bridge the current local-logic MVP to a stable, production-ready backend integration.
 
@@ -80,7 +80,7 @@ src/
         └── api.types.ts  ← Request/response TypeScript interfaces
 ```
 
-### `api.ts` — Single HTTP Client
+### `api.ts` - Single HTTP Client
 
 ```typescript
 import axios from "axios";
@@ -114,7 +114,7 @@ api.interceptors.response.use(
 export default api;
 ```
 
-### `styleService.ts` — Domain Service
+### `styleService.ts` - Domain Service
 
 ```typescript
 import api from "./api";
@@ -144,7 +144,7 @@ export const styleService = {
 };
 ```
 
-### `storageService.ts` — Guest ID Persistence
+### `storageService.ts` - Guest ID Persistence
 
 ```typescript
 const GUEST_KEY = "ss_guest_id";
@@ -164,7 +164,7 @@ export const storageService = {
 };
 ```
 
-### `api.types.ts` — Shared Types
+### `api.types.ts` - Shared Types
 
 ```typescript
 export type SkinTone  = "light" | "medium" | "dark";
@@ -192,12 +192,12 @@ export interface AnalysisResult {
 ### Three-Layer Model
 
 ```
-Layer 1 — Input Validation  (before any network call)
-Layer 2 — API Error Mapping (in axios interceptor)
-Layer 3 — UI Error Feedback (in screen components)
+Layer 1 - Input Validation  (before any network call)
+Layer 2 - API Error Mapping (in axios interceptor)
+Layer 3 - UI Error Feedback (in screen components)
 ```
 
-### Layer 1 — Input Validation (`src/utils/validators.ts`)
+### Layer 1 - Input Validation (`src/utils/validators.ts`)
 
 ```typescript
 export function validateImage(file: File): string | null {
@@ -215,7 +215,7 @@ export function validateManualInput(tone?: string, under?: string): string | nul
 }
 ```
 
-### Layer 2 — API Error Code Map
+### Layer 2 - API Error Code Map
 
 | API Error Code         | Meaning                          | User Message                              |
 |------------------------|----------------------------------|-------------------------------------------|
@@ -227,7 +227,7 @@ export function validateManualInput(tone?: string, under?: string): string | nul
 | `TIMEOUT`              | Request timed out                | "Request timed out. Check your connection."|
 | `UNKNOWN_ERROR`        | Fallback                         | "Something went wrong. Please try again." |
 
-### Layer 3 — Screen-Level Error State
+### Layer 3 - Screen-Level Error State
 
 ```typescript
 // Pattern used in every screen that calls an API
@@ -341,7 +341,7 @@ useEffect(() => {
 | API responses     | Never render raw HTML from API strings; use text nodes only       |
 
 ```typescript
-// Safe rendering — never dangerouslySetInnerHTML with API data
+// Safe rendering - never dangerouslySetInnerHTML with API data
 <Text>{result.outfits[0]}</Text>  // ✅ Safe
 ```
 

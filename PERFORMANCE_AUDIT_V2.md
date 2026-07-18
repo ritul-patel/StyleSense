@@ -1,8 +1,8 @@
-# StyleSense — Performance Audit V2 (Evidence-Based)
+# StyleSense - Performance Audit V2 (Evidence-Based)
 
 **Date**: 2026-06-29  
 **Target**: Lighthouse 90+ Mobile, 95+ Desktop, LCP <2.5s, FCP <1.8s  
-**Method**: Source code inspection — no runtime measurements available
+**Method**: Source code inspection - no runtime measurements available
 
 ---
 
@@ -25,7 +25,7 @@
 **File**: `layout.tsx` lines 117-124  
 **Evidence**: External Google Font loaded via JS-injected `<link rel="stylesheet">` + `<link rel="preload" as="style">`
 
-**Problem**: The preload triggers an early fetch of the CSS, then the inline script creates another `<link>` — effectively loading the same resource twice. The font file itself (~200KB woff2 variable font) is still fetched from `fonts.gstatic.com`.
+**Problem**: The preload triggers an early fetch of the CSS, then the inline script creates another `<link>` - effectively loading the same resource twice. The font file itself (~200KB woff2 variable font) is still fetched from `fonts.gstatic.com`.
 
 **Impact**: +200-400ms on FCP (network round-trip to Google → download CSS → download woff2)  
 **TBT Impact**: Minimal (async)  
@@ -40,7 +40,7 @@
 **File**: `src/app/providers/PostHogProvider.tsx` line 9  
 **Evidence**: `posthog.init()` runs at module evaluation time via top-level `if (typeof window !== "undefined")` block
 
-**Problem**: PostHog (~22KB gzip) initializes immediately during hydration. It sets up session recording, feature flags, and network connections on every single page load — even pages that don't track any custom events.
+**Problem**: PostHog (~22KB gzip) initializes immediately during hydration. It sets up session recording, feature flags, and network connections on every single page load - even pages that don't track any custom events.
 
 **Impact**: +50-100ms TBT (main thread busy during init)  
 **Bundle Impact**: ~22KB gzip in shared client bundle  
@@ -70,16 +70,16 @@ Since FeedbackWidget imports framer-motion and loads on every page via layout.ts
 ## FINDING 4: Static Product Data (43KB raw) in Client Bundle
 
 **Files**: 
-- `src/data/products.ts` — 22.3KB (49 products with full URLs)
-- `src/data/outfitProducts.ts` — 13.9KB (210 outfit-product mappings)
-- `src/data/outfits.ts` — 7KB (30 outfits)
+- `src/data/products.ts` - 22.3KB (49 products with full URLs)
+- `src/data/outfitProducts.ts` - 13.9KB (210 outfit-product mappings)
+- `src/data/outfits.ts` - 7KB (30 outfits)
 
 **Evidence**: Imported by discover page, wardrobe page, outfit/[id] page, RelatedLookCard
 
 **Problem**: This 43KB of static JSON data is compiled into JavaScript and sent to every page that imports it. After gzip: ~10KB. Pages affected:
-- `/discover` — imports outfits + outfitProducts (which imports products) = 43KB
-- `/outfit/[id]` — imports all three = 43KB
-- `/wardrobe` — imports products = 22KB
+- `/discover` - imports outfits + outfitProducts (which imports products) = 43KB
+- `/outfit/[id]` - imports all three = 43KB
+- `/wardrobe` - imports products = 22KB
 
 **Impact**: +10KB gzip per affected route, +parse time  
 **Estimated Lighthouse Impact**: -2 to -4 points
@@ -174,7 +174,7 @@ Since FeedbackWidget imports framer-motion and loads on every page via layout.ts
 **File**: `package.json`  
 **Evidence**: `"html2canvas": "^1.4.1"` (~44KB gzip)
 
-**Current status**: Already dynamic-imported in outfit/[id] page (good). But the package is still in dependencies — Next.js may include it in vendor chunk analysis. Since it's dynamic-imported, it won't be in the initial bundle. **Not an actual issue.**
+**Current status**: Already dynamic-imported in outfit/[id] page (good). But the package is still in dependencies - Next.js may include it in vendor chunk analysis. Since it's dynamic-imported, it won't be in the initial bundle. **Not an actual issue.**
 
 ---
 
@@ -240,17 +240,17 @@ Since FeedbackWidget imports framer-motion and loads on every page via layout.ts
 
 | # | Optimization | File | Expected Impact | Difficulty | Risk |
 |---|-------------|------|-----------------|------------|------|
-| 1 | **Remove Material Symbols preload** — it duplicates the script-injected load | `layout.tsx` L113-117 | -1 network request, -100ms | Trivial | None |
-| 2 | **Lazy-initialize PostHog** — defer `posthog.init()` until after hydration via `requestIdleCallback` | `PostHogProvider.tsx` | -50ms TBT, -22KB from critical path | Low | Low |
-| 3 | **Move FeedbackWidget to a client-only wrapper with lazy import** — prevents framer-motion in shared chunk | `layout.tsx` + new wrapper | -32KB from shared chunk | Medium | Low |
+| 1 | **Remove Material Symbols preload** - it duplicates the script-injected load | `layout.tsx` L113-117 | -1 network request, -100ms | Trivial | None |
+| 2 | **Lazy-initialize PostHog** - defer `posthog.init()` until after hydration via `requestIdleCallback` | `PostHogProvider.tsx` | -50ms TBT, -22KB from critical path | Low | Low |
+| 3 | **Move FeedbackWidget to a client-only wrapper with lazy import** - prevents framer-motion in shared chunk | `layout.tsx` + new wrapper | -32KB from shared chunk | Medium | Low |
 
 ### HIGH (Strong Impact)
 
 | # | Optimization | File | Expected Impact | Difficulty | Risk |
 |---|-------------|------|-----------------|------------|------|
 | 4 | **Limit Discover page initial render to 12 items** + "Load More" button | `discover/page.tsx` | -60% DOM nodes, -150ms TBT | Low | Low |
-| 5 | **Defer WardrobeProvider hydration** — only call APIs after `requestIdleCallback` or on wardrobe route | `WardrobeContext.tsx` | -4 API calls on non-wardrobe pages | Medium | Medium |
-| 6 | **Replace Lenis RAF with event-driven updates** — use passive wheel listener instead of continuous RAF | `lenis.tsx` | -2ms/frame CPU, better INP | Medium | Medium |
+| 5 | **Defer WardrobeProvider hydration** - only call APIs after `requestIdleCallback` or on wardrobe route | `WardrobeContext.tsx` | -4 API calls on non-wardrobe pages | Medium | Medium |
+| 6 | **Replace Lenis RAF with event-driven updates** - use passive wheel listener instead of continuous RAF | `lenis.tsx` | -2ms/frame CPU, better INP | Medium | Medium |
 
 ### MEDIUM (Moderate Impact)
 
@@ -259,13 +259,13 @@ Since FeedbackWidget imports framer-motion and loads on every page via layout.ts
 | 7 | **Move static product data to a JSON file** served as static asset (not JS) | `src/data/*.ts` → `public/data/*.json` | -10KB from route bundles | Medium | Medium |
 | 8 | **Add `fetchPriority="low"` to avatar images** in HeroScannerCard (below-fold on mobile) | `HeroScannerCard.tsx` | -100ms LCP (stops competing with fonts) | Trivial | None |
 | 9 | **Remove duplicate preconnect** to fonts.gstatic.com | `layout.tsx` L116 | -1 connection, cleaner waterfall | Trivial | None |
-| 10 | **Defer Sentry initialization** — use `Sentry.init()` in `afterInteractive` strategy | Sentry config | -30KB from critical path | Medium | Low |
+| 10 | **Defer Sentry initialization** - use `Sentry.init()` in `afterInteractive` strategy | Sentry config | -30KB from critical path | Medium | Low |
 
 ### LOW (Cleanup, Diminishing Returns)
 
 | # | Optimization | File | Expected Impact | Difficulty | Risk |
 |---|-------------|------|-----------------|------------|------|
-| 11 | Remove `react-scroll` — replace with native CSS `scroll-behavior: smooth` | `HomePageClient.tsx` | -4KB (route-scoped, minimal) | Medium | Medium |
+| 11 | Remove `react-scroll` - replace with native CSS `scroll-behavior: smooth` | `HomePageClient.tsx` | -4KB (route-scoped, minimal) | Medium | Medium |
 | 12 | Use `React.memo` on ProductCard (renders 30-49 times) | `ProductCard.tsx` | -50ms re-render on filter change | Trivial | None |
 | 13 | Add `will-change: transform` to scroll-animated elements | motion components | -jank on low-end mobile | Trivial | None |
 | 14 | Remove unused `@vercel/analytics` import if Vercel auto-injects | `layout.tsx` | -1KB | Trivial | Low |
@@ -274,7 +274,7 @@ Since FeedbackWidget imports framer-motion and loads on every page via layout.ts
 
 ## Phased Implementation Plan
 
-### Phase 1 — Quick Wins (30 minutes, +10-15 Lighthouse points)
+### Phase 1 - Quick Wins (30 minutes, +10-15 Lighthouse points)
 
 1. Remove duplicate Material Symbols preload
 2. Remove redundant preconnect
@@ -282,24 +282,24 @@ Since FeedbackWidget imports framer-motion and loads on every page via layout.ts
 4. Limit Discover initial render to 12 items
 5. Add fetchPriority="low" to HeroScannerCard avatars
 
-### Phase 2 — Bundle Optimization (1-2 hours, +5-8 points)
+### Phase 2 - Bundle Optimization (1-2 hours, +5-8 points)
 
 6. Move FeedbackWidget framer-motion out of shared chunk
 7. Defer WardrobeProvider API calls on non-wardrobe pages
 8. React.memo on ProductCard
 
-### Phase 3 — Rendering Optimization (1-2 hours, +3-5 points)
+### Phase 3 - Rendering Optimization (1-2 hours, +3-5 points)
 
 9. Replace Lenis continuous RAF with idle-based updates
 10. Move static data to JSON (or eliminate from discover/outfit bundles)
 11. Add will-change hints to animated elements
 
-### Phase 4 — Network Optimization (30 minutes, +2-3 points)
+### Phase 4 - Network Optimization (30 minutes, +2-3 points)
 
 12. Defer Sentry to afterInteractive
 13. Remove react-scroll if Lenis covers the use case
 
-### Phase 5 — Long-term (Future sprint)
+### Phase 5 - Long-term (Future sprint)
 
 14. Replace ALL Material Symbols with Lucide icons (eliminates 200KB+ external font entirely)
 15. Implement virtual scroll on Discover grid for 50+ items
@@ -324,9 +324,9 @@ Since FeedbackWidget imports framer-motion and loads on every page via layout.ts
 
 | Item | Reason |
 |------|--------|
-| Remove framer-motion entirely | Core design system — animations are a product requirement |
+| Remove framer-motion entirely | Core design system - animations are a product requirement |
 | Remove PostHog entirely | Business requirement for analytics/session replay |
 | Remove Sentry entirely | Error tracking required for production Beta |
-| SSG the landing page | Uses `react-scroll` (client) + dynamic HeroScannerCard — would require refactor |
-| Remove Lenis entirely | Smooth scroll is a UX differentiator — optimize, don't remove |
+| SSG the landing page | Uses `react-scroll` (client) + dynamic HeroScannerCard - would require refactor |
+| Remove Lenis entirely | Smooth scroll is a UX differentiator - optimize, don't remove |
 | Remove SpeedInsights | <1KB, negligible impact |

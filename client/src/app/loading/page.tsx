@@ -267,6 +267,7 @@ export default function LoadingPage() {
       };
 
       let timeoutId: ReturnType<typeof setTimeout> | null = null;
+      let progressInterval: ReturnType<typeof setInterval> | null = null;
       try {
 
         setProgress(20);
@@ -289,7 +290,17 @@ export default function LoadingPage() {
         const controller = new AbortController();
         timeoutId = setTimeout(() => controller.abort(), 40000);
 
-        setProgress(40);
+        // Simulate gradual progress while waiting for server (makes it feel alive)
+        let progressInterval: ReturnType<typeof setInterval> | null = setInterval(() => {
+          setProgress((prev) => {
+            // Gradually move from 30 to 80, slowing down as it approaches 80
+            if (prev >= 78) return prev;
+            const increment = prev < 50 ? 2 : prev < 65 ? 1.2 : 0.5;
+            return Math.min(78, prev + increment);
+          });
+        }, 600);
+
+        setProgress(30);
         const res = await apiFetch("/api/v1/analysis/upload", {
           method: "POST",
           body: formData,
@@ -297,9 +308,9 @@ export default function LoadingPage() {
         });
 
         if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+        if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
 
-
-        setProgress(60);
+        setProgress(85);
 
         if (!res.ok) {
           if (res.status === 401) { router.push("/login"); return; }
@@ -338,7 +349,7 @@ export default function LoadingPage() {
           return;
         }
 
-        setProgress(80);
+        setProgress(90);
         const payload = await res.json();
         if (!payload.success) {
           await runClientFallback("Service unavailable. Showing client-side preview.");
@@ -350,6 +361,7 @@ export default function LoadingPage() {
         persistAndNavigate(resultData);
       } catch (err: any) {
         if (timeoutId) clearTimeout(timeoutId);
+        if (progressInterval) clearInterval(progressInterval);
         console.warn("Analysis caught error:", err);
 
         if (err instanceof DOMException && err.name === "AbortError") {

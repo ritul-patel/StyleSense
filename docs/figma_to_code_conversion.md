@@ -1,5 +1,5 @@
 # Figma-to-Code Conversion
-## StyleSense — React Native Implementation Guide
+## StyleSense - React Native Implementation Guide
 
 ---
 

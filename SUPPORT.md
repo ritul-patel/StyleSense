@@ -6,10 +6,10 @@
 
 Before opening an issue, please check:
 
-- [README.md](README.md) — project overview, setup, architecture, and API reference
-- [CONTRIBUTING.md](CONTRIBUTING.md) — development setup and coding standards
-- [docs/trd.md](docs/trd.md) — technical requirements and API contracts
-- [docs/backend_integration_architecture.md](docs/backend_integration_architecture.md) — service layer, error handling, and security patterns
+- [README.md](README.md) - project overview, setup, architecture, and API reference
+- [CONTRIBUTING.md](CONTRIBUTING.md) - development setup and coding standards
+- [docs/trd.md](docs/trd.md) - technical requirements and API contracts
+- [docs/backend_integration_architecture.md](docs/backend_integration_architecture.md) - service layer, error handling, and security patterns
 
 ### 2. Search Existing Issues
 
@@ -37,13 +37,13 @@ If you've read the docs and searched existing issues:
 
 - Confirm `NEXT_PUBLIC_API_URL` in `client/.env.local` points to `http://localhost:4000/api/v1` in development
 - Confirm the Express server is running on port 4000 (`npm run dev:server`)
-- Check browser console for CORS errors — the server only allows `localhost:3000` and `localhost:3001` in development
+- Check browser console for CORS errors - the server only allows `localhost:3000` and `localhost:3001` in development
 
 ### Gemini AI calls failing
 
 - Verify `GEMINI_API_KEY` is set in `server/.env`
 - Check that the model name in `GEMINI_MODEL` matches an available model in your Google AI Studio project
-- The service logs every request with `[gemini:req#N]` — check your server console for error details
+- The service logs every request with `[gemini:req#N]` - check your server console for error details
 
 ### Database migration errors
 

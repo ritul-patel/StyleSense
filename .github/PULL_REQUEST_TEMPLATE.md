@@ -4,8 +4,8 @@
 
 ## Type of Change
 
-- [ ] Bug fix (non-breaking — fixes an existing issue)
-- [ ] New feature (non-breaking — adds new functionality)
+- [ ] Bug fix (non-breaking - fixes an existing issue)
+- [ ] New feature (non-breaking - adds new functionality)
 - [ ] Breaking change (fix or feature that changes existing behavior)
 - [ ] Documentation update
 - [ ] Refactor (no functional changes)
@@ -28,7 +28,7 @@ Closes #
 
 <!-- How did you test these changes? What should reviewers check? -->
 - [ ] Ran `npm run dev` and verified the change locally
-- [ ] Ran `npm --prefix server run test` — all tests pass
+- [ ] Ran `npm --prefix server run test` - all tests pass
 - [ ] Tested on mobile viewport
 - [ ] Tested error states (network failure, invalid input)
 

@@ -1,4 +1,4 @@
-# StyleSense — Developer Documentation
+# StyleSense - Developer Documentation
 
 This directory contains technical documentation for developers working on StyleSense.
 
@@ -8,7 +8,7 @@ This directory contains technical documentation for developers working on StyleS
 
 | File | Description |
 |---|---|
-| [api.md](api.md) | Full API reference — endpoints, request/response shapes, error codes |
+| [api.md](api.md) | Full API reference - endpoints, request/response shapes, error codes |
 | [architecture.md](architecture.md) | System architecture, data flow diagrams, service boundaries |
 | [frontend.md](frontend.md) | Frontend structure, routing, component conventions, state management |
 | [backend.md](backend.md) | Backend structure, middleware stack, route modules, engine design |
@@ -23,8 +23,8 @@ This directory contains technical documentation for developers working on StyleS
 
 ## Quick Links
 
-- [README](../README.md) — project overview and getting started
-- [CONTRIBUTING](../CONTRIBUTING.md) — how to contribute
-- [PRD](prd.md) — product requirements
-- [TRD](trd.md) — technical requirements
-- [Implementation Roadmap](implementation_roadmap.md) — phased execution plan
+- [README](../README.md) - project overview and getting started
+- [CONTRIBUTING](../CONTRIBUTING.md) - how to contribute
+- [PRD](prd.md) - product requirements
+- [TRD](trd.md) - technical requirements
+- [Implementation Roadmap](implementation_roadmap.md) - phased execution plan

@@ -112,16 +112,16 @@ test(engine): add tests for dark + cool undertone profile
 
 ## Pull Request Process
 
-1. **Keep PRs focused** — one feature or fix per PR. Large PRs are hard to review.
+1. **Keep PRs focused** - one feature or fix per PR. Large PRs are hard to review.
 2. **Fill in the PR template** completely. Incomplete PRs may be closed.
 3. **Ensure tests pass:**
    ```bash
    npm --prefix server run test
    npm --prefix client run lint
    ```
-4. **Request a review** — tag the maintainer for review.
-5. **Respond to feedback** — address review comments or explain your reasoning.
-6. **Squash on merge** — the maintainer will squash commits on merge to keep the history clean.
+4. **Request a review** - tag the maintainer for review.
+5. **Respond to feedback** - address review comments or explain your reasoning.
+6. **Squash on merge** - the maintainer will squash commits on merge to keep the history clean.
 
 ---
 
@@ -129,30 +129,30 @@ test(engine): add tests for dark + cool undertone profile
 
 ### TypeScript
 
-- **No `any`** — use proper types or `unknown` with narrowing. If `any` is unavoidable, add a comment explaining why.
+- **No `any`** - use proper types or `unknown` with narrowing. If `any` is unavoidable, add a comment explaining why.
 - **Interfaces over type aliases** for object shapes.
-- **Zod** for all runtime validation on the server — never trust raw input.
-- **Strict mode** is enabled in `tsconfig.json` — all errors must be resolved.
+- **Zod** for all runtime validation on the server - never trust raw input.
+- **Strict mode** is enabled in `tsconfig.json` - all errors must be resolved.
 
 ### React / Next.js
 
 - Use the **App Router** conventions (`page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`).
-- **Server Components by default** — only add `"use client"` when the component genuinely needs browser APIs or state.
-- Keep components **focused** — one responsibility per component.
-- Use `next/image` for all images — never raw `<img>` tags.
+- **Server Components by default** - only add `"use client"` when the component genuinely needs browser APIs or state.
+- Keep components **focused** - one responsibility per component.
+- Use `next/image` for all images - never raw `<img>` tags.
 - No `dangerouslySetInnerHTML` with API-sourced data.
 
 ### Express / Backend
 
-- All route handlers must use the global `errorHandler` — never swallow errors silently.
+- All route handlers must use the global `errorHandler` - never swallow errors silently.
 - Validate every request body with **Zod** before processing.
 - Rate-sensitive routes (analysis, AI) must use the `analysisLimiter` middleware.
-- Never log API keys, passwords, or full JWTs — log prefixes only.
+- Never log API keys, passwords, or full JWTs - log prefixes only.
 
 ### General
 
-- **No hardcoded URLs or secrets** in source code — use environment variables.
-- **No committed `.env` files** — only `.env.example` with placeholder values.
+- **No hardcoded URLs or secrets** in source code - use environment variables.
+- **No committed `.env` files** - only `.env.example` with placeholder values.
 - Remove all `console.log` debug statements before submitting a PR.
 
 ---
@@ -166,8 +166,8 @@ npm --prefix server run test
 ```
 
 Tests live in:
-- `server/src/engine/tests/` — recommendation engine unit tests
-- `server/src/services/recommendationEngine.test.ts` — service-level tests
+- `server/src/engine/tests/` - recommendation engine unit tests
+- `server/src/services/recommendationEngine.test.ts` - service-level tests
 
 When adding a new feature, add a corresponding test. When fixing a bug, add a regression test.
 

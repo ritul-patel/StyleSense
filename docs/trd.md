@@ -1,5 +1,5 @@
 # Technical Requirement Document (TRD)
-## Product: Color & Style Analyzer — StyleSense (Men)
+## Product: Color & Style Analyzer - StyleSense (Men)
 
 ---
 
@@ -124,7 +124,7 @@ results (
 )
 ```
 
-### Color Profiles — Config Example
+### Color Profiles - Config Example
 ```json
 {
   "medium_warm": {
@@ -149,19 +149,19 @@ results (
 
 ### Endpoints
 
-#### POST `/analysis/upload` — Create Analysis (Photo)
+#### POST `/analysis/upload` - Create Analysis (Photo)
 ```
 Request : multipart/form-data { image: File }
 Response: { "analysis_id": "uuid", "image_url": "string" }
 ```
 
-#### POST `/analysis/manual` — Manual Analysis
+#### POST `/analysis/manual` - Manual Analysis
 ```
 Request : { "skin_tone": "medium", "undertone": "warm" }
 Response: { "analysis_id": "uuid", "result": ResultObject }
 ```
 
-#### GET `/analysis/result/:id` — Get Results
+#### GET `/analysis/result/:id` - Get Results
 ```json
 // Response
 {
@@ -173,7 +173,7 @@ Response: { "analysis_id": "uuid", "result": ResultObject }
 }
 ```
 
-#### GET `/health` — Health Check
+#### GET `/health` - Health Check
 ```
 Response: 200 OK
 ```

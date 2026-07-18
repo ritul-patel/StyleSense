@@ -1,5 +1,5 @@
 # Product Requirement Document (PRD)
-## Product: Color & Style Analyzer — StyleSense (Men)
+## Product: Color & Style Analyzer - StyleSense (Men)
 
 ---
 
@@ -106,7 +106,7 @@ Existing solutions (blogs, influencers) are generic, not personalized.
 - Multiple people in image
 - Face not clearly visible
 
-**Solution:** Show prompt — *"Upload a clear face photo in good lighting"*
+**Solution:** Show prompt - *"Upload a clear face photo in good lighting"*
 
 ### User Confusion
 - Doesn't understand undertones

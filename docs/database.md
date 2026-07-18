@@ -12,7 +12,7 @@ The connection string is set via the `DATABASE_URL` environment variable.
 
 For Supabase:
 - Use the **direct connection URL** (Session Mode, port 5432) for migrations and server queries
-- The pooler URL (port 6543) is for edge functions — do not use it for `node-pg-migrate`
+- The pooler URL (port 6543) is for edge functions - do not use it for `node-pg-migrate`
 
 ---
 
@@ -86,14 +86,14 @@ CREATE TABLE results (
 The fashion product catalog. Each product has AI-generated metadata in the `ai_metadata` JSONB column.
 
 Key columns:
-- `id` — UUID primary key
-- `name`, `brand`, `category` — product identity
-- `price` — in paise (integer) or rupees (float, depending on migration)
-- `image_url` — public URL or Supabase Storage path
-- `primary_color`, `secondary_colors` — from AI metadata
-- `seasons`, `occasions`, `styles`, `materials`, `fit`, `formality` — structured attributes
-- `ai_metadata` — full raw Gemini response (JSONB) for debugging and future use
-- `recommended_undertones` — which undertones this product suits
+- `id` - UUID primary key
+- `name`, `brand`, `category` - product identity
+- `price` - in paise (integer) or rupees (float, depending on migration)
+- `image_url` - public URL or Supabase Storage path
+- `primary_color`, `secondary_colors` - from AI metadata
+- `seasons`, `occasions`, `styles`, `materials`, `fit`, `formality` - structured attributes
+- `ai_metadata` - full raw Gemini response (JSONB) for debugging and future use
+- `recommended_undertones` - which undertones this product suits
 
 ---
 
@@ -102,10 +102,10 @@ Key columns:
 Tracks images processed through the image pipeline.
 
 Key columns:
-- `storage_path` — content-addressed path in Supabase Storage
-- `content_hash` — SHA-256 hash of the processed WebP file (deduplication key)
+- `storage_path` - content-addressed path in Supabase Storage
+- `content_hash` - SHA-256 hash of the processed WebP file (deduplication key)
 - `width`, `height`, `size_bytes`, `format`
-- `source_url` — original external URL the image was downloaded from
+- `source_url` - original external URL the image was downloaded from
 
 ---
 
@@ -136,11 +136,11 @@ User's bookmarked outfit combinations.
 Extended user style profile, updated after each analysis.
 
 Key columns:
-- `user_id` — references Supabase Auth user
+- `user_id` - references Supabase Auth user
 - `skin_tone`, `undertone`, `season`
-- `best_colors`, `avoid_colors` — JSONB arrays
-- `confidence` — analysis confidence score (0–100)
-- `last_analysis_id` — FK to the most recent analysis
+- `best_colors`, `avoid_colors` - JSONB arrays
+- `confidence` - analysis confidence score (0–100)
+- `last_analysis_id` - FK to the most recent analysis
 
 ---
 
@@ -177,7 +177,7 @@ Product images are stored in the `product-images` bucket on Supabase Storage.
 
 - **Path format:** `products/<category>/<sha256_prefix>-<slug>.webp`
 - **Access:** Public read (URLs generated via `supabase.storage.from('product-images').getPublicUrl(path)`)
-- **Cache:** Images are served with `Cache-Control: public, max-age=31536000, immutable` — the content-addressed path makes this safe
+- **Cache:** Images are served with `Cache-Control: public, max-age=31536000, immutable` - the content-addressed path makes this safe
 
 ---
 

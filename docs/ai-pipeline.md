@@ -101,7 +101,7 @@ This prevents server-side request forgery attacks where an attacker could trick 
 
 ### Structured Output
 
-The key engineering decision is using Gemini's **`responseSchema` parameter** to force structured JSON output. The SDK validates the response against the schema — no markdown fences, no explanatory text, no hallucinated fields.
+The key engineering decision is using Gemini's **`responseSchema` parameter** to force structured JSON output. The SDK validates the response against the schema - no markdown fences, no explanatory text, no hallucinated fields.
 
 ```typescript
 const METADATA_SCHEMA = {
@@ -131,17 +131,17 @@ const METADATA_SCHEMA = {
 ### Request Construction
 
 Each Gemini request includes:
-1. **Image as inline base64** — the processed product image is fetched and encoded
-2. **Text prompt** — product name, category, and instruction to generate metadata
-3. **JSON schema** — `responseSchema` enforces the output structure
+1. **Image as inline base64** - the processed product image is fetched and encoded
+2. **Text prompt** - product name, category, and instruction to generate metadata
+3. **JSON schema** - `responseSchema` enforces the output structure
 
 ### Parse Resilience
 
 Despite structured output, the service includes three fallback parse strategies:
 
-1. **Direct `JSON.parse()`** — expected path with structured output
-2. **Strip markdown fences** — handles edge case where Gemini wraps output in ` ```json ``` `
-3. **Regex extraction** — extracts `{...}` from mixed text
+1. **Direct `JSON.parse()`** - expected path with structured output
+2. **Strip markdown fences** - handles edge case where Gemini wraps output in ` ```json ``` `
+3. **Regex extraction** - extracts `{...}` from mixed text
 
 If all three fail, the service retries the full Gemini call once before throwing.
 
@@ -155,7 +155,7 @@ Every request is logged with a sequential counter `[gemini:req#N]`:
 [gemini:req#1] Model: gemini-2.5-flash
 [gemini:req#1] ✓ Response received in 1842ms
 [gemini:req#1] Finish reason: STOP
-[gemini:req#1] Tokens — prompt: 312, response: 187, total: 499
+[gemini:req#1] Tokens - prompt: 312, response: 187, total: 499
 ```
 
 ---

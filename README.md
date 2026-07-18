@@ -1,6 +1,6 @@
 # StyleSense
 
-> **AI-powered personal color and style analysis for men.** Upload a photo or select your skin tone, and StyleSense delivers a personalized palette, outfit combinations, and curated product recommendations — in under 60 seconds.
+> **AI-powered personal color and style analysis for men.** Upload a photo or select your skin tone, and StyleSense delivers a personalized palette, outfit combinations, and curated product recommendations - in under 60 seconds.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
@@ -19,7 +19,7 @@ Most men buy clothes that don't suit their skin tone. StyleSense solves this wit
 - AI-enriched **product recommendations** from a scored catalog
 - A **virtual wardrobe** to save and revisit looks
 
-The recommendation engine scores every product across 7 dimensions — color match, season suitability, undertone fit, occasion, style, material, and formality — and returns ranked results with plain-English explanations.
+The recommendation engine scores every product across 7 dimensions - color match, season suitability, undertone fit, occasion, style, material, and formality - and returns ranked results with plain-English explanations.
 
 ---
 
@@ -64,7 +64,7 @@ The recommendation engine scores every product across 7 dimensions — color mat
 | **TypeScript** | Full type safety |
 | **Supabase (PostgreSQL)** | Primary database + file storage |
 | **Cloudinary** | Legacy image upload |
-| **Sharp** | Image processing — resize, WebP conversion, EXIF strip |
+| **Sharp** | Image processing - resize, WebP conversion, EXIF strip |
 | **Google Gemini 2.5 Flash** | AI product metadata generation (structured JSON output) |
 | **Anthropic Claude** | AI integration (secondary) |
 | **Zod** | Runtime schema validation |
@@ -136,7 +136,7 @@ The recommendation engine scores every product across 7 dimensions — color mat
 └──────────────┘
 ```
 
-### AI Pipeline — Gemini 2.5 Flash
+### AI Pipeline - Gemini 2.5 Flash
 
 ```
 Admin uploads product image URL
@@ -409,27 +409,27 @@ Full request/response contracts and error codes are documented in [`docs/trd.md`
 
 StyleSense uses **Supabase Auth** for identity management.
 
-- **Email/Password** — standard registration with email verification
-- **Google OAuth** — one-click sign-in via Google
-- **JWT** — server validates Supabase JWTs via the service role key on every protected route
-- **Password Reset** — email-based reset flow with Supabase email templates
-- **Auth state** — managed client-side via `AuthContext` (`lib/auth-context.tsx`)
+- **Email/Password** - standard registration with email verification
+- **Google OAuth** - one-click sign-in via Google
+- **JWT** - server validates Supabase JWTs via the service role key on every protected route
+- **Password Reset** - email-based reset flow with Supabase email templates
+- **Auth state** - managed client-side via `AuthContext` (`lib/auth-context.tsx`)
 
 ---
 
 ## AI Features
 
-### Gemini 2.5 Flash — Structured Product Metadata
+### Gemini 2.5 Flash - Structured Product Metadata
 
-The admin import pipeline uses Gemini's `responseSchema` parameter (structured output) to extract rich metadata from product images. This guarantees fully-conformant JSON — no markdown wrapping, no hallucinated fields, no post-processing regex.
+The admin import pipeline uses Gemini's `responseSchema` parameter (structured output) to extract rich metadata from product images. This guarantees fully-conformant JSON - no markdown wrapping, no hallucinated fields, no post-processing regex.
 
 **Extracted attributes:** `primary_color`, `secondary_colors`, `material`, `pattern`, `fit`, `sleeve_type`, `neck_type`, `formality`, `style`, `occasion[]`, `season[]`, `temperature_suitability`, `recommended_undertones[]`, `gender_category`, `product_type`, `description`, `keywords[]`, `confidence`.
 
-If parsing fails, the service retries once before throwing a structured error — every failure is logged with the raw response for debugging.
+If parsing fails, the service retries once before throwing a structured error - every failure is logged with the raw response for debugging.
 
-### Recommendation Engine — 7-Dimension Scoring
+### Recommendation Engine - 7-Dimension Scoring
 
-Every product in the catalog is scored against the user's style profile across 7 weighted dimensions. Results are sorted by score (0–100) and include human-readable `reasons[]` and `negatives[]` per product — making recommendations explainable and trustworthy rather than opaque.
+Every product in the catalog is scored against the user's style profile across 7 weighted dimensions. Results are sorted by score (0–100) and include human-readable `reasons[]` and `negatives[]` per product - making recommendations explainable and trustworthy rather than opaque.
 
 ---
 
@@ -440,10 +440,10 @@ Every product in the catalog is scored against the user's style profile across 7
 | Turbopack dev | Enabled in `next.config.ts` for fast local rebuilds |
 | AVIF + WebP | `next/image` with `formats: ['image/avif', 'image/webp']` |
 | 1-year asset cache | `Cache-Control: public, max-age=31536000, immutable` |
-| Content-addressed images | SHA-256 hash in storage path — safe for immutable caching |
+| Content-addressed images | SHA-256 hash in storage path - safe for immutable caching |
 | Package import optimization | `optimizePackageImports` for heavy dependencies |
 | WebP compression | Sharp: quality 82, effort 4, smart subsampling |
-| Compression offloaded | `compress: false` — handled by Vercel CDN, not Node.js |
+| Compression offloaded | `compress: false` - handled by Vercel CDN, not Node.js |
 
 ---
 
@@ -465,15 +465,15 @@ Every product in the catalog is scored against the user's style profile across 7
 
 ## Deployment
 
-### Frontend — Vercel
+### Frontend - Vercel
 
 1. Connect `client/` to a Vercel project
 2. Set environment variables in the Vercel dashboard
-3. Push to `main` — Vercel builds and deploys automatically
+3. Push to `main` - Vercel builds and deploys automatically
 
 Sentry source maps are uploaded during the production build (configured in `next.config.ts`).
 
-### Backend — Railway / Render
+### Backend - Railway / Render
 
 ```bash
 # Build
@@ -535,6 +535,6 @@ For bug reports and feature requests, use the [GitHub Issues](../../issues) temp
 
 ## Author
 
-Built by **Ritul Patel** — focused on building practical, AI-augmented consumer products.
+Built by **Ritul Patel** - focused on building practical, AI-augmented consumer products.
 
 🌐 [stylesense.co.in](https://www.stylesense.co.in)

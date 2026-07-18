@@ -6,7 +6,7 @@ Common issues and their solutions for StyleSense development and deployment.
 
 ## Setup Issues
 
-### `npm run dev` — server doesn't start
+### `npm run dev` - server doesn't start
 
 **Symptom:** Server exits immediately or shows a port error.
 
@@ -20,7 +20,7 @@ Common issues and their solutions for StyleSense development and deployment.
    lsof -i :4000
    ```
 3. Change the port in `server/.env`: `PORT=4001`
-4. The server runs `scripts/free-port.cjs` before starting (`predev` hook) — check if it's throwing an error
+4. The server runs `scripts/free-port.cjs` before starting (`predev` hook) - check if it's throwing an error
 
 ---
 
@@ -30,19 +30,19 @@ Common issues and their solutions for StyleSense development and deployment.
 
 **Solutions:**
 1. Verify `DATABASE_URL` is set correctly in `server/.env`
-2. For Supabase, use the **direct connection URL** (port 5432) — not the pooler (port 6543):
+2. For Supabase, use the **direct connection URL** (port 5432) - not the pooler (port 6543):
    ```
    # Correct (direct)
    DATABASE_URL=postgresql://postgres:<password>@db.<ref>.supabase.co:5432/postgres
    
-   # Wrong (pooler — will fail for migrations)
+   # Wrong (pooler - will fail for migrations)
    DATABASE_URL=postgresql://postgres.xxx:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres
    ```
 3. Check that your Supabase project is not paused (free tier pauses after inactivity)
 
 ---
 
-### Client can't reach the API — CORS error
+### Client can't reach the API - CORS error
 
 **Symptom:** Browser console shows `Access-Control-Allow-Origin` error.
 
@@ -57,7 +57,7 @@ Common issues and their solutions for StyleSense development and deployment.
 
 **Symptom:** The Next.js app throws a missing env variable error on startup.
 
-**Solution:** Ensure `client/.env.local` exists with the correct values. Next.js does not pick up `.env` files in parent directories — the file must be in the `client/` directory.
+**Solution:** Ensure `client/.env.local` exists with the correct values. Next.js does not pick up `.env` files in parent directories - the file must be in the `client/` directory.
 
 ---
 
@@ -68,9 +68,9 @@ Common issues and their solutions for StyleSense development and deployment.
 **Symptom:** `[gemini:req#N] Model "..." not found (404)`
 
 **Solutions:**
-1. Check `GEMINI_MODEL` in `server/.env` — use `gemini-2.5-flash` (not an older model ID)
+1. Check `GEMINI_MODEL` in `server/.env` - use `gemini-2.5-flash` (not an older model ID)
 2. Verify your `GEMINI_API_KEY` has access to the model in Google AI Studio
-3. Check if the model name has changed in Google's API — Google periodically renames/retires models
+3. Check if the model name has changed in Google's API - Google periodically renames/retires models
 
 ---
 
@@ -79,9 +79,9 @@ Common issues and their solutions for StyleSense development and deployment.
 **Symptom:** `[gemini:parse] ❌ ALL PARSE ATTEMPTS FAILED`
 
 **Solutions:**
-1. Check the raw response in the server log — the service logs the first 300 characters
-2. The service retries once automatically — if both fail, the full response is logged
-3. This may indicate the model is returning an error in natural language instead of JSON — check `finishReason` in the log (anything other than `STOP` indicates a problem)
+1. Check the raw response in the server log - the service logs the first 300 characters
+2. The service retries once automatically - if both fail, the full response is logged
+3. This may indicate the model is returning an error in natural language instead of JSON - check `finishReason` in the log (anything other than `STOP` indicates a problem)
 4. Try reducing the prompt complexity or check for quota exhaustion (429)
 
 ---
@@ -91,9 +91,9 @@ Common issues and their solutions for StyleSense development and deployment.
 **Symptom:** `[gemini:req#N] Rate limited (429)`
 
 **Solutions:**
-1. Google AI Studio free tier has request-per-minute limits — wait and retry
+1. Google AI Studio free tier has request-per-minute limits - wait and retry
 2. For production, upgrade to a paid Google Cloud quota
-3. The service does not automatically retry 429s — add delays between bulk import operations
+3. The service does not automatically retry 429s - add delays between bulk import operations
 
 ---
 
@@ -105,8 +105,8 @@ Common issues and their solutions for StyleSense development and deployment.
 
 **Solutions:**
 1. Check if the source URL is accessible from the server (not blocked by CORS or auth)
-2. The pipeline retries 3 times with exponential backoff — if all fail, the source server may be down or rate-limiting the bot
-3. Check if the URL passes SSRF validation — private/internal URLs are blocked by design
+2. The pipeline retries 3 times with exponential backoff - if all fail, the source server may be down or rate-limiting the bot
+3. Check if the URL passes SSRF validation - private/internal URLs are blocked by design
 
 ---
 
@@ -117,7 +117,7 @@ Common issues and their solutions for StyleSense development and deployment.
 **Solutions:**
 1. Verify the `product-images` bucket exists in your Supabase project
 2. Check that the bucket is set to **public** read access
-3. Verify `SUPABASE_SERVICE_ROLE_KEY` is correct — the service role key is required for storage uploads
+3. Verify `SUPABASE_SERVICE_ROLE_KEY` is correct - the service role key is required for storage uploads
 4. Check Supabase dashboard → Storage for quota limits
 
 ---
@@ -130,8 +130,8 @@ Common issues and their solutions for StyleSense development and deployment.
 
 **Solutions:**
 1. Check that `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in `server/.env` match your Supabase project
-2. Ensure the client is sending the `Authorization: Bearer <token>` header — check `client/src/lib/api.ts`
-3. Supabase JWTs expire — the Supabase JS client auto-refreshes them, but a stale client session may send an expired token. Try signing out and back in.
+2. Ensure the client is sending the `Authorization: Bearer <token>` header - check `client/src/lib/api.ts`
+3. Supabase JWTs expire - the Supabase JS client auto-refreshes them, but a stale client session may send an expired token. Try signing out and back in.
 
 ---
 
@@ -151,16 +151,16 @@ Common issues and their solutions for StyleSense development and deployment.
 ### Next.js builds are slow
 
 **Solutions:**
-1. Turbopack is enabled for dev (`next dev`) — if you're seeing slow builds in dev, check for large module imports
+1. Turbopack is enabled for dev (`next dev`) - if you're seeing slow builds in dev, check for large module imports
 2. For production builds (`next build`), Sentry adds overhead (source map generation). This is expected.
 3. Run `npm --prefix client run build -- --profile` to see component render times
 
 ### API responses are slow
 
 **Solutions:**
-1. Check the database connection — slow queries are logged to the server console
+1. Check the database connection - slow queries are logged to the server console
 2. Check if `DB_MAX_ATTEMPTS` and `DB_RETRY_DELAY_MS` are causing unnecessary retries on a flaky connection
-3. The recommendation engine loads all products — add `limit` and `offset` query parameters to paginate results
+3. The recommendation engine loads all products - add `limit` and `offset` query parameters to paginate results
 
 ---
 

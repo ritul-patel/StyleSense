@@ -93,7 +93,7 @@ Run analysis from manually selected skin tone + undertone.
 
 Fetch a previously created analysis result.
 
-**Path parameter:** `id` — the `analysis_id` UUID
+**Path parameter:** `id` - the `analysis_id` UUID
 
 **Response:** `200 OK`
 ```json
@@ -126,7 +126,7 @@ Returns products from the catalog scored against the authenticated user's style 
 |---|---|---|---|
 | `limit` | `number` | `20` | Number of results |
 | `offset` | `number` | `0` | Pagination offset |
-| `category` | `string` | — | Filter by category (e.g. `shirts`, `trousers`) |
+| `category` | `string` | - | Filter by category (e.g. `shirts`, `trousers`) |
 
 **Response:** `200 OK`
 ```json
@@ -277,11 +277,11 @@ All errors return a consistent JSON shape:
 
 | Code | HTTP | Meaning |
 |---|---|---|
-| `VALIDATION_ERROR` | 400 | Invalid request body — `field` indicates which field |
+| `VALIDATION_ERROR` | 400 | Invalid request body - `field` indicates which field |
 | `UNAUTHORIZED` | 401 | Missing or invalid JWT |
 | `FORBIDDEN` | 403 | Authenticated but not authorized (e.g. non-admin accessing admin route) |
 | `ANALYSIS_NOT_FOUND` | 404 | No analysis found for the given ID |
 | `FILE_TOO_LARGE` | 400 | Uploaded image exceeds 10 MB |
 | `UNSUPPORTED_FORMAT` | 400 | File is not JPEG, PNG, or WebP |
-| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests — wait and retry |
+| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests - wait and retry |
 | `INTERNAL_ERROR` | 500 | Unexpected server error (logged to Sentry) |

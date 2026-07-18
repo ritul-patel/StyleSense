@@ -20,7 +20,7 @@ These templates must be configured manually in the Supabase Dashboard.
 
 Supabase uses Go template syntax. The following variables are used:
 
-- `{{ .ConfirmationURL }}` — The full URL the user must click to confirm their action.
+- `{{ .ConfirmationURL }}` - The full URL the user must click to confirm their action.
 
 ### Email Subjects
 
@@ -28,8 +28,8 @@ Configure these subjects in the Supabase Dashboard:
 
 | Template | Subject Line |
 |----------|-------------|
-| Confirm signup | `Verify your email — StyleSense` |
-| Reset password | `Reset your password — StyleSense` |
+| Confirm signup | `Verify your email - StyleSense` |
+| Reset password | `Reset your password - StyleSense` |
 
 ### Redirect URLs
 
@@ -50,8 +50,8 @@ For local development, also add:
 ### Templates NOT needed
 
 The following are not used by StyleSense:
-- Magic Link — not implemented
-- Email Change — not implemented in UI
-- Invite User — not used
+- Magic Link - not implemented
+- Email Change - not implemented in UI
+- Invite User - not used
 
 Leave these at Supabase defaults or disable them.

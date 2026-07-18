@@ -1,11 +1,11 @@
-# Code Review: Color & Style Analyzer — Frontend
+# Code Review: Color & Style Analyzer - Frontend
 > Reviewer: Senior Engineer · Scope: Reusability, Naming, Coupling, Performance, Technical Debt
 
 ---
 
 ## Summary
 
-The codebase has a clean folder structure and correct type definitions. However, several patterns will cause real problems at integration time — particularly the hardcoded mock data in `ResultScreen`, the navigation-based coupling across all screens, and the missing implementation in `UploadScreen`. These need to be fixed before the backend is wired.
+The codebase has a clean folder structure and correct type definitions. However, several patterns will cause real problems at integration time - particularly the hardcoded mock data in `ResultScreen`, the navigation-based coupling across all screens, and the missing implementation in `UploadScreen`. These need to be fixed before the backend is wired.
 
 **Verdict:** Structure is sound. Execution has 4 critical issues and 6 moderate issues.
 
@@ -13,17 +13,17 @@ The codebase has a clean folder structure and correct type definitions. However,
 
 ## 1. Reusability Issues
 
-### `ColorChip` — no `variant` prop
+### `ColorChip` - no `variant` prop
 **File:** `components/ColorChip.tsx`
 
 The component renders identically for "best" and "avoid" colors. On `ResultScreen`, both lists use the same chip with no visual distinction. A `variant` prop is needed.
 
 ```tsx
-// Current — caller cannot distinguish best from avoid
+// Current - caller cannot distinguish best from avoid
 <ColorChip color="olive" />
 <ColorChip color="neon" />
 
-// Fix — add variant
+// Fix - add variant
 interface Props {
   color: string;
   variant: 'best' | 'avoid';
@@ -33,7 +33,7 @@ interface Props {
 
 ---
 
-### `Button` — loading state uses hardcoded spinner color
+### `Button` - loading state uses hardcoded spinner color
 **File:** `components/Button.tsx`
 
 ```tsx
@@ -48,10 +48,10 @@ This hardcodes white. If the button ever uses a light background, the spinner is
 
 ---
 
-### `OutfitCard` — no icon or secondary content slot
+### `OutfitCard` - no icon or secondary content slot
 **File:** `components/OutfitCard.tsx`
 
-The card renders a single text string. The PRD calls for outfit suggestions — a common V2 extension is adding a category icon or tag. Without a `children` slot or `icon` prop, every extension requires editing this file.
+The card renders a single text string. The PRD calls for outfit suggestions - a common V2 extension is adding a category icon or tag. Without a `children` slot or `icon` prop, every extension requires editing this file.
 
 **Recommendation:** Add an optional `tag?: string` prop now. Zero breaking change.
 
@@ -59,10 +59,10 @@ The card renders a single text string. The PRD calls for outfit suggestions — 
 
 ## 2. Naming Inconsistencies
 
-### `outfit` vs `suggestion` — prop name mismatch with types
+### `outfit` vs `suggestion` - prop name mismatch with types
 **File:** `components/OutfitCard.tsx`, `types/index.ts`
 
-`AnalysisResult` defines the field as `outfits: string[]`. The `OutfitCard` prop is named `outfit`. The `ResultScreen` maps with `outfit={o}`. This is consistent _by accident_ — a rename in types would break silently.
+`AnalysisResult` defines the field as `outfits: string[]`. The `OutfitCard` prop is named `outfit`. The `ResultScreen` maps with `outfit={o}`. This is consistent _by accident_ - a rename in types would break silently.
 
 ```tsx
 // types/index.ts
@@ -74,29 +74,29 @@ interface Props {
 }
 ```
 
-**Fix:** Decide on one term — `outfit` or `suggestion` — and use it in both `types/index.ts` and the component prop. `outfit` is fine; just make it explicit.
+**Fix:** Decide on one term - `outfit` or `suggestion` - and use it in both `types/index.ts` and the component prop. `outfit` is fine; just make it explicit.
 
 ---
 
-### `TextButton` — defined in folder structure, never implemented or imported
+### `TextButton` - defined in folder structure, never implemented or imported
 **Files:** `components/TextButton.tsx` (absent from code), `screens/HomeScreen.tsx`
 
-`HomeScreen` imports and uses `TextButton`, but no implementation was provided. This is a silent build break. Even if it exists, it's not reviewed here — it needs to be treated as incomplete.
+`HomeScreen` imports and uses `TextButton`, but no implementation was provided. This is a silent build break. Even if it exists, it's not reviewed here - it needs to be treated as incomplete.
 
 ---
 
-### `UploadBox` component — exists in folder, never used
+### `UploadBox` component - exists in folder, never used
 **File:** `components/UploadBox.tsx`
 
 `UploadScreen.tsx` renders an inline `<View>` with `<Text>Select Image</Text>` instead of using the `UploadBox` component that exists in `components/`. This means `UploadBox` is dead code, and `UploadScreen` has no real upload logic.
 
 ```tsx
-// UploadScreen.tsx — current (wrong)
+// UploadScreen.tsx - current (wrong)
 <View style={styles.uploadBox}>
   <Text>Select Image</Text>
 </View>
 
-// Fix — use the actual component
+// Fix - use the actual component
 import { UploadBox } from '../components/UploadBox';
 <UploadBox onImageSelected={(uri) => setImage(uri)} />
 ```
@@ -105,7 +105,7 @@ import { UploadBox } from '../components/UploadBox';
 
 ## 3. Component Coupling
 
-### `ProcessingScreen` — hardcoded `setTimeout` navigation ⚠️ Critical
+### `ProcessingScreen` - hardcoded `setTimeout` navigation ⚠️ Critical
 **File:** `screens/ProcessingScreen.tsx`
 
 ```tsx
@@ -121,7 +121,7 @@ This is the most dangerous pattern in the codebase. The screen:
 - Does not wait for a real result
 - Navigates after an arbitrary 2-second delay unconditionally
 
-When the backend is wired, this screen must watch actual async state — not a timer. If the API takes 3 seconds, the app navigates to `ResultScreen` before data exists.
+When the backend is wired, this screen must watch actual async state - not a timer. If the API takes 3 seconds, the app navigates to `ResultScreen` before data exists.
 
 **Fix:** `ProcessingScreen` should watch a `status` value from context, not use a timeout.
 
@@ -136,7 +136,7 @@ useEffect(() => {
 
 ---
 
-### `ResultScreen` — hardcoded mock data ⚠️ Critical
+### `ResultScreen` - hardcoded mock data ⚠️ Critical
 **File:** `screens/ResultScreen.tsx`
 
 ```tsx
@@ -149,7 +149,7 @@ const data = {
 };
 ```
 
-This data is hardcoded. The screen will always show `medium/warm` regardless of what the user selected or what the API returns. When backend integration begins, this will silently show wrong results — not an error.
+This data is hardcoded. The screen will always show `medium/warm` regardless of what the user selected or what the API returns. When backend integration begins, this will silently show wrong results - not an error.
 
 **Fix:** Read from context.
 
@@ -160,13 +160,13 @@ if (!result) return <Loader />;
 
 ---
 
-### `ManualScreen` — local state instead of context ⚠️ Critical
+### `ManualScreen` - local state instead of context ⚠️ Critical
 **File:** `screens/ManualScreen.tsx`
 
-`skinTone` and `undertone` are stored in local `useState`. When the user taps "Get Results" and navigates to `ProcessingScreen`, this data is lost — nothing passes it to the API or to shared state.
+`skinTone` and `undertone` are stored in local `useState`. When the user taps "Get Results" and navigates to `ProcessingScreen`, this data is lost - nothing passes it to the API or to shared state.
 
 ```tsx
-// Current — data dies on navigation
+// Current - data dies on navigation
 const [skinTone, setSkinTone] = useState<string | null>(null);
 ```
 
@@ -194,7 +194,7 @@ And export `RootStackParamList` from `AppNavigator.tsx`.
 
 ## 4. Performance Risks
 
-### `ResultScreen` — inline `map` with `key={c}` on color strings
+### `ResultScreen` - inline `map` with `key={c}` on color strings
 **File:** `screens/ResultScreen.tsx`
 
 ```tsx
@@ -209,7 +209,7 @@ Using the color name as a key works only if color names are unique within the li
 
 ---
 
-### `UploadScreen` — `image` state initialized to `null`, no `useImagePicker` hook used
+### `UploadScreen` - `image` state initialized to `null`, no `useImagePicker` hook used
 **File:** `screens/UploadScreen.tsx`
 
 The hook `hooks/useImagePicker.ts` exists but is not imported here. The screen manually manages an image state that never gets set (no picker is invoked). This means `disabled={!image}` on the Continue button will always be `true`.
@@ -220,7 +220,7 @@ The hook `hooks/useImagePicker.ts` exists but is not imported here. The screen m
 
 ## 5. Technical Debt
 
-### `constants/colors.ts` — referenced but `COLORS.primary` value is unknown
+### `constants/colors.ts` - referenced but `COLORS.primary` value is unknown
 **File:** `components/Button.tsx`
 
 ```tsx
@@ -231,7 +231,7 @@ backgroundColor: COLORS.primary,
 
 ---
 
-### `validators.ts` — not connected to any screen
+### `validators.ts` - not connected to any screen
 **File:** `utils/validators.ts`
 
 The file exists in the folder structure but is not imported anywhere in the provided screens. Validation currently happens only via `disabled={!isValid}` boolean checks. Before backend wiring, `validators.ts` needs to export and be used for:
@@ -240,7 +240,7 @@ The file exists in the folder structure but is not imported anywhere in the prov
 
 ---
 
-### `useImagePicker.ts` — not implemented in this review
+### `useImagePicker.ts` - not implemented in this review
 **File:** `hooks/useImagePicker.ts`
 
 Permissions handling for camera/media library must be in this hook, not in the screen. On iOS and Android, calling the image picker without requesting permission first throws a runtime error. The hook must:
@@ -254,12 +254,12 @@ Permissions handling for camera/media library must be in this hook, not in the s
 
 | # | File | Issue | Priority |
 |---|------|-------|----------|
-| 1 | `ProcessingScreen.tsx` | Hardcoded setTimeout — no API wait | 🔴 Critical |
-| 2 | `ResultScreen.tsx` | Hardcoded mock data — never reads real result | 🔴 Critical |
+| 1 | `ProcessingScreen.tsx` | Hardcoded setTimeout - no API wait | 🔴 Critical |
+| 2 | `ResultScreen.tsx` | Hardcoded mock data - never reads real result | 🔴 Critical |
 | 3 | `ManualScreen.tsx` | Local state never reaches API or context | 🔴 Critical |
 | 4 | `UploadScreen.tsx` | `UploadBox` component unused; picker never invoked | 🔴 Critical |
-| 5 | All screens | `navigation: any` — no type safety on routes | 🟡 Moderate |
-| 6 | `ColorChip.tsx` | No `variant` prop — best/avoid visually identical | 🟡 Moderate |
+| 5 | All screens | `navigation: any` - no type safety on routes | 🟡 Moderate |
+| 6 | `ColorChip.tsx` | No `variant` prop - best/avoid visually identical | 🟡 Moderate |
 | 7 | `useImagePicker.ts` | Permissions not handled | 🟡 Moderate |
 | 8 | `validators.ts` | Exists but wired to nothing | 🟡 Moderate |
 | 9 | `Button.tsx` | Hardcoded spinner color `#fff` | 🟢 Low |
@@ -271,11 +271,11 @@ Permissions handling for camera/media library must be in this hook, not in the s
 
 The following are correct and should not be modified:
 
-- `types/index.ts` — `SkinTone`, `Undertone`, `AnalysisResult` are properly typed
-- `AppNavigator.tsx` — Stack structure and screen order are correct
-- `components/Loader.tsx` — Simple and sufficient for V1
-- Folder structure — Clean separation, scales correctly
-- `Button.tsx` — `disabled || loading` guard is correct
+- `types/index.ts` - `SkinTone`, `Undertone`, `AnalysisResult` are properly typed
+- `AppNavigator.tsx` - Stack structure and screen order are correct
+- `components/Loader.tsx` - Simple and sufficient for V1
+- Folder structure - Clean separation, scales correctly
+- `Button.tsx` - `disabled || loading` guard is correct
 
 ---
 

@@ -33,13 +33,13 @@ export const supabase = createClient(
 
 `client/src/lib/auth-context.tsx` provides a React Context that wraps the entire app and exposes:
 
-- `user` — the current authenticated user (or `null` if unauthenticated)
-- `session` — the current Supabase session (includes the access token)
-- `signIn(email, password)` — email/password login
-- `signUp(email, password)` — registration
-- `signInWithGoogle()` — Google OAuth redirect
-- `signOut()` — log out and clear session
-- `loading` — `true` while the initial session check is in progress
+- `user` - the current authenticated user (or `null` if unauthenticated)
+- `session` - the current Supabase session (includes the access token)
+- `signIn(email, password)` - email/password login
+- `signUp(email, password)` - registration
+- `signInWithGoogle()` - Google OAuth redirect
+- `signOut()` - log out and clear session
+- `loading` - `true` while the initial session check is in progress
 
 The context subscribes to `supabase.auth.onAuthStateChange()` to keep state in sync with Supabase's internal session management.
 
@@ -88,7 +88,7 @@ next();
 
 ---
 
-## Auth Flow — Email/Password
+## Auth Flow - Email/Password
 
 ```
 1. User fills signup form (email + password)
@@ -100,7 +100,7 @@ next();
 
 ---
 
-## Auth Flow — Google OAuth
+## Auth Flow - Google OAuth
 
 ```
 1. User clicks "Continue with Google"
@@ -135,13 +135,13 @@ Custom Supabase email templates for verification and reset are in `client/supaba
 | `NEXT_PUBLIC_SUPABASE_URL` | `client/.env.local` | Supabase project URL (public) |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | `client/.env.local` | Supabase anon key (public) |
 | `SUPABASE_URL` | `server/.env` | Supabase project URL (server) |
-| `SUPABASE_SERVICE_ROLE_KEY` | `server/.env` | Service role key — **never expose client-side** |
+| `SUPABASE_SERVICE_ROLE_KEY` | `server/.env` | Service role key - **never expose client-side** |
 
 ---
 
 ## Security Notes
 
 - The **service role key** is only used server-side and bypasses Row Level Security. It must never be exposed to the client.
-- The **anon key** is safe to expose client-side — it only has permissions defined by Supabase's Row Level Security policies.
+- The **anon key** is safe to expose client-side - it only has permissions defined by Supabase's Row Level Security policies.
 - JWTs expire according to Supabase's configured session duration. The Supabase JS client handles automatic token refresh.
-- All API calls from the client include the JWT — the server re-validates it on every request; the client is never trusted implicitly.
+- All API calls from the client include the JWT - the server re-validates it on every request; the client is never trusted implicitly.
