@@ -389,7 +389,8 @@ router.post("/upload", authMiddleware, upload.single("image"), async (req: Authe
 
     let cloudinaryPublicId = "";
     try {
-      const uploaded = await uploadImage(tempFilePath);
+      const imageBuffer = await fs.readFile(tempFilePath);
+      const uploaded = await uploadImage(imageBuffer);
       cloudinaryPublicId = uploaded.publicId;
     } catch (error) {
       console.warn(`[analysis/upload][${reqId}] Cloudinary upload skipped: ${describeError(error)}`);
