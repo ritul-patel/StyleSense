@@ -9,7 +9,7 @@ import { z } from "zod";
 import * as db from "../utils/db";
 import { getRecommendation, type RecommendationResult } from "../engine/recommendationEngine";
 import type { AnalysisPayload, ColorEntry, AvoidColor, Outfit, Material, Accessory } from "../types/analysis";
-import { uploadImage } from "../utils/cloudinary";
+import { getImageUrl, uploadImage } from "../utils/cloudinary";
 import { AppError } from "../utils/AppError";
 import { authMiddleware, optionalAuthMiddleware, type AuthenticatedRequest } from "../middleware/auth";
 
@@ -57,7 +57,7 @@ const upload = multer({
   },
 });
 
-type AnalysesCaps = { hasResult: boolean; hasUserId: boolean };
+type AnalysesCaps = { hasResult: boolean; hasUserId: boolean; hasCloudinaryPublicId: boolean };
 let analysesCapsCache: AnalysesCaps | null = null;
 
 type ExecFileError = Error & {
@@ -208,34 +208,51 @@ async function analysesCaps(reqId: string): Promise<AnalysesCaps> {
   const cols = new Set(q.rows.map((r) => String(r.column_name || "")));
   const hasResult = cols.has("result");
   const hasUserId = cols.has("user_id");
+  const hasCloudinaryPublicId = cols.has("cloudinary_public_id");
   console.log(`[analysis/db][${reqId}] analysesCaps - hasResult: ${hasResult} | hasUserId: ${hasUserId} | columns: [${[...cols].join(", ")}]`);
   if (!hasResult) console.warn(`[analysis/db][${reqId}] analyses.result column missing - result JSONB will NOT be saved or read. Run the schema SQL migration.`);
+  if (!hasCloudinaryPublicId) console.warn(`[analysis/db][${reqId}] analyses.cloudinary_public_id column missing - secure image references will not be persisted.`);
   // Only cache permanently when all expected columns exist.
   // If a column is missing the schema migration may not have run yet - re-check next request.
-  if (hasResult && hasUserId) {
-    analysesCapsCache = { hasResult, hasUserId };
+  if (hasResult && hasUserId && hasCloudinaryPublicId) {
+    analysesCapsCache = { hasResult, hasUserId, hasCloudinaryPublicId };
   }
-  return { hasResult, hasUserId };
+  return { hasResult, hasUserId, hasCloudinaryPublicId };
 }
-async function saveAnalysis(data: AnalysisPayload, imageUrl: string, userId: string | undefined, reqId: string) {
+async function saveAnalysis(
+  data: AnalysisPayload,
+  cloudinaryPublicId: string,
+  userId: string | undefined,
+  reqId: string,
+) {
   const caps = await analysesCaps(reqId);
-  console.log(`[analysis/db][${reqId}] Saving analysis. hasResult: ${caps.hasResult} | user_id: ${userId || "anonymous"} | skin_tone: ${data.skin_tone} | season: ${data.season} | best_colors: ${data.best_colors?.length ?? 0} | outfits: ${data.outfits?.length ?? 0}`);
+  console.log(`[analysis/db][${reqId}] Saving analysis. hasResult: ${caps.hasResult} | hasCloudinaryPublicId: ${caps.hasCloudinaryPublicId} | user_id: ${userId || "anonymous"} | skin_tone: ${data.skin_tone} | season: ${data.season} | best_colors: ${data.best_colors?.length ?? 0} | outfits: ${data.outfits?.length ?? 0}`);
+
   const cols = ["image_url", "skin_tone", "undertone"];
-  const vals: unknown[] = [imageUrl, data.skin_tone, data.undertone];
+  const vals: unknown[] = ["", data.skin_tone, data.undertone];
   const placeholders = ["$1", "$2", "$3"];
+
+  if (caps.hasCloudinaryPublicId) {
+    cols.push("cloudinary_public_id");
+    vals.push(cloudinaryPublicId);
+    placeholders.push(`$${vals.length}`);
+  }
+
   if (caps.hasResult) {
     cols.push("result");
     vals.push(JSON.stringify(data));
     placeholders.push(`$${vals.length}::jsonb`);
   }
+
   if (caps.hasUserId && userId) {
     cols.push("user_id");
     vals.push(userId);
     placeholders.push(`$${vals.length}`);
   }
+
   const ins = await db.query(
     `INSERT INTO analyses (${cols.join(",")}) VALUES (${placeholders.join(",")}) RETURNING id`,
-    vals as any[]
+    vals as any[],
   );
   const savedId = String(ins.rows[0]?.id || "").trim();
   console.log(`[analysis/db][${reqId}] Analysis saved. analysisId: ${savedId || "none"} | user_id: ${userId || "anonymous"}`);
@@ -370,9 +387,11 @@ router.post("/upload", authMiddleware, upload.single("image"), async (req: Authe
     });
     const data = buildData(detected, recommendation);
 
-    let imageUrl = "";
+    let cloudinaryPublicId = "";
     try {
-      imageUrl = await uploadImage(tempFilePath);
+      const imageBuffer = await fs.readFile(tempFilePath);
+      const uploaded = await uploadImage(imageBuffer);
+      cloudinaryPublicId = uploaded.publicId;
     } catch (error) {
       console.warn(`[analysis/upload][${reqId}] Cloudinary upload skipped: ${describeError(error)}`);
     }
@@ -380,13 +399,16 @@ router.post("/upload", authMiddleware, upload.single("image"), async (req: Authe
     let analysisId: string | null = null;
     let saveWarning: string | undefined;
     try {
-      analysisId = (await saveAnalysis(data, imageUrl, req.user?.id, reqId)) || null;
+      if (!cloudinaryPublicId) {
+        throw new AppError("Image could not be securely stored. Please try again.", 502);
+      }
+      analysisId = (await saveAnalysis(data, cloudinaryPublicId, req.user?.id, reqId)) || null;
     } catch (error) {
       console.error(`[analysis/upload][${reqId}] DB save failed:`, describeError(error));
       saveWarning = "Your analysis was completed but could not be saved to history. Results are shown below.";
     }
 
-    console.log(`[analysis/upload][${reqId}] success in ${Date.now() - requestStartedAt}ms | saved=${Boolean(analysisId)} | imageUploaded=${Boolean(imageUrl)}`);
+    console.log(`[analysis/upload][${reqId}] success in ${Date.now() - requestStartedAt}ms | saved=${Boolean(analysisId)} | imageUploaded=${Boolean(cloudinaryPublicId)}`);
     return res.json({ success: true, analysisId, data, requestId: reqId, ...(saveWarning ? { warning: saveWarning } : {}) });
   } catch (error) {
     console.error(`[analysis/upload][${reqId}] fatal: ${describeError(error)}`);
@@ -480,16 +502,32 @@ router.get("/result/:id", optionalAuthMiddleware, async (req: AuthenticatedReque
     let where = "id = $1";
     if (caps.hasUserId && req.user?.id) { params.push(req.user.id); where += ` AND user_id = $${params.length}`; }
     const fields = caps.hasResult
-      ? "id,image_url,skin_tone,undertone,created_at,result"
-      : "id,image_url,skin_tone,undertone,created_at";
+      ? "id,image_url,cloudinary_public_id,skin_tone,undertone,created_at,result"
+      : "id,image_url,cloudinary_public_id,skin_tone,undertone,created_at";
     const q = await db.query(`SELECT ${fields} FROM analyses WHERE ${where} LIMIT 1`, params as any[]);
     if (!q.rows[0]) throw new AppError("Analysis not found.", 404);
     const row = q.rows[0];
     const parsed = resultFromUnknown(row.result);
+    let imageUrl: string | null = null;
+    if (row.cloudinary_public_id) {
+      try {
+        imageUrl = getImageUrl(String(row.cloudinary_public_id));
+      } catch (error) {
+        console.error(`[analysis/result][${reqId}] Failed to sign image URL:`, describeError(error));
+      }
+    }
+
     return res.json({
       success: true,
       analysisId: String(row.id),
-      analysis: { id: String(row.id), image_url: row.image_url || null, skin_tone: row.skin_tone || parsed.skin_tone || "Unknown", undertone: row.undertone || parsed.undertone || "Unknown", created_at: row.created_at ? new Date(String(row.created_at)).toISOString() : null },
+      analysis: {
+        id: String(row.id),
+        image_url: imageUrl,
+        cloudinary_public_id: row.cloudinary_public_id || null,
+        skin_tone: row.skin_tone || parsed.skin_tone || "Unknown",
+        undertone: row.undertone || parsed.undertone || "Unknown",
+        created_at: row.created_at ? new Date(String(row.created_at)).toISOString() : null,
+      },
       result: { season: parsed.season || "Unspecified", confidence: parsed.confidence || 0, rgb: parsed.rgb || DEFAULT_RGB, hex: parsed.hex || DEFAULT_HEX, best_colors: parsed.best_colors || [], avoid_colors: parsed.avoid_colors || [], outfits: parsed.outfits || [], style_rules: parsed.style_rules || [], season_explanation: parsed.season_explanation || "", materials: parsed.materials || [], accessories: parsed.accessories || [] },
       requestId: reqId,
     });
@@ -508,7 +546,7 @@ router.get("/:id", optionalAuthMiddleware, async (req: AuthenticatedRequest, res
     const params: unknown[] = [analysisId];
     let where = "id = $1";
     if (caps.hasUserId && req.user?.id) { params.push(req.user.id); where += ` AND user_id = $${params.length}`; }
-    const fields = caps.hasResult ? "id,result,skin_tone,undertone" : "id,skin_tone,undertone";
+    const fields = caps.hasResult ? "id,result,skin_tone,undertone,cloudinary_public_id" : "id,skin_tone,undertone,cloudinary_public_id";
     const q = await db.query(`SELECT ${fields} FROM analyses WHERE ${where} LIMIT 1`, params as any[]);
     if (!q.rows[0]) throw new AppError("Analysis not found.", 404);
     const row = q.rows[0];
@@ -533,7 +571,17 @@ router.get("/:id", optionalAuthMiddleware, async (req: AuthenticatedRequest, res
       skin_description: parsed.skin_description,
       next_steps: parsed.next_steps,
     };
-    return res.json({ success: true, analysisId: String(row.id), data, requestId: reqId });
+    const imageUrl = row.cloudinary_public_id
+      ? getImageUrl(String(row.cloudinary_public_id))
+      : null;
+
+    return res.json({
+      success: true,
+      analysisId: String(row.id),
+      data,
+      image_url: imageUrl,
+      requestId: reqId,
+    });
   } catch (error) {
     const appError = error instanceof AppError ? error : new AppError("Failed to fetch analysis.", 500);
     return sendError(res, appError.statusCode, appError.message, reqId);

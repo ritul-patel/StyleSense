@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
 import sharp from 'sharp';
+import { randomUUID } from 'crypto';
 import { Readable } from 'stream';
 
 dotenv.config();
@@ -11,8 +12,9 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const cloudinaryFolder = process.env.CLOUDINARY_FOLDER || 'stylesense';
+const cloudinaryFolder = process.env.CLOUDINARY_FOLDER || 'stylesense_uploads';
 const uploadTimeoutMs = Number(process.env.CLOUDINARY_UPLOAD_TIMEOUT_MS || 30000);
+const imageUrlTtlSeconds = 600;
 
 function assertCloudinaryConfig() {
   if (
@@ -24,10 +26,21 @@ function assertCloudinaryConfig() {
   }
 }
 
-export const uploadImage = async (filePath: string): Promise<string> => {
+function assertPublicId(publicId: string) {
+  if (!publicId || !publicId.trim()) {
+    throw new Error('Cloudinary public ID is required.');
+  }
+}
+
+export type CloudinaryImage = {
+  publicId: string;
+  resourceType: 'image';
+};
+
+export const uploadImage = async (input: Buffer | Readable): Promise<CloudinaryImage> => {
   assertCloudinaryConfig();
 
-  const optimizedBuffer = await sharp(filePath)
+  const optimizedBuffer = await sharp(input)
     .rotate()
     .resize({
       width: 1600,
@@ -38,11 +51,16 @@ export const uploadImage = async (filePath: string): Promise<string> => {
     .jpeg({ quality: 85 })
     .toBuffer();
 
-  const uploadPromise = new Promise<string>((resolve, reject) => {
+  const publicId = `${cloudinaryFolder}/${randomUUID()}`;
+
+  const uploadPromise = new Promise<CloudinaryImage>((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        folder: cloudinaryFolder,
+        public_id: publicId,
         resource_type: 'image',
+        type: 'authenticated',
+        overwrite: false,
+        invalidate: true,
       },
       (error, result) => {
         if (error) {
@@ -50,23 +68,63 @@ export const uploadImage = async (filePath: string): Promise<string> => {
           return;
         }
 
-        if (!result?.secure_url) {
-          reject(new Error('Cloudinary upload completed without a secure URL.'));
+        if (!result?.public_id) {
+          reject(new Error('Cloudinary upload completed without a public ID.'));
           return;
         }
 
-        resolve(result.secure_url);
-      }
+        resolve({
+          publicId: result.public_id,
+          resourceType: 'image',
+        });
+      },
     );
 
     Readable.from(optimizedBuffer).pipe(uploadStream);
   });
 
-  const timeoutPromise = new Promise<string>((_, reject) => {
-    setTimeout(() => {
+  let timeoutHandle: NodeJS.Timeout | undefined;
+  const timeoutPromise = new Promise<CloudinaryImage>((_, reject) => {
+    timeoutHandle = setTimeout(() => {
       reject(new Error(`Cloudinary upload timed out after ${uploadTimeoutMs}ms.`));
     }, uploadTimeoutMs);
   });
 
-  return Promise.race([uploadPromise, timeoutPromise]);
+  try {
+    return await Promise.race([uploadPromise, timeoutPromise]);
+  } finally {
+    if (timeoutHandle) clearTimeout(timeoutHandle);
+  }
 };
+
+export const getImageUrl = (publicId: string): string => {
+  assertCloudinaryConfig();
+  assertPublicId(publicId);
+
+  return cloudinary.url(publicId, {
+    resource_type: 'image',
+    type: 'authenticated',
+    secure: true,
+    sign_url: true,
+    auth_token: {
+      duration: imageUrlTtlSeconds,
+    },
+  });
+};
+
+export const deleteImage = async (publicId: string): Promise<void> => {
+  assertCloudinaryConfig();
+  assertPublicId(publicId);
+
+  const result = await cloudinary.uploader.destroy(publicId, {
+    resource_type: 'image',
+    type: 'authenticated',
+    invalidate: true,
+  });
+
+  if (result.result !== 'ok' && result.result !== 'not found') {
+    throw new Error(`Cloudinary deletion failed: ${result.result}`);
+  }
+};
+
+export const CLOUDINARY_IMAGE_URL_TTL_SECONDS = imageUrlTtlSeconds;

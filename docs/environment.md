@@ -50,14 +50,14 @@ Copy `server/.env.example` to `server/.env` to get started.
 | `GEMINI_MODEL` | - | `gemini-2.5-flash` | Gemini model to use for metadata generation. |
 | `ANTHROPIC_API_KEY` | - | - | Anthropic Claude API key. Used for secondary AI integration. |
 
-### Image Storage (Legacy)
+### Image Storage
 
 | Variable | Required | Description |
 |---|---|---|
 | `CLOUDINARY_CLOUD_NAME` | - | Cloudinary cloud name. Required if using the Cloudinary upload flow. |
 | `CLOUDINARY_API_KEY` | - | Cloudinary API key. |
 | `CLOUDINARY_API_SECRET` | - | Cloudinary API secret. |
-| `CLOUDINARY_FOLDER` | - | Cloudinary folder for uploads (default: `stylesense`). |
+| `CLOUDINARY_FOLDER` | - | Private Cloudinary namespace for analysis uploads (default: `stylesense_uploads`). |\n| `CLOUDINARY_UPLOAD_TIMEOUT_MS` | - | Cloudinary upload timeout in milliseconds (default: `30000`). |
 
 ### Runtime Tuning
 
