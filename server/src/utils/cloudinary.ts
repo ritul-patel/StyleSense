@@ -37,10 +37,10 @@ export type CloudinaryImage = {
   resourceType: 'image';
 };
 
-export const uploadImage = async (filePath: string): Promise<CloudinaryImage> => {
+export const uploadImage = async (input: Buffer | Readable): Promise<CloudinaryImage> => {
   assertCloudinaryConfig();
 
-  const optimizedBuffer = await sharp(filePath)
+  const optimizedBuffer = await sharp(input)
     .rotate()
     .resize({
       width: 1600,
