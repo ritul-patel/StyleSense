@@ -1,6 +1,7 @@
 import { Router, type Response } from "express";
 import * as db from "../utils/db";
 import { authMiddleware, type AuthenticatedRequest } from "../middleware/auth";
+import { deleteImage } from "../utils/cloudinary";
 
 const router = Router();
 router.use(authMiddleware);
@@ -111,13 +112,28 @@ router.post("/delete", async (req: AuthenticatedRequest, res: Response) => {
 
     await client.query("BEGIN");
 
-    // Soft delete: mark profile as deleted
+    // Delete private analysis images before committing the account deletion.
+    const imageQ = await client.query(
+      `SELECT cloudinary_public_id
+       FROM analyses
+       WHERE user_id = $1
+         AND cloudinary_public_id IS NOT NULL
+         AND btrim(cloudinary_public_id) <> ''`,
+      [userId],
+    );
+
+    for (const row of imageQ.rows) {
+      await deleteImage(String(row.cloudinary_public_id));
+    }
+
+    // Soft delete: mark profile as deleted.
     await client.query(
       `UPDATE profiles SET is_deleted = true, deleted_at = now() WHERE id = $1`,
       [userId]
     );
 
-    // Delete wardrobe data (all within the same transaction)
+    // Delete analysis history and all wardrobe data in the same transaction.
+    await client.query(`DELETE FROM analyses WHERE user_id = $1`, [userId]);
     await client.query(`DELETE FROM wardrobe_items WHERE user_id = $1`, [userId]);
     await client.query(`DELETE FROM closet_items WHERE user_id = $1`, [userId]);
     await client.query(`DELETE FROM outfit_builds WHERE user_id = $1`, [userId]);
@@ -138,6 +154,20 @@ router.post("/delete", async (req: AuthenticatedRequest, res: Response) => {
 router.delete("/history", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user!.id;
+
+    const imageQ = await db.query(
+      `SELECT cloudinary_public_id
+       FROM analyses
+       WHERE user_id = $1
+         AND cloudinary_public_id IS NOT NULL
+         AND btrim(cloudinary_public_id) <> ''`,
+      [userId],
+    );
+
+    for (const row of imageQ.rows) {
+      await deleteImage(String(row.cloudinary_public_id));
+    }
+
     await db.query(`DELETE FROM analyses WHERE user_id = $1`, [userId]);
     return res.json({ success: true });
   } catch (err: any) {
