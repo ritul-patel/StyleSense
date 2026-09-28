@@ -26,6 +26,19 @@ function assertCloudinaryConfig() {
   }
 }
 
+async function toInputBuffer(input: Buffer | Readable): Promise<Buffer> {
+  if (Buffer.isBuffer(input)) {
+    return input;
+  }
+
+  const chunks: Buffer[] = [];
+  for await (const chunk of input) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+
+  return Buffer.concat(chunks);
+}
+
 function assertPublicId(publicId: string) {
   if (!publicId || !publicId.trim()) {
     throw new Error('Cloudinary public ID is required.');
@@ -40,7 +53,8 @@ export type CloudinaryImage = {
 export const uploadImage = async (input: Buffer | Readable): Promise<CloudinaryImage> => {
   assertCloudinaryConfig();
 
-  const optimizedBuffer = await sharp(input)
+  const inputBuffer = await toInputBuffer(input);
+  const optimizedBuffer = await sharp(inputBuffer as unknown as Buffer<ArrayBuffer>)
     .rotate()
     .resize({
       width: 1600,
