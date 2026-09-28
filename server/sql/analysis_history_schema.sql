@@ -10,6 +10,7 @@ create table if not exists public.analyses (
   undertone text not null,
   result jsonb not null default '{}'::jsonb,
   image_url text,
+  cloudinary_public_id text,
   created_at timestamptz not null default now()
 );
 
@@ -19,6 +20,7 @@ alter table public.analyses
   add column if not exists user_id uuid,
   add column if not exists result jsonb default '{}'::jsonb,
   add column if not exists image_url text,
+  add column if not exists cloudinary_public_id text,
   add column if not exists created_at timestamptz not null default now();
 
 create index if not exists idx_analyses_created_at on public.analyses (created_at desc);
@@ -49,3 +51,7 @@ begin
       add constraint results_analysis_id_key unique (analysis_id);
   end if;
 end $$;
+
+
+create index if not exists idx_analyses_cloudinary_public_id
+  on public.analyses (cloudinary_public_id);
